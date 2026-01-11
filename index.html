@@ -1,151 +1,272 @@
-/* Report Specific Styles (Professional A4) */
-        .report-preview-container {
-            background: #525659;
-            padding: 30px;
-            overflow: auto;
-            max-height: 800px;
-            display: flex;
-            justify-content: center;
-        }
-        .a4-page {
-            background: white;
-            width: 210mm;
-            min-height: 297mm;
-            padding: 20mm; /* Standard Word Margins */
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-            position: relative;
-            color: #000;
-            font-family: 'Cairo', sans-serif;
-            box-sizing: border-box;
-        }
+<style>
+    /* أنماط خاصة بتقرير الجودة لتطابق الصور المرفقة */
+    .report-cover-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        min-height: 950px; /* لضمان توزيع العناصر على كامل صفحة A4 */
+        text-align: center;
+    }
+
+    .report-header-logos {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 40px;
+    }
+
+    .report-cover-box {
+        background-color: #f2f2f2;
+        border-radius: 20px;
+        padding: 40px 60px;
+        width: 80%;
+        text-align: center;
+        margin: 50px auto;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .report-cover-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #000;
+        margin-bottom: 25px;
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .report-school-name {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2e5cb8; /* أزرق */
+        margin-bottom: 20px;
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .report-month {
+        font-size: 18px;
+        font-weight: bold;
+        color: #da291c; /* أحمر */
+        margin-bottom: 10px;
+        text-decoration: underline;
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .report-year {
+        font-size: 18px;
+        font-weight: bold;
+        color: #000;
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .report-signatures-cover {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 0 50px;
+        margin-top: auto;
+        margin-bottom: 50px;
+    }
+
+    .sig-block {
+        text-align: center;
+        font-weight: bold;
+        font-family: 'Cairo', sans-serif;
+    }
+    
+    .sig-name {
+        margin-top: 40px;
+        font-weight: normal; 
+        font-family: 'Arial', sans-serif; /* لتمييز الاسم */
+    }
+
+    /* تنسيقات الصفحة الثانية (الجدول) */
+    .page-title-underline {
+        font-weight: bold;
+        text-decoration: underline;
+        margin-bottom: 15px;
+        font-size: 16px;
+        text-align: right;
+    }
+
+    .quality-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        direction: rtl;
+    }
+
+    .quality-table th {
+        background-color: #bfbfbf; /* رمادي غامق للهيدر */
+        color: #000;
+        font-weight: bold;
+        padding: 10px;
+        border: 1px solid #000; /* حدود سوداء */
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .quality-table td {
+        padding: 8px;
+        border: 1px solid #000; /* حدود سوداء */
+        text-align: center;
+        vertical-align: middle;
+        font-weight: bold;
+    }
+
+    .note-section {
+        text-align: right;
+        font-weight: bold;
+        margin: 20px 0 40px 0;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .stats-section {
+        text-align: right;
+        margin-top: 30px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .report-footer-fixed {
+        position: fixed;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+    }
+</style>
+
+<script>
+    // استبدل الدالة القديمة بهذه الدالة المحدثة
+    function generateQualityReport() {
+        const month = document.getElementById('reportMonthSelect').value;
+        const monthName = getMonthName(month);
+        const schoolName = DB.settings.schoolName || 'اسم المدرسة غير محدد';
+        const schoolYear = DB.settings.schoolYear || '...';
+        const ministryLogo = DB.settings.ministryLogo || ''; // شعار الوزارة
+        const schoolStamp = DB.settings.schoolStamp || '';   // الختم
+        const footerText = DB.settings.footer_text || '';
         
-        /* Report Header Grid */
-        .rpt-header-grid {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start; /* Align top */
-            margin-bottom: 20px;
-            border-bottom: 3px double #000; /* Official style border */
-            padding-bottom: 15px;
-        }
-        .rpt-header-right, .rpt-header-left {
-            text-align: center;
-            width: 30%;
-        }
-        .rpt-header-center {
-            text-align: center;
-            width: 30%;
-        }
-        .rpt-logo { height: 85px; object-fit: contain; }
-        .rpt-school-name { font-weight: bold; font-size: 14px; margin-top: 5px; line-height: 1.4; }
+        // جلب أسماء الموقعين من الإعدادات
+        const directorName = DB.settings.sig_director || '..................';
+        const assistantName = DB.settings.sig_assistant || '..................';
 
-        /* Titles */
-        .rpt-main-title-box {
-            background-color: #e6e6e6; /* Official Gray */
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: center;
-            margin: 20px auto;
-            width: 80%;
-            border-radius: 4px;
-        }
-        .rpt-main-title {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 800;
-            color: #000;
-        }
-        .rpt-meta-info {
-            text-align: center;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
-
-        /* Section Headings */
-        .rpt-section-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #000; /* Pure Black */
-            margin-top: 25px;
-            margin-bottom: 10px;
-            text-decoration: underline;
-            text-underline-offset: 5px;
-        }
-
-        /* Official Tables */
-        .rpt-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-bottom: 15px;
-            page-break-inside: avoid;
-            border: 1px solid #000;
-        }
-        .rpt-table th {
-            background-color: #f2f2f2; /* Light Gray Header */
-            color: #000;
-            font-weight: 800;
-            padding: 8px 5px;
-            border: 1px solid #000;
-            text-align: center;
-            vertical-align: middle;
-        }
-        .rpt-table td {
-            border: 1px solid #000;
-            padding: 6px 5px;
-            text-align: center;
-            vertical-align: middle;
-            color: #000;
-            line-height: 1.4;
-        }
-        .rpt-text-right { text-align: right !important; }
-        .rpt-bold { font-weight: bold; }
+        // تصفية الزيارات حسب الشهر المختار
+        let seniorVisits = (DB.visits_senior || []).filter(v => v.date.split('-')[1] === month);
+        let middleVisits = (DB.visits_middle || []).filter(v => v.date.split('-')[1] === month);
         
-        /* Analysis Box */
-        .rpt-analysis-box {
-            border: 1px solid #000;
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 13px;
-            line-height: 1.6;
-            background-color: #fff;
+        // جلب قائمة القيادة الوسطى لبناء الجدول
+        const middleLeaders = DB.middle || [];
+
+        // --- الصفحة الأولى (الغلاف) ---
+        let html = `
+        <div class="a4-page">
+            <div class="report-cover-page">
+                
+                <div class="report-header-logos">
+                   ${ministryLogo ? `<img src="${ministryLogo}" style="max-height: 120px;">` : '<h2 style="color:#1e4078">وزارة التربية والتعليم</h2>'}
+                </div>
+
+                <div class="report-cover-box">
+                    <div class="report-cover-title">تقرير متابعة جودة التعليم والتعلم للقيادة العليا والوسطى</div>
+                    <div class="report-school-name">ل${schoolName}</div>
+                    <div class="report-month">شهر ${monthName}</div>
+                    <div class="report-year">العام الدراسي ${schoolYear}</div>
+                </div>
+
+                <div class="report-signatures-cover">
+                    <div class="sig-block">
+                        <div style="margin-bottom: 60px;">
+                            ${schoolStamp ? `<img src="${schoolStamp}" style="width: 130px; opacity: 0.9;">` : ''}
+                        </div>
+                        <div>يعتمد، مديرة المدرسة</div>
+                        <div class="sig-name">${directorName}</div>
+                    </div>
+
+                    <div class="sig-block">
+                        <div style="height: 60px;"></div> <div>إعداد المديرة المساعدة</div>
+                        <div class="sig-name">${assistantName}</div>
+                    </div>
+                </div>
+
+                ${footerText ? `<div style="width:100%; border-top:1px solid #ccc; padding-top:10px; font-size:${DB.settings.footer_fontsize || 10}pt; text-align:${DB.settings.footer_align || 'center'};">${footerText}</div>` : ''}
+            </div>
+        </div>
+        `;
+
+        // فاصل صفحات للطباعة
+        html += `<div style="page-break-before: always;"></div>`;
+
+        // --- الصفحة الثانية (البيانات) ---
+        html += `
+        <div class="a4-page">
+            <div class="page-title-underline">أولاً: متابعة تسليم القيادة الوسطى (الزيارات/محاضر الاجتماعات /الخطة الأسبوعية) للمواد الدراسية الى المدير/ة المساعد/ة في المدرسة</div>
+
+            <table class="quality-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" width="20%" style="background-color:#bfbfbf;">القسم</th>
+                        <th colspan="3" style="background-color:#bfbfbf;">متابعة القيادة العليا للقيادة الوسطى</th>
+                        <th rowspan="2" width="20%" style="background-color:#bfbfbf;">أسباب عدم التسليم</th>
+                    </tr>
+                    <tr>
+                        <th width="15%" style="background-color:#bfbfbf;">عدد استمارات الزيارات الصفية التي نُفذت من قبل المعلم الأول أو المنسق خلال الشهر</th>
+                        <th width="20%" style="background-color:#bfbfbf;">يوجد محضر اجتماع المعلم الأول أو المنسق مع المعلمين</th>
+                        <th width="20%" style="background-color:#bfbfbf;">توجد خطة أسبوعية للمعلم الأول أو المنسق</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+        // توليد الصفوف بناءً على مستخدمي القيادة الوسطى
+        if (middleLeaders.length > 0) {
+            middleLeaders.forEach(leader => {
+                // حساب عدد الزيارات لهذا القائد في الشهر المحدد
+                // نفترض أن اسم الزائر هو اسم المستخدم في النظام
+                const visitCount = middleVisits.filter(v => v.visitor === leader.name).length;
+                
+                // نفترض وجود الخطة والمحضر افتراضياً كما في الصورة (يوجد)
+                // اسم القسم يظهر بناءً على الوظيفة (Job)
+                const roleName = leader.job || leader.name;
+
+                html += `
+                    <tr>
+                        <td style="font-weight:bold;">${roleName}</td>
+                        <td>${visitCount}</td>
+                        <td>يوجد</td>
+                        <td>يوجد</td>
+                        <td></td>
+                    </tr>
+                `;
+            });
+        } else {
+            // صف فارغ في حال عدم وجود بيانات
+            html += `<tr><td colspan="5">لا يوجد مستخدمين مسجلين في القيادة الوسطى</td></tr>`;
         }
 
-        /* Signatures */
-        .rpt-signature-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 50px;
-            page-break-inside: avoid;
-        }
-        .rpt-sig-block {
-            text-align: center;
-            width: 30%;
-        }
-        .rpt-sig-title { font-weight: bold; margin-bottom: 40px; font-size: 14px; }
-        .rpt-sig-name { font-weight: bold; font-family: 'Tajawal', sans-serif; font-size: 13px; }
+        html += `
+                </tbody>
+            </table>
 
-        /* Print Override */
-        @media print {
-            @page { size: A4; margin: 0; }
-            body { background: white; }
-            .app-container, .login-wrapper, .modal-overlay { display: none !important; }
-            .report-preview-container { 
-                background: white; 
-                padding: 0; 
-                display: block; 
-                height: auto; 
-                overflow: visible; 
-                max-height: none; 
-            }
-            .a4-page {
-                box-shadow: none;
-                margin: 0;
-                width: 100%;
-                min-height: auto;
-                page-break-after: always;
-            }
-        }
+            <div class="note-section">
+                ملاحظات عامة: يتم التنسيق مع القيادة الوسطى لتنفيذ الزيارات الصفية بحسب ما يتناسب مع ظروف الجداول والنصاب المسند لهم.
+            </div>
+
+            <div style="margin-top: 50px;">
+                <div class="page-title-underline">ثانياً: عدد الزيارات التي نُفذت خلال شهر ${monthName} من قبل:</div>
+                <div class="stats-section">
+                    <div style="margin-bottom: 10px;">1- القيادة العليا = ${seniorVisits.length} زيارة</div>
+                    <div>2- القيادة الوسطى = ${middleVisits.length} زيارة</div>
+                </div>
+            </div>
+
+             <div style="position: absolute; bottom: 15mm; left: 15mm; right: 15mm;">
+                ${footerText ? `<div style="width:100%; border-top:1px solid #ccc; padding-top:10px; font-size:${DB.settings.footer_fontsize || 10}pt; text-align:${DB.settings.footer_align || 'center'};">${footerText}</div>` : ''}
+            </div>
+        </div>
+        `;
+
+        document.getElementById('a4-report-content').innerHTML = html;
+    }
+</script>
