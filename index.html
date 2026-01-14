@@ -444,11 +444,12 @@
                     <thead>
                         <tr id="distHeadRow">
                             <th width="5%">#</th>
+                            <th width="15%">التاريخ</th>
                             <th width="20%">اسم المعلم/ة</th>
                             <th width="15%">القسم</th>
                             <th width="10%">التقدير</th>
-                            <th width="30%">المبررات</th>
-                            <th width="20%" class="col-actions">الإجراء</th>
+                            <th width="25%">المبررات</th>
+                            <th width="10%" class="col-actions">الإجراء</th>
                         </tr>
                     </thead>
                     <tbody id="distinguishedTableBody"></tbody>
@@ -458,11 +459,12 @@
                     <thead>
                         <tr id="careHeadRow">
                             <th width="5%">#</th>
+                            <th width="15%">التاريخ</th>
                             <th width="20%">اسم المعلم/ة</th>
                             <th width="15%">القسم</th>
                             <th width="10%">التقدير</th>
-                            <th width="30%">المبررات</th>
-                            <th width="20%" class="col-actions">الإجراء</th>
+                            <th width="25%">المبررات</th>
+                            <th width="10%" class="col-actions">الإجراء</th>
                         </tr>
                     </thead>
                     <tbody id="careTableBody"></tbody>
@@ -496,10 +498,11 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
+                            <th width="15%">التاريخ</th>
                             <th width="15%">الأقسام الأكاديمية</th>
-                            <th width="30%">جوانب القوة</th>
-                            <th width="30%">جوانب بحاجة إلى تطوير</th>
-                            <th width="20%" class="col-actions">الإجراء</th>
+                            <th width="25%">جوانب القوة</th>
+                            <th width="25%">جوانب بحاجة إلى تطوير</th>
+                            <th width="15%" class="col-actions">الإجراء</th>
                         </tr>
                     </thead>
                     <tbody id="qualitativeTableBody"></tbody>
@@ -787,6 +790,10 @@
                     <input type="hidden" id="distType">
                     <input type="hidden" id="distEditId">
                     <div class="form-group">
+                        <label style="font-weight:bold; display:block; margin-bottom:5px;">التاريخ</label>
+                        <input type="date" class="form-control" id="distDate">
+                    </div>
+                    <div class="form-group">
                         <label style="font-weight:bold; display:block; margin-bottom:5px;">القسم</label>
                         <select id="distDept" class="form-control" onchange="onDistinguishedDeptChange()"><option value="">اختر القسم...</option></select>
                     </div>
@@ -817,6 +824,10 @@
             <div class="modal-body">
                 <form id="qualitativeForm">
                     <input type="hidden" id="qualEditId">
+                    <div class="form-group">
+                        <label style="font-weight:bold; display:block; margin-bottom:5px;">التاريخ</label>
+                        <input type="date" class="form-control" id="qualDate">
+                    </div>
                     <div class="form-group">
                         <label style="font-weight:bold; display:block; margin-bottom:5px;">القسم</label>
                         <select id="qualDept" class="form-control"><option value="">اختر القسم...</option></select>
@@ -977,7 +988,7 @@
         SECTIONS.forEach(s => DEFAULT_PERMS[s.id] = {view: true, edit: false});
 
         // Use a new key to ensure clean data start for the user
-        const DB_KEY = 'Etqan_System_DB_Final_V5';
+        const DB_KEY = 'Etqan_System_DB_Final_V6';
 
         const INITIAL_DB = {
             admins: [{id: 999, name: 'مدير النظام', login: 'admin', pass: 'Hasan@12', status: 'active', job: 'مدير النظام', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS))}],
@@ -1045,7 +1056,6 @@
                     if(!DB.logs) DB.logs = [];
                     if(!DB.settings) DB.settings = {};
                     
-                    // Merge Settings defaults ensuring new arrays exist
                     DB.settings = {...INITIAL_DB.settings, ...DB.settings};
                     if(!DB.settings.evaluation_grades) DB.settings.evaluation_grades = JSON.parse(JSON.stringify(INITIAL_DB.settings.evaluation_grades));
 
@@ -1581,8 +1591,10 @@
             if(n){ 
                 if(!DB.settings.evaluation_criteria) DB.settings.evaluation_criteria=[]; 
                 if (id !== '') {
+                    // Edit
                     DB.settings.evaluation_criteria[id].name = n;
                 } else {
+                    // New
                     DB.settings.evaluation_criteria.push({name:n, status:'active'}); 
                 }
                 saveDB(); loadSettings(); closeModal('addEvalModal'); 
@@ -1888,7 +1900,7 @@
         }
         function renderDistinguishedTables() {
             const filter = document.getElementById('distMonthFilter').value;
-            const renderTbl = (dataKey, tbodyId) => { const tbody = document.getElementById(tbodyId); tbody.innerHTML = ''; let list = DB[dataKey] || []; list.forEach((item, idx) => { tbody.innerHTML += `<tr><td>${idx+1}</td><td>${item.teacher}</td><td>${item.dept}</td><td>${item.eval}</td><td class="reason-cell">${item.reason}</td><td><button class="action-btn btn-delete" onclick="deleteDistItem('${dataKey}', ${item.id})">حذف</button></td></tr>`; }); };
+            const renderTbl = (dataKey, tbodyId) => { const tbody = document.getElementById(tbodyId); tbody.innerHTML = ''; let list = DB[dataKey] || []; list.forEach((item, idx) => { tbody.innerHTML += `<tr><td>${idx+1}</td><td>${item.date || '-'}</td><td>${item.teacher}</td><td>${item.dept}</td><td>${item.eval}</td><td class="reason-cell">${item.reason}</td><td><button class="action-btn btn-delete" onclick="deleteDistItem('${dataKey}', ${item.id})">حذف</button></td></tr>`; }); };
             renderTbl('distinguished', 'distinguishedTableBody'); renderTbl('care_needed', 'careTableBody');
         }
         function openDistinguishedModal(type) { 
@@ -1911,11 +1923,11 @@
             document.getElementById('distinguishedModal').style.display = 'flex'; 
         }
         function onDistinguishedDeptChange() { const dept = document.getElementById('distDept').value; const tSel = document.getElementById('distTeacher'); tSel.innerHTML = '<option value="">اختر المعلم/ة...</option>'; (DB.teachers || []).filter(t => t.dept === dept).forEach(t => tSel.innerHTML += `<option value="${t.name}">${t.name}</option>`); }
-        function saveDistinguishedEntry() { const type = document.getElementById('distType').value; const key = (type === 'distinguished') ? 'distinguished' : 'care_needed'; const obj = { id: Date.now(), dept: document.getElementById('distDept').value, teacher: document.getElementById('distTeacher').value, eval: document.getElementById('distEval').value, reason: document.getElementById('distReason').value, date: new Date().toISOString().slice(0,10) }; if(!obj.dept || !obj.teacher) return alert('البيانات ناقصة'); if(!DB[key]) DB[key] = []; DB[key].push(obj); saveDB(); renderDistinguishedTables(); closeModal('distinguishedModal'); }
+        function saveDistinguishedEntry() { const type = document.getElementById('distType').value; const key = (type === 'distinguished') ? 'distinguished' : 'care_needed'; const obj = { id: Date.now(), dept: document.getElementById('distDept').value, teacher: document.getElementById('distTeacher').value, eval: document.getElementById('distEval').value, reason: document.getElementById('distReason').value, date: document.getElementById('distDate').value || new Date().toISOString().slice(0,10) }; if(!obj.dept || !obj.teacher) return alert('البيانات ناقصة'); if(!DB[key]) DB[key] = []; DB[key].push(obj); saveDB(); renderDistinguishedTables(); closeModal('distinguishedModal'); }
         function deleteDistItem(key, id) { if(!canEdit('distinguished')) return; if(confirm('حذف؟')) { DB[key] = DB[key].filter(x => x.id !== id); saveDB(); renderDistinguishedTables(); } }
-        function renderQualitativeTable() { const tbody = document.getElementById('qualitativeTableBody'); tbody.innerHTML = ''; const list = DB.qualitative_reports || []; list.forEach((item, idx) => { tbody.innerHTML += `<tr><td>${idx+1}</td><td>${item.dept}</td><td class="reason-cell">${item.strength}</td><td class="reason-cell">${item.improve}</td><td><button class="action-btn btn-delete" onclick="deleteQualitative(${item.id})">حذف</button></td></tr>`; }); }
+        function renderQualitativeTable() { const tbody = document.getElementById('qualitativeTableBody'); tbody.innerHTML = ''; const list = DB.qualitative_reports || []; list.forEach((item, idx) => { tbody.innerHTML += `<tr><td>${idx+1}</td><td>${item.date || '-'}</td><td>${item.dept}</td><td class="reason-cell">${item.strength}</td><td class="reason-cell">${item.improve}</td><td><button class="action-btn btn-delete" onclick="deleteQualitative(${item.id})">حذف</button></td></tr>`; }); }
         function openQualitativeModal() { if(!canEdit('qualitative')) return alert('لا تملك صلاحية'); document.getElementById('qualitativeForm').reset(); const dSel = document.getElementById('qualDept'); dSel.innerHTML = '<option value="">اختر القسم...</option>'; (DB.departments || []).forEach(d => dSel.innerHTML += `<option value="${d.name}">${d.name}</option>`); document.getElementById('addQualitativeModal').style.display = 'flex'; }
-        function saveQualitative() { const obj = { id: Date.now(), dept: document.getElementById('qualDept').value, strength: document.getElementById('qualStrength').value, improve: document.getElementById('qualImprove').value, date: new Date().toISOString().slice(0,10) }; if(!obj.dept) return alert('اختر القسم'); if(!DB.qualitative_reports) DB.qualitative_reports = []; DB.qualitative_reports.push(obj); saveDB(); renderQualitativeTable(); closeModal('addQualitativeModal'); }
+        function saveQualitative() { const obj = { id: Date.now(), dept: document.getElementById('qualDept').value, strength: document.getElementById('qualStrength').value, improve: document.getElementById('qualImprove').value, date: document.getElementById('qualDate').value || new Date().toISOString().slice(0,10) }; if(!obj.dept) return alert('اختر القسم'); if(!DB.qualitative_reports) DB.qualitative_reports = []; DB.qualitative_reports.push(obj); saveDB(); renderQualitativeTable(); closeModal('addQualitativeModal'); }
         function deleteQualitative(id) { if(!canEdit('qualitative')) return; if(confirm('حذف؟')) { DB.qualitative_reports = DB.qualitative_reports.filter(x => x.id !== id); saveDB(); renderQualitativeTable(); } }
 
         // === QUALITY REPORT GENERATOR ===
