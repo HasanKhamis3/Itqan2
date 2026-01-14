@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -699,23 +700,12 @@
 
                 <div id="eval" class="setting-content-pane">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h3>معايير الزيارة الصفية</h3>
-                        <button class="btn setting-edit-btn" style="background:#2c5aa0; color:white;" onclick="openAddEvalModal()"><i class="fas fa-plus"></i> إضافة معيار</button>
+                        <h3>الزيارة الصفية</h3>
+                        <button class="btn setting-edit-btn" style="background:#2c5aa0; color:white;" onclick="openAddEvalModal()"><i class="fas fa-plus"></i> إضافة تقييم</button>
                     </div>
                     <table class="custom-table">
                         <thead><tr><th width="10%">#</th><th width="45%">اسم المعيار</th><th width="15%">الحالة</th><th width="30%">الإجراءات</th></tr></thead>
                         <tbody id="evalTableBody"></tbody>
-                    </table>
-
-                    <hr style="margin: 40px 0; border-top: 1px solid #ddd;">
-
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h3>قائمة التقديرات</h3>
-                        <button class="btn setting-edit-btn" style="background:#2c5aa0; color:white;" onclick="openAddGradeModal()"><i class="fas fa-plus"></i> إضافة تقدير</button>
-                    </div>
-                    <table class="custom-table">
-                        <thead><tr><th width="10%">#</th><th width="45%">اسم التقدير</th><th width="15%">الحالة</th><th width="30%">الإجراءات</th></tr></thead>
-                        <tbody id="gradeTableBody"></tbody>
                     </table>
                 </div>
 
@@ -896,23 +886,6 @@
         </div>
     </div>
 
-    <div id="addGradeModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-header"><span>إضافة/تعديل تقدير</span> <span onclick="closeModal('addGradeModal')" style="cursor:pointer;">&times;</span></div>
-            <div class="modal-body">
-                <form id="addGradeForm">
-                    <input type="hidden" id="editGradeId">
-                    <label>اسم التقدير</label>
-                    <input type="text" id="gradeName" class="form-control" required placeholder="مثال: ممتاز">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="saveGradeForm()">حفظ</button>
-                <button class="btn" style="background:#ddd;" onclick="closeModal('addGradeModal')">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
     <div id="viewUserModal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header">معاينة <span onclick="closeModal('viewUserModal')" style="cursor:pointer;">&times;</span></div>
@@ -977,7 +950,7 @@
         SECTIONS.forEach(s => DEFAULT_PERMS[s.id] = {view: true, edit: false});
 
         // Use a new key to ensure clean data start for the user
-        const DB_KEY = 'Etqan_System_DB_Final_V5';
+        const DB_KEY = 'Etqan_System_DB_Final_V4';
 
         const INITIAL_DB = {
             admins: [{id: 999, name: 'مدير النظام', login: 'admin', pass: 'Hasan@12', status: 'active', job: 'مدير النظام', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS))}],
@@ -985,24 +958,7 @@
             middle: [], teachers: [], departments: [],
             visits_senior: [], visits_middle: [],
             distinguished: [], care_needed: [], qualitative_reports: [], saved_reports: [],
-            settings: { 
-                schoolName: 'مدرسة مدينة حمد الابتدائية للبنات', 
-                schoolYear: '2025 / 2026م', 
-                evaluation_criteria: [], 
-                evaluation_grades: [
-                    {name:'ممتاز', status:'active'},
-                    {name:'جيد جداً', status:'active'},
-                    {name:'جيد', status:'active'},
-                    {name:'مقبول', status:'active'},
-                    {name:'ضعيف', status:'active'},
-                    {name:'يتجاوز التوقعات كثيراً', status:'active'},
-                    {name:'يتجاوز التوقعات', status:'active'},
-                    {name:'يفي بالتوقعات', status:'active'},
-                    {name:'يفي بالتوقعات جزئيا', status:'active'}
-                ],
-                visitor_order_senior: [], 
-                visitor_order_middle: [] 
-            },
+            settings: { schoolName: 'مدرسة مدينة حمد الابتدائية للبنات', schoolYear: '2025 / 2026م', evaluation_criteria: [], visitor_order_senior: [], visitor_order_middle: [] },
             logs: [] 
         };
 
@@ -1044,11 +1000,7 @@
                     if(!DB.saved_reports) DB.saved_reports = [];
                     if(!DB.logs) DB.logs = [];
                     if(!DB.settings) DB.settings = {};
-                    
-                    // Merge Settings defaults ensuring new arrays exist
                     DB.settings = {...INITIAL_DB.settings, ...DB.settings};
-                    if(!DB.settings.evaluation_grades) DB.settings.evaluation_grades = JSON.parse(JSON.stringify(INITIAL_DB.settings.evaluation_grades));
-
                     saveDB(); 
                 } catch (e) {
                     console.error("Error loading DB, resetting:", e);
@@ -1505,27 +1457,6 @@
                 </tr>`; 
             });
 
-            // Grades Table (NEW)
-            const gradeBody = document.getElementById('gradeTableBody'); 
-            gradeBody.innerHTML = ''; 
-            (DB.settings.evaluation_grades || []).forEach((g, i) => { 
-                const isActive = g.status !== 'inactive';
-                const statusBadge = isActive ? '<span class="status-badge status-active">نشط</span>' : '<span class="status-badge status-inactive">معطل</span>';
-                gradeBody.innerHTML += `
-                <tr>
-                    <td>${i+1}</td>
-                    <td>${g.name}</td>
-                    <td>${statusBadge}</td>
-                    <td>
-                        <button class="action-btn btn-move" onclick="moveGrade(${i}, -1)" title="أعلى">▲</button>
-                        <button class="action-btn btn-move" onclick="moveGrade(${i}, 1)" title="أسفل">▼</button>
-                        <button class="action-btn btn-edit" onclick="editGrade(${i})">تعديل</button>
-                        <button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleGrade(${i})">${isActive?'تعطيل':'تفعيل'}</button>
-                        <button class="action-btn btn-delete" onclick="deleteGrade(${i})">حذف</button>
-                    </td>
-                </tr>`; 
-            });
-
             // Signatures
             fillSigSelects();
 
@@ -1581,8 +1512,10 @@
             if(n){ 
                 if(!DB.settings.evaluation_criteria) DB.settings.evaluation_criteria=[]; 
                 if (id !== '') {
+                    // Edit
                     DB.settings.evaluation_criteria[id].name = n;
                 } else {
+                    // New
                     DB.settings.evaluation_criteria.push({name:n, status:'active'}); 
                 }
                 saveDB(); loadSettings(); closeModal('addEvalModal'); 
@@ -1600,40 +1533,6 @@
             saveDB(); loadSettings();
         }
         function deleteEval(idx) { if(confirm('حذف؟')) { DB.settings.evaluation_criteria.splice(idx, 1); saveDB(); loadSettings(); } }
-
-        // Grade Settings Logic (NEW)
-        function openAddGradeModal() { document.getElementById('editGradeId').value = ''; document.getElementById('addGradeForm').reset(); document.getElementById('addGradeModal').style.display='flex'; }
-        function editGrade(idx) {
-            const item = DB.settings.evaluation_grades[idx];
-            document.getElementById('editGradeId').value = idx;
-            document.getElementById('gradeName').value = item.name;
-            document.getElementById('addGradeModal').style.display='flex';
-        }
-        function saveGradeForm() { 
-            const n = document.getElementById('gradeName').value; 
-            const id = document.getElementById('editGradeId').value;
-            if(n){ 
-                if(!DB.settings.evaluation_grades) DB.settings.evaluation_grades=[]; 
-                if (id !== '') {
-                    DB.settings.evaluation_grades[id].name = n;
-                } else {
-                    DB.settings.evaluation_grades.push({name:n, status:'active'}); 
-                }
-                saveDB(); loadSettings(); closeModal('addGradeModal'); 
-            } 
-        }
-        function toggleGrade(idx) {
-            const item = DB.settings.evaluation_grades[idx];
-            item.status = (item.status === 'inactive') ? 'active' : 'inactive';
-            saveDB(); loadSettings();
-        }
-        function moveGrade(idx, dir) {
-            const arr = DB.settings.evaluation_grades;
-            if (dir === -1 && idx > 0) [arr[idx], arr[idx-1]] = [arr[idx-1], arr[idx]];
-            if (dir === 1 && idx < arr.length - 1) [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]];
-            saveDB(); loadSettings();
-        }
-        function deleteGrade(idx) { if(confirm('حذف؟')) { DB.settings.evaluation_grades.splice(idx, 1); saveDB(); loadSettings(); } }
         
         // Visitor Settings Logic
         function renderVisitorList(type) { const list = document.getElementById(`list_visitor_${type}`); list.innerHTML = ''; const order = DB.settings[`visitor_order_${type}`] || []; if(order.length === 0) list.innerHTML = '<li class="empty-list-msg">لا يوجد زوار مضافين للقائمة</li>'; else { order.forEach((name, idx) => { list.innerHTML += `<li class="visitor-list-item"><span class="visitor-name">${idx+1}. ${name}</span><div class="visitor-controls"><button class="action-btn btn-move" onclick="moveVisitor('${type}', ${idx}, -1)">▲</button><button class="action-btn btn-move" onclick="moveVisitor('${type}', ${idx}, 1)">▼</button><button class="action-btn btn-delete" onclick="removeVisitor('${type}', ${idx})">✖</button></div></li>`; }); } }
@@ -1643,13 +1542,17 @@
             const list = document.getElementById('pickerList'); 
             list.innerHTML = ''; 
             const type = CURRENT_PICKER_TYPE;
+            
+            // Determine Source Array based on Type
             let sourceArray = [];
             if (type === 'senior') sourceArray = DB.senior || [];
             else if (type === 'middle') sourceArray = DB.middle || [];
             
+            // Get existing names to exclude
             const existingNames = DB.settings[`visitor_order_${type}`] || [];
 
             sourceArray.forEach(u => { 
+                // Exclude Admin (id 999) and existing names
                 if (u.id !== 999 && !existingNames.includes(u.name)) {
                     if (u.name.toLowerCase().includes(term)) { 
                         list.innerHTML += `<div class="picker-item" onclick="addVisitor('${u.name}')"><span>${u.name}</span><span style="font-size:0.8rem; color:#777;">${type === 'senior' ? 'قيادة عليا' : 'قيادة وسطى'}</span></div>`; 
@@ -1753,7 +1656,7 @@
             // Populate Evaluation Criteria from Settings
             const eSel = document.getElementById('visitEval'); 
             eSel.innerHTML = '<option value="">اختر التقييم...</option>'; 
-            (DB.settings.evaluation_grades || []).forEach(c => {
+            (DB.settings.evaluation_criteria || []).forEach(c => {
                 if (c.status !== 'inactive') {
                     eSel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
                 }
@@ -1875,9 +1778,9 @@
 
         function renderPerformanceChart() {
             const filter = document.getElementById('perfMonthFilter').value; let allVisits = [...(DB.visits_senior||[]), ...(DB.visits_middle||[])]; if(filter !== 'all') allVisits = allVisits.filter(v => v.date.split('-')[1] === filter);
-            // Count based on Evaluation Grades names
+            // Count based on Evaluation Criteria names
             const counts = {}; 
-            (DB.settings.evaluation_grades || []).forEach(c => counts[c.name] = 0);
+            (DB.settings.evaluation_criteria || []).forEach(c => counts[c.name] = 0);
             
             allVisits.forEach(v => { 
                 if(counts[v.eval] !== undefined) counts[v.eval]++; 
@@ -1891,25 +1794,7 @@
             const renderTbl = (dataKey, tbodyId) => { const tbody = document.getElementById(tbodyId); tbody.innerHTML = ''; let list = DB[dataKey] || []; list.forEach((item, idx) => { tbody.innerHTML += `<tr><td>${idx+1}</td><td>${item.teacher}</td><td>${item.dept}</td><td>${item.eval}</td><td class="reason-cell">${item.reason}</td><td><button class="action-btn btn-delete" onclick="deleteDistItem('${dataKey}', ${item.id})">حذف</button></td></tr>`; }); };
             renderTbl('distinguished', 'distinguishedTableBody'); renderTbl('care_needed', 'careTableBody');
         }
-        function openDistinguishedModal(type) { 
-            if(!canEdit('distinguished')) return alert('لا تملك صلاحية'); 
-            document.getElementById('distinguishedForm').reset(); 
-            document.getElementById('distType').value = type; 
-            document.getElementById('distinguishedModalTitle').innerText = (type === 'distinguished') ? 'إضافة معلم متميز' : 'إضافة معلم يحتاج رعاية'; 
-            
-            const dSel = document.getElementById('distDept'); 
-            dSel.innerHTML = '<option value="">اختر القسم...</option>'; 
-            (DB.departments || []).forEach(d => dSel.innerHTML += `<option value="${d.name}">${d.name}</option>`); 
-            
-            // Updated to fetch from settings
-            const eSel = document.getElementById('distEval'); 
-            eSel.innerHTML = '<option value="">اختر التقدير...</option>'; 
-            (DB.settings.evaluation_grades || []).forEach(g => {
-                if(g.status !== 'inactive') eSel.innerHTML += `<option value="${g.name}">${g.name}</option>`;
-            });
-            
-            document.getElementById('distinguishedModal').style.display = 'flex'; 
-        }
+        function openDistinguishedModal(type) { if(!canEdit('distinguished')) return alert('لا تملك صلاحية'); document.getElementById('distinguishedForm').reset(); document.getElementById('distType').value = type; document.getElementById('distinguishedModalTitle').innerText = (type === 'distinguished') ? 'إضافة معلم متميز' : 'إضافة معلم يحتاج رعاية'; const dSel = document.getElementById('distDept'); dSel.innerHTML = '<option value="">اختر القسم...</option>'; (DB.departments || []).forEach(d => dSel.innerHTML += `<option value="${d.name}">${d.name}</option>`); const eSel = document.getElementById('distEval'); eSel.innerHTML = '<option value="">اختر التقدير...</option>'; ['ممتاز', 'جيد جداً', 'جيد', 'مقبول', 'ضعيف'].forEach(e => eSel.innerHTML += `<option value="${e}">${e}</option>`); document.getElementById('distinguishedModal').style.display = 'flex'; }
         function onDistinguishedDeptChange() { const dept = document.getElementById('distDept').value; const tSel = document.getElementById('distTeacher'); tSel.innerHTML = '<option value="">اختر المعلم/ة...</option>'; (DB.teachers || []).filter(t => t.dept === dept).forEach(t => tSel.innerHTML += `<option value="${t.name}">${t.name}</option>`); }
         function saveDistinguishedEntry() { const type = document.getElementById('distType').value; const key = (type === 'distinguished') ? 'distinguished' : 'care_needed'; const obj = { id: Date.now(), dept: document.getElementById('distDept').value, teacher: document.getElementById('distTeacher').value, eval: document.getElementById('distEval').value, reason: document.getElementById('distReason').value, date: new Date().toISOString().slice(0,10) }; if(!obj.dept || !obj.teacher) return alert('البيانات ناقصة'); if(!DB[key]) DB[key] = []; DB[key].push(obj); saveDB(); renderDistinguishedTables(); closeModal('distinguishedModal'); }
         function deleteDistItem(key, id) { if(!canEdit('distinguished')) return; if(confirm('حذف؟')) { DB[key] = DB[key].filter(x => x.id !== id); saveDB(); renderDistinguishedTables(); } }
