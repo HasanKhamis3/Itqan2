@@ -106,6 +106,7 @@
         .btn-toggle { background: #28a745; }
         .btn-toggle.off { background: #6c757d; }
         .btn-move { background: #6c757d; padding: 6px 8px; } 
+        .btn-reset { background: #fd7e14; }
         .action-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
@@ -649,9 +650,9 @@
                         <tr>
                             <th width="5%">#</th>
                             <th width="30%">اسم البراند (الجهة)</th>
-                            <th width="25%">البريد الإلكتروني</th>
+                            <th width="20%">البريد الإلكتروني</th>
                             <th width="15%">الحالة</th>
-                            <th width="25%">الإجراءات</th>
+                            <th width="30%">الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="brandsTableBody">
@@ -1096,11 +1097,11 @@
         SECTIONS.forEach(s => DEFAULT_PERMS[s.id] = {view: true, edit: false});
 
         // Use a new key to ensure clean data start for the user
-        const DB_KEY = 'Irteqaa_System_DB_Final_V4';
+        const DB_KEY = 'Irteqaa_System_DB_Final_V5';
 
         const INITIAL_DB = {
             admins: [{id: 999, name: 'مدير النظام', login: 'admin', pass: 'Hasan@12', status: 'active', job: 'مدير النظام', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS))}],
-            senior: [{id: 1, name: 'علياء محمد مبارك الدوسري', job: 'مديرة المدرسة', phone: '39669118', login: '39669118', pass: '39669118', status: 'active', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS)), dateAdded: '2025/01/01'}],
+            senior: [{id: 1, name: 'علياء محمد مبارك الدوسري', job: 'مديرة المدرسة', phone: '39669118', login: '39669118', pass: '39669118', status: 'active', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS)), dateAdded: '2025/01/01', brandId: 1}],
             middle: [], teachers: [], departments: [],
             visits_senior: [], visits_middle: [],
             distinguished: [], care_needed: [], qualitative_reports: [], saved_reports: [],
@@ -1379,6 +1380,9 @@
             if(!list) return [];
             return list.filter(item => {
                 const itemBrandId = item.brandId || 1; // Default to ID 1 if undefined
+                // If it's a global admin (id 999), they are visible in all contexts? 
+                // Or filtered out? Usually filtered out of regular lists to avoid clutter.
+                if(item.id === 999) return false; 
                 return itemBrandId === CURRENT_BRAND.id;
             });
         }
@@ -1487,14 +1491,8 @@
             }
             headRow.innerHTML = headerHTML;
 
-            // Strict Filter for Departments and Teachers by Brand
-            let list = DB[CURRENT_TAB] || [];
-            if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'teachers') {
-                list = filterByContext(list);
-            }
-            // Note: Admins/Senior/Middle users are generally global to login, 
-            // but we could filter them if needed. For now, keeping them visible
-            // as they are "Users" of the system.
+            // Strict Filter for ALL User Types by Brand
+            let list = filterByContext(DB[CURRENT_TAB] || []);
 
             list.forEach((u, idx) => {
                 const isActive = u.status === 'active';
@@ -1531,11 +1529,8 @@
         
         // Export Excel Function using SheetJS
         function exportExcel() {
-            let list = DB[CURRENT_TAB] || [];
-            // Apply filtering for export too
-            if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'teachers') {
-                list = filterByContext(list);
-            }
+            // STRICT FILTER FOR EXPORT
+            let list = filterByContext(DB[CURRENT_TAB] || []);
             
             let isTemplate = false;
             if (list.length === 0) {
@@ -1642,13 +1637,9 @@
                     name:n, 
                     status:'active', 
                     lastUpdated:new Date().toLocaleString('en-GB'), 
-                    lastUpdatedBy:CURRENT_USER.name
+                    lastUpdatedBy:CURRENT_USER.name,
+                    brandId: CURRENT_BRAND.id // ** CRITICAL: Bind to current Brand **
                 }; 
-                
-                // Add Brand ID for context-sensitive items
-                if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'teachers') {
-                    u.brandId = CURRENT_BRAND.id;
-                }
 
                 if(CURRENT_TAB!=='departments'){
                     u.dateAdded=new Date().toLocaleDateString('en-GB'); 
@@ -1726,16 +1717,15 @@
                                 const newUser = {
                                     id: Date.now() + index, name: name, status: 'active',
                                     permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS)),
-                                    dateAdded: dateAdded, lastUpdated: new Date().toLocaleString('en-GB'), lastUpdatedBy: CURRENT_USER ? CURRENT_USER.name : 'Import'
+                                    dateAdded: dateAdded, lastUpdated: new Date().toLocaleString('en-GB'), lastUpdatedBy: CURRENT_USER ? CURRENT_USER.name : 'Import',
+                                    brandId: CURRENT_BRAND.id // BIND TO BRAND
                                 };
                                 
                                 if (CURRENT_TAB === 'departments') { 
-                                    newUser.brandId = CURRENT_BRAND.id;
                                     DB[CURRENT_TAB].push(newUser); count++; 
                                 }
                                 else if (CURRENT_TAB === 'teachers') { 
                                     newUser.dept = row['القسم'] || row['Department'] || ''; 
-                                    newUser.brandId = CURRENT_BRAND.id;
                                     DB[CURRENT_TAB].push(newUser); count++; 
                                 }
                                 else { 
@@ -1875,6 +1865,7 @@
                 const statusBadge = isActive ? `<span class="status-badge status-active">نشط</span>` : `<span class="status-badge status-inactive">معطل</span>`;
                 const isDefault = (b.id === 1);
                 const deleteBtn = isDefault ? '' : `<button class="action-btn btn-delete" onclick="deleteBrand(${b.id})"><i class="fas fa-trash"></i></button>`;
+                const resetBtn = `<button class="action-btn btn-reset" onclick="resetBrandData(${b.id})" title="إعادة تهيئة"><i class="fas fa-redo"></i> تهيئة</button>`;
                 
                 tbody.innerHTML += `
                 <tr>
@@ -1883,9 +1874,12 @@
                     <td>${b.email || '-'}</td>
                     <td>${statusBadge}</td>
                     <td>
-                        <button class="action-btn btn-edit" onclick="editBrand(${b.id})"><i class="fas fa-edit"></i> تعديل</button>
-                        <button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleBrandStatus(${b.id})"><i class="fas fa-power-off"></i> ${isActive?'تعطيل':'تفعيل'}</button>
-                        ${deleteBtn}
+                        <div style="display:flex; gap:2px; justify-content:center;">
+                            <button class="action-btn btn-edit" onclick="editBrand(${b.id})"><i class="fas fa-edit"></i> تعديل</button>
+                            <button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleBrandStatus(${b.id})"><i class="fas fa-power-off"></i> ${isActive?'تعطيل':'تفعيل'}</button>
+                            ${resetBtn}
+                            ${deleteBtn}
+                        </div>
                     </td>
                 </tr>`;
             });
@@ -1919,6 +1913,7 @@
                 const b = DB.brands.find(x => x.id == id);
                 if(b) { b.name = name; b.email = email; addSystemLog('تعديل براند', name); }
             } else {
+                // New Brand is clean by default because no data has this ID yet
                 DB.brands.push({id: Date.now(), name: name, email: email, status: 'active'});
                 addSystemLog('إضافة براند', name);
             }
@@ -1943,11 +1938,43 @@
         function deleteBrand(id) {
             if(confirm('هل أنت متأكد من حذف هذا البراند؟ سيتم إخفاء جميع البيانات المرتبطة به.')) {
                 DB.brands = DB.brands.filter(x => x.id !== id);
+                // Optionally cleanup data associated with deleted brand
+                resetBrandData(id, true); // true = silent cleanup
                 saveDB();
                 renderBrandsTable();
                 updateBrandUI();
                 if(CURRENT_BRAND.id === id) switchBrand(1);
             }
+        }
+
+        function resetBrandData(brandId, silent = false) {
+            if(!silent && !confirm('تحذير: سيتم مسح جميع البيانات والمدخلات والمستخدمين والتقارير الخاصة بهذا البراند بشكل نهائي.\nهل أنت متأكد؟')) return;
+            
+            const arraysToClean = [
+                'senior', 'middle', 'teachers', 'departments',
+                'visits_senior', 'visits_middle',
+                'distinguished', 'care_needed', 'qualitative_reports', 'saved_reports'
+            ];
+
+            arraysToClean.forEach(key => {
+                if(DB[key]) {
+                    // Keep only items that do NOT match the brand ID
+                    // OR keep default admin/global items if any
+                    DB[key] = DB[key].filter(item => {
+                        // Global Admin (id 999) should theoretically be in 'admins' array, 
+                        // but if they slipped into 'senior', protect them:
+                        if(item.id === 999) return true; 
+                        
+                        const itemBrand = item.brandId || 1; // Default assumption for legacy data
+                        return itemBrand !== brandId;
+                    });
+                }
+            });
+
+            saveDB();
+            if(!silent) alert('تمت إعادة تهيئة بيانات البراند بنجاح.');
+            // Refresh current view if we are inside that brand
+            if(CURRENT_BRAND.id === brandId) navigate('dashboard');
         }
 
         window.onload = function() { initSystem(); };
