@@ -1096,7 +1096,7 @@
         SECTIONS.forEach(s => DEFAULT_PERMS[s.id] = {view: true, edit: false});
 
         // Use a new key to ensure clean data start for the user
-        const DB_KEY = 'Irteqaa_System_DB_Final_V2';
+        const DB_KEY = 'Irteqaa_System_DB_Final_V4';
 
         const INITIAL_DB = {
             admins: [{id: 999, name: 'مدير النظام', login: 'admin', pass: 'Hasan@12', status: 'active', job: 'مدير النظام', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS))}],
@@ -1487,11 +1487,15 @@
             }
             headRow.innerHTML = headerHTML;
 
-            // Users are global (not filtered by brand for now, as they are system users)
-            // Or should they be per brand? Request implies "Account Switcher" within same account.
-            // Usually users are per-brand or global. Assuming Global for simplicity of prototype, 
-            // but effectively they operate within the context.
-            const list = DB[CURRENT_TAB] || [];
+            // Strict Filter for Departments and Teachers by Brand
+            let list = DB[CURRENT_TAB] || [];
+            if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'teachers') {
+                list = filterByContext(list);
+            }
+            // Note: Admins/Senior/Middle users are generally global to login, 
+            // but we could filter them if needed. For now, keeping them visible
+            // as they are "Users" of the system.
+
             list.forEach((u, idx) => {
                 const isActive = u.status === 'active';
                 const statusBadge = isActive ? `<span class="status-badge status-active">مفعل</span>` : `<span class="status-badge status-inactive">معطل</span>`;
@@ -1527,7 +1531,11 @@
         
         // Export Excel Function using SheetJS
         function exportExcel() {
-            const list = DB[CURRENT_TAB] || [];
+            let list = DB[CURRENT_TAB] || [];
+            // Apply filtering for export too
+            if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'teachers') {
+                list = filterByContext(list);
+            }
             
             let isTemplate = false;
             if (list.length === 0) {
@@ -1581,7 +1589,15 @@
             const d=(CURRENT_TAB==='departments'), t=(CURRENT_TAB==='teachers'); 
             const roleWrapper = document.getElementById('roleWrapper');
             if(d){document.getElementById('addUserModalTitle').innerText='إضافة قسم'; document.getElementById('userFields').style.display='none'; document.getElementById('deptWrapper').style.display='none';} 
-            else if(t){document.getElementById('addUserModalTitle').innerText='إضافة معلمة'; document.getElementById('userFields').style.display='none'; document.getElementById('deptWrapper').style.display='block'; const s=document.getElementById('addDept'); s.innerHTML='<option value="">اختر...</option>'; (DB.departments||[]).forEach(x=>s.innerHTML+=`<option value="${x.name}">${x.name}</option>`);} 
+            else if(t){
+                document.getElementById('addUserModalTitle').innerText='إضافة معلمة'; 
+                document.getElementById('userFields').style.display='none'; 
+                document.getElementById('deptWrapper').style.display='block'; 
+                const s=document.getElementById('addDept'); 
+                s.innerHTML='<option value="">اختر...</option>'; 
+                // Populate depts from CURRENT BRAND only
+                filterByContext(DB.departments||[]).forEach(x=>s.innerHTML+=`<option value="${x.name}">${x.name}</option>`);
+            } 
             else {
                 document.getElementById('addUserModalTitle').innerText='إضافة مستخدم'; 
                 document.getElementById('userFields').style.display='block'; 
@@ -1592,7 +1608,13 @@
         function editUser(id) { 
             if(!canEdit('user-management')) return;
             const u=DB[CURRENT_TAB].find(x=>x.id===id); if(!u)return; document.getElementById('editUserId').value=u.id; document.getElementById('addName').value=u.name; openAddUserModal(); document.getElementById('addUserModalTitle').innerText='تعديل'; 
-            if(CURRENT_TAB==='teachers'){document.getElementById('addDept').value=u.dept;} else if(CURRENT_TAB!=='departments'){
+            if(CURRENT_TAB==='teachers'){
+                // Refill dropdown for edit
+                const s=document.getElementById('addDept'); 
+                s.innerHTML='<option value="">اختر...</option>'; 
+                filterByContext(DB.departments||[]).forEach(x=>s.innerHTML+=`<option value="${x.name}">${x.name}</option>`);
+                document.getElementById('addDept').value=u.dept;
+            } else if(CURRENT_TAB!=='departments'){
                 document.getElementById('addJob').value=u.job||''; 
                 document.getElementById('addPhone').value=u.phone||''; 
                 document.getElementById('addLogin').value=u.login||''; 
@@ -1601,7 +1623,52 @@
             } 
         }
         function closeModal(id) { document.getElementById(id).style.display='none'; }
-        function saveUserForm() { const n=document.getElementById('addName').value.trim(); if(!n)return alert('الاسم مطلوب'); const id=document.getElementById('editUserId').value; const edit=id!==''; let u; if(edit){u=DB[CURRENT_TAB].find(x=>x.id==id); u.name=n; u.lastUpdated=new Date().toLocaleString('en-GB'); u.lastUpdatedBy=CURRENT_USER.name;} else {u={id:Date.now(), name:n, status:'active', lastUpdated:new Date().toLocaleString('en-GB'), lastUpdatedBy:CURRENT_USER.name}; if(CURRENT_TAB!=='departments'){u.dateAdded=new Date().toLocaleDateString('en-GB'); u.permissions=JSON.parse(JSON.stringify(DEFAULT_PERMS));}} if(CURRENT_TAB==='teachers') u.dept=document.getElementById('addDept').value; else if(CURRENT_TAB!=='departments'){u.job=document.getElementById('addJob').value; u.phone=document.getElementById('addPhone').value; u.login=document.getElementById('addLogin').value; u.pass=document.getElementById('addPass').value; u.role=document.getElementById('addRole').value;} if(!edit)DB[CURRENT_TAB].push(u); saveDB(); renderTable(); closeModal('addUserModal'); }
+        
+        function saveUserForm() { 
+            const n=document.getElementById('addName').value.trim(); 
+            if(!n)return alert('الاسم مطلوب'); 
+            const id=document.getElementById('editUserId').value; 
+            const edit=id!==''; 
+            let u; 
+            
+            if(edit){
+                u=DB[CURRENT_TAB].find(x=>x.id==id); 
+                u.name=n; 
+                u.lastUpdated=new Date().toLocaleString('en-GB'); 
+                u.lastUpdatedBy=CURRENT_USER.name;
+            } else {
+                u={
+                    id:Date.now(), 
+                    name:n, 
+                    status:'active', 
+                    lastUpdated:new Date().toLocaleString('en-GB'), 
+                    lastUpdatedBy:CURRENT_USER.name
+                }; 
+                
+                // Add Brand ID for context-sensitive items
+                if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'teachers') {
+                    u.brandId = CURRENT_BRAND.id;
+                }
+
+                if(CURRENT_TAB!=='departments'){
+                    u.dateAdded=new Date().toLocaleDateString('en-GB'); 
+                    u.permissions=JSON.parse(JSON.stringify(DEFAULT_PERMS));
+                }
+            } 
+            
+            if(CURRENT_TAB==='teachers') u.dept=document.getElementById('addDept').value; 
+            else if(CURRENT_TAB!=='departments'){
+                u.job=document.getElementById('addJob').value; 
+                u.phone=document.getElementById('addPhone').value; 
+                u.login=document.getElementById('addLogin').value; 
+                u.pass=document.getElementById('addPass').value; 
+                u.role=document.getElementById('addRole').value;
+            } 
+            
+            if(!edit)DB[CURRENT_TAB].push(u); 
+            saveDB(); renderTable(); closeModal('addUserModal'); 
+        }
+        
         function deleteUser(id) { if(!canEdit('user-management')) return; if(confirm('حذف؟')){DB[CURRENT_TAB]=DB[CURRENT_TAB].filter(u=>u.id!==id); saveDB(); renderTable();} }
         function viewUser(id) {
             const u = DB[CURRENT_TAB].find(x => x.id === id);
@@ -1654,15 +1721,23 @@
                     jsonData.forEach((row, index) => {
                         let name = (CURRENT_TAB === 'departments') ? (row['اسم القسم'] || row['الاسم'] || row['Name'] || '') : (row['الاسم'] || row['Name'] || '');
                         if (name) {
-                            const exists = DB[CURRENT_TAB].some(u => u.name === name);
+                            const exists = DB[CURRENT_TAB].some(u => u.name === name && u.brandId === CURRENT_BRAND.id);
                             if (!exists) {
                                 const newUser = {
                                     id: Date.now() + index, name: name, status: 'active',
                                     permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS)),
                                     dateAdded: dateAdded, lastUpdated: new Date().toLocaleString('en-GB'), lastUpdatedBy: CURRENT_USER ? CURRENT_USER.name : 'Import'
                                 };
-                                if (CURRENT_TAB === 'departments') { DB[CURRENT_TAB].push(newUser); count++; }
-                                else if (CURRENT_TAB === 'teachers') { newUser.dept = row['القسم'] || row['Department'] || ''; DB[CURRENT_TAB].push(newUser); count++; }
+                                
+                                if (CURRENT_TAB === 'departments') { 
+                                    newUser.brandId = CURRENT_BRAND.id;
+                                    DB[CURRENT_TAB].push(newUser); count++; 
+                                }
+                                else if (CURRENT_TAB === 'teachers') { 
+                                    newUser.dept = row['القسم'] || row['Department'] || ''; 
+                                    newUser.brandId = CURRENT_BRAND.id;
+                                    DB[CURRENT_TAB].push(newUser); count++; 
+                                }
                                 else { 
                                     newUser.job = row['الوظيفة'] || row['Job'] || ''; 
                                     newUser.phone = row['رقم الهاتف'] || row['Phone'] || ''; 
@@ -1873,750 +1948,6 @@
                 updateBrandUI();
                 if(CURRENT_BRAND.id === id) switchBrand(1);
             }
-        }
-
-        // === Settings ===
-        function setSettingTab(t, el) { document.querySelectorAll('.setting-content-pane').forEach(p=>p.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelectorAll('#settings .custom-tab').forEach(x=>x.classList.remove('active')); el.classList.add('active'); }
-        function triggerFileSelect(id) { document.getElementById(id).click(); }
-        function handleFileUpload(input, imgId, key) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { DB.settings[key] = e.target.result; saveDB(); loadSettings(); }; reader.readAsDataURL(input.files[0]); } }
-        function removeImage(imgId, key, inputId) { DB.settings[key] = null; document.getElementById(inputId).value = ""; saveDB(); loadSettings(); }
-        function openImageModal(src) { document.getElementById('fullImage').src = src; document.getElementById('imageViewModal').style.display = 'flex'; }
-        
-        function loadSettings() {
-            document.getElementById('confSchool').value = DB.settings.schoolName || ''; document.getElementById('confYear').value = DB.settings.schoolYear || '';
-            const logos = ['ministryLogo', 'schoolLogo', 'schoolStamp']; const prefixes = ['ministry', 'school', 'stamp'];
-            logos.forEach((key, i) => { const wrapper = document.getElementById(`preview_wrap_${prefixes[i]}`); const btnWrap = document.getElementById(`btn_wrap_${prefixes[i]}`); const img = document.getElementById(`preview_${prefixes[i]}`); if (DB.settings[key]) { img.src = DB.settings[key]; wrapper.style.display = 'inline-block'; btnWrap.style.display = 'none'; } else { wrapper.style.display = 'none'; btnWrap.style.display = 'block'; } });
-            
-            // Evaluation Table with Select All Checkboxes
-            const evalBody = document.getElementById('evalTableBody'); 
-            evalBody.innerHTML = ''; 
-            (DB.settings.evaluation_criteria || []).forEach((c, i) => { 
-                const isActive = c.status !== 'inactive';
-                const statusBadge = isActive ? '<span class="status-badge status-active">نشط</span>' : '<span class="status-badge status-inactive">معطل</span>';
-                evalBody.innerHTML += `
-                <tr>
-                    <td><input type="checkbox" class="custom-checkbox settings-cb-criteria" value="${i}"></td>
-                    <td>${i+1}</td>
-                    <td>${c.name}</td>
-                    <td>${statusBadge}</td>
-                    <td>
-                        <button class="action-btn btn-move" onclick="moveEval(${i}, -1)" title="أعلى">▲</button>
-                        <button class="action-btn btn-move" onclick="moveEval(${i}, 1)" title="أسفل">▼</button>
-                        <button class="action-btn btn-edit" onclick="editEval(${i})">تعديل</button>
-                        <button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleEval(${i})">${isActive?'تعطيل':'تفعيل'}</button>
-                    </td>
-                </tr>`; 
-            });
-
-            // Grades Table with Select All
-            const gradeBody = document.getElementById('gradeTableBody'); 
-            gradeBody.innerHTML = ''; 
-            (DB.settings.evaluation_grades || []).forEach((g, i) => { 
-                const isActive = g.status !== 'inactive';
-                const statusBadge = isActive ? '<span class="status-badge status-active">نشط</span>' : '<span class="status-badge status-inactive">معطل</span>';
-                gradeBody.innerHTML += `
-                <tr>
-                    <td><input type="checkbox" class="custom-checkbox settings-cb-grades" value="${i}"></td>
-                    <td>${i+1}</td>
-                    <td>${g.name}</td>
-                    <td>${statusBadge}</td>
-                    <td>
-                        <button class="action-btn btn-move" onclick="moveGrade(${i}, -1)" title="أعلى">▲</button>
-                        <button class="action-btn btn-move" onclick="moveGrade(${i}, 1)" title="أسفل">▼</button>
-                        <button class="action-btn btn-edit" onclick="editGrade(${i})">تعديل</button>
-                        <button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleGrade(${i})">${isActive?'تعطيل':'تفعيل'}</button>
-                    </td>
-                </tr>`; 
-            });
-
-            fillSigSelects();
-            renderVisitorList('senior'); renderVisitorList('middle');
-            document.getElementById('footer_text').value = DB.settings.footer_text || ''; document.getElementById('footer_align').value = DB.settings.footer_align || 'center'; document.getElementById('footer_fontsize').value = DB.settings.footer_fontsize || '10';
-        }
-
-        function toggleSelectAllSettings(type, cb) {
-            document.querySelectorAll(`.settings-cb-${type}`).forEach(c => c.checked = cb.checked);
-        }
-        function deleteSelectedSettings(type) {
-            const checkboxes = document.querySelectorAll(`.settings-cb-${type}:checked`);
-            if (checkboxes.length === 0) return alert('حدد عناصر للحذف');
-            if (confirm('حذف العناصر المحددة؟')) {
-                const indices = Array.from(checkboxes).map(c => parseInt(c.value)).sort((a,b) => b-a);
-                const targetArray = type === 'criteria' ? DB.settings.evaluation_criteria : DB.settings.evaluation_grades;
-                indices.forEach(idx => targetArray.splice(idx, 1));
-                saveDB(); loadSettings();
-                document.getElementById(type === 'criteria' ? 'selectAllCriteria' : 'selectAllGrades').checked = false;
-            }
-        }
-
-        // Updated Signature Logic
-        function fillSigSelects() {
-            const dirSel = document.getElementById('sig_director');
-            const asstSel = document.getElementById('sig_assistant');
-            const dirVal = DB.settings.sig_director;
-            const asstVal = DB.settings.sig_assistant;
-
-            const populate = (sel, selectedVal, excludedVal) => {
-                sel.innerHTML = '<option value="">اختر...</option>';
-                (DB.senior || []).forEach(u => {
-                    if (u.name !== excludedVal) {
-                        sel.innerHTML += `<option value="${u.name}" ${u.name === selectedVal ? 'selected' : ''}>${u.name}</option>`;
-                    }
-                });
-            };
-
-            populate(dirSel, dirVal, asstVal);
-            populate(asstSel, asstVal, dirVal);
-        }
-
-        function onSigChange() {
-            DB.settings.sig_director = document.getElementById('sig_director').value; 
-            DB.settings.sig_assistant = document.getElementById('sig_assistant').value; 
-            fillSigSelects(); 
-        }
-
-        function saveGeneralSettings() { if(!canEdit('settings')) return alert('لا تملك صلاحية'); DB.settings.schoolName = document.getElementById('confSchool').value; DB.settings.schoolYear = document.getElementById('confYear').value; saveDB(); alert('تم الحفظ'); }
-        function saveSignatureSettings() { if(!canEdit('settings')) return; DB.settings.sig_director = document.getElementById('sig_director').value; DB.settings.sig_assistant = document.getElementById('sig_assistant').value; saveDB(); alert('تم حفظ التوقيعات'); }
-        function clearSignature(id) { document.getElementById(id).value = ''; onSigChange(); saveSignatureSettings(); }
-        function saveFooterSettings() { if(!canEdit('settings')) return; DB.settings.footer_text = document.getElementById('footer_text').value; DB.settings.footer_align = document.getElementById('footer_align').value; DB.settings.footer_fontsize = document.getElementById('footer_fontsize').value; saveDB(); alert('تم حفظ التذييل'); }
-        
-        // Evaluation Settings Logic
-        function openAddEvalModal() { document.getElementById('editEvalId').value = ''; document.getElementById('addEvalForm').reset(); document.getElementById('addEvalModal').style.display='flex'; }
-        function editEval(idx) {
-            const item = DB.settings.evaluation_criteria[idx];
-            document.getElementById('editEvalId').value = idx;
-            document.getElementById('evalName').value = item.name;
-            document.getElementById('addEvalModal').style.display='flex';
-        }
-        function saveEvalForm() { 
-            const n = document.getElementById('evalName').value; 
-            const id = document.getElementById('editEvalId').value;
-            if(n){ 
-                if(!DB.settings.evaluation_criteria) DB.settings.evaluation_criteria=[]; 
-                if (id !== '') {
-                    DB.settings.evaluation_criteria[id].name = n;
-                } else {
-                    DB.settings.evaluation_criteria.push({name:n, status:'active'}); 
-                }
-                saveDB(); loadSettings(); closeModal('addEvalModal'); 
-            } 
-        }
-        function toggleEval(idx) {
-            const item = DB.settings.evaluation_criteria[idx];
-            item.status = (item.status === 'inactive') ? 'active' : 'inactive';
-            saveDB(); loadSettings();
-        }
-        function moveEval(idx, dir) {
-            const arr = DB.settings.evaluation_criteria;
-            if (dir === -1 && idx > 0) [arr[idx], arr[idx-1]] = [arr[idx-1], arr[idx]];
-            if (dir === 1 && idx < arr.length - 1) [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]];
-            saveDB(); loadSettings();
-        }
-        
-        // Grade Settings Logic
-        function openAddGradeModal() { document.getElementById('editGradeId').value = ''; document.getElementById('addGradeForm').reset(); document.getElementById('addGradeModal').style.display='flex'; }
-        function editGrade(idx) {
-            const item = DB.settings.evaluation_grades[idx];
-            document.getElementById('editGradeId').value = idx;
-            document.getElementById('gradeName').value = item.name;
-            document.getElementById('addGradeModal').style.display='flex';
-        }
-        function saveGradeForm() { 
-            const n = document.getElementById('gradeName').value; 
-            const id = document.getElementById('editGradeId').value;
-            if(n){ 
-                if(!DB.settings.evaluation_grades) DB.settings.evaluation_grades=[]; 
-                if (id !== '') {
-                    DB.settings.evaluation_grades[id].name = n;
-                } else {
-                    DB.settings.evaluation_grades.push({name:n, status:'active'}); 
-                }
-                saveDB(); loadSettings(); closeModal('addGradeModal'); 
-            } 
-        }
-        function toggleGrade(idx) {
-            const item = DB.settings.evaluation_grades[idx];
-            item.status = (item.status === 'inactive') ? 'active' : 'inactive';
-            saveDB(); loadSettings();
-        }
-        function moveGrade(idx, dir) {
-            const arr = DB.settings.evaluation_grades;
-            if (dir === -1 && idx > 0) [arr[idx], arr[idx-1]] = [arr[idx-1], arr[idx]];
-            if (dir === 1 && idx < arr.length - 1) [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]];
-            saveDB(); loadSettings();
-        }
-        
-        // Visitor Settings Logic
-        function renderVisitorList(type) { const list = document.getElementById(`list_visitor_${type}`); list.innerHTML = ''; const order = DB.settings[`visitor_order_${type}`] || []; if(order.length === 0) list.innerHTML = '<li class="empty-list-msg">لا يوجد زوار مضافين للقائمة</li>'; else { order.forEach((name, idx) => { list.innerHTML += `<li class="visitor-list-item"><span class="visitor-name">${idx+1}. ${name}</span><div class="visitor-controls"><button class="action-btn btn-move" onclick="moveVisitor('${type}', ${idx}, -1)">▲</button><button class="action-btn btn-move" onclick="moveVisitor('${type}', ${idx}, 1)">▼</button><button class="action-btn btn-delete" onclick="removeVisitor('${type}', ${idx})">✖</button></div></li>`; }); } }
-        function openVisitorPicker(type) { CURRENT_PICKER_TYPE = type; document.getElementById('visitorPickerModal').style.display = 'flex'; filterPickerList(); }
-        function filterPickerList() { 
-            const term = document.getElementById('visitorSearch').value.toLowerCase(); 
-            const list = document.getElementById('pickerList'); 
-            list.innerHTML = ''; 
-            const type = CURRENT_PICKER_TYPE;
-            let sourceArray = [];
-            if (type === 'senior') sourceArray = DB.senior || [];
-            else if (type === 'middle') sourceArray = DB.middle || [];
-            
-            const existingNames = DB.settings[`visitor_order_${type}`] || [];
-
-            sourceArray.forEach(u => { 
-                if (u.id !== 999 && !existingNames.includes(u.name)) {
-                    if (u.name.toLowerCase().includes(term)) { 
-                        list.innerHTML += `<div class="picker-item" onclick="addVisitor('${u.name}')"><span>${u.name}</span><span style="font-size:0.8rem; color:#777;">${type === 'senior' ? 'قيادة عليا' : 'قيادة وسطى'}</span></div>`; 
-                    } 
-                }
-            }); 
-        }
-        function addVisitor(name) { const type = CURRENT_PICKER_TYPE; if(!DB.settings[`visitor_order_${type}`]) DB.settings[`visitor_order_${type}`] = []; if(!DB.settings[`visitor_order_${type}`].includes(name)) { DB.settings[`visitor_order_${type}`].push(name); saveDB(); loadSettings(); } closeModal('visitorPickerModal'); }
-        function removeVisitor(type, idx) { DB.settings[`visitor_order_${type}`].splice(idx, 1); saveDB(); loadSettings(); }
-        function moveVisitor(type, idx, dir) { const arr = DB.settings[`visitor_order_${type}`]; if (dir === -1 && idx > 0) [arr[idx], arr[idx-1]] = [arr[idx-1], arr[idx]]; if (dir === 1 && idx < arr.length - 1) [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]]; saveDB(); loadSettings(); }
-        function saveVisitorOrder() { alert('تم حفظ الترتيب تلقائياً'); }
-        function loadSystemLogs() { const tbody = document.getElementById('logTableBody'); tbody.innerHTML = ''; (DB.logs || []).forEach(l => { tbody.innerHTML += `<tr><td>${l.date}</td><td>${l.user} (${l.brand})</td><td>${l.action}</td><td style="text-align:right;">${l.details}</td></tr>`; }); }
-        function clearSystemLogs() { if(confirm('هل أنت متأكد من مسح السجل بالكامل؟')) { DB.logs = []; saveDB(); loadSystemLogs(); } }
-
-        // === Visits & Charts ===
-        function setVisitTab(type, el) { 
-            CURRENT_VISIT_TAB = type; 
-            document.querySelectorAll('#visits .custom-tab').forEach(t=>t.classList.remove('active')); 
-            el.classList.add('active'); 
-            updateAddVisitButtonState();
-            renderVisitsTable(); 
-        }
-        
-        function updateAddVisitButtonState() {
-            const btn = document.getElementById('btnAddVisit');
-            if (!CURRENT_USER) return;
-            const isAdmin = isAdminUser();
-            const isSupervisor = CURRENT_USER.role === 'supervisor';
-
-            let canAdd = false;
-            if (isAdmin || isSupervisor) {
-                canAdd = true;
-            } else if (CURRENT_VISIT_TAB === 'senior') {
-                canAdd = DB.senior.some(u => u.id === CURRENT_USER.id);
-            } else if (CURRENT_VISIT_TAB === 'middle') {
-                canAdd = DB.middle.some(u => u.id === CURRENT_USER.id);
-            }
-
-            btn.disabled = !canAdd;
-            btn.style.opacity = canAdd ? '1' : '0.5';
-            btn.style.cursor = canAdd ? 'pointer' : 'not-allowed';
-            btn.title = canAdd ? '' : 'ليس لديك صلاحية الإضافة في هذا القسم';
-        }
-
-        function renderVisitsTable() {
-            const tbody = document.getElementById('visitsTableBody'); tbody.innerHTML = '';
-            // Context Filtering applied
-            let list = (CURRENT_VISIT_TAB === 'senior') ? filterByContext(DB.visits_senior || []) : filterByContext(DB.visits_middle || []);
-            const filter = document.getElementById('visitMonthFilter').value;
-            if(filter !== 'all') list = list.filter(v => v.date.split('-')[1] === filter);
-            if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="padding:20px; color:#888;">لا توجد زيارات مسجلة</td></tr>'; return; }
-            
-            list.forEach(v => {
-                let badgeClass = 'bg-light-blue';
-                if(v.eval.includes('ممتاز') || v.eval.includes('يتجاوز التوقعات')) badgeClass = 'bg-light-green'; 
-                else if(v.eval.includes('جيد')) badgeClass = 'bg-light-blue'; 
-                else if(v.eval.includes('يفي')) badgeClass = 'bg-light-orange'; 
-                else badgeClass = 'bg-light-red';
-                
-                const isCreator = (v.visitor === CURRENT_USER.name) || isAdminUser() || CURRENT_USER.role === 'supervisor';
-                const viewBtn = `<button class="action-btn btn-view" onclick="viewVisit(${v.id})" title="معاينة"><i class="fas fa-eye"></i></button>`;
-                const editBtn = `<button class="action-btn btn-edit" onclick="editVisit(${v.id})" title="تعديل" ${isCreator ? '' : 'disabled'}><i class="fas fa-edit"></i></button>`;
-                const delBtn = `<button class="action-btn btn-delete" onclick="deleteVisit(${v.id})" title="حذف" ${isCreator ? '' : 'disabled'}><i class="fas fa-trash"></i></button>`;
-
-                tbody.innerHTML += `
-                <tr>
-                    <td>${v.date}</td>
-                    <td>${v.dept}</td>
-                    <td>${v.teacher}</td>
-                    <td><span style="padding:5px 10px; border-radius:15px; font-size:0.8rem;" class="${badgeClass}">${v.eval}</span></td>
-                    <td>${v.visitor}</td>
-                    <td>${v.visitorJob || '-'}</td>
-                    <td>
-                        <div style="display:flex; justify-content:center; gap:2px;">
-                            ${viewBtn} ${editBtn} ${delBtn}
-                        </div>
-                    </td>
-                </tr>`;
-            });
-        }
-
-        function openAddVisitModal() { 
-            // Permission check in button state, but redundant check
-            // Allow if button enabled
-            document.getElementById('addVisitForm').reset(); 
-            document.getElementById('visitEditId').value = ''; 
-            const dSel = document.getElementById('visitDept'); 
-            dSel.innerHTML = '<option value="">اختر القسم...</option>'; 
-            (DB.departments || []).forEach(d => dSel.innerHTML += `<option value="${d.name}">${d.name}</option>`); 
-            
-            const eSel = document.getElementById('visitEval'); 
-            eSel.innerHTML = '<option value="">اختر التقييم...</option>'; 
-            (DB.settings.evaluation_grades || []).forEach(c => {
-                if (c.status !== 'inactive') {
-                    eSel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
-                }
-            });
-
-            document.getElementById('addVisitModal').style.display = 'flex'; 
-        }
-
-        function onVisitDeptChange() { const dept = document.getElementById('visitDept').value; const tSel = document.getElementById('visitTeacher'); tSel.innerHTML = '<option value="">اختر المعلم/ة...</option>'; (DB.teachers || []).filter(t => t.dept === dept).forEach(t => tSel.innerHTML += `<option value="${t.name}">${t.name}</option>`); }
-        
-        function saveVisit() {
-            const dept = document.getElementById('visitDept').value; 
-            const teacher = document.getElementById('visitTeacher').value; 
-            const date = document.getElementById('visitDate').value; 
-            const ev = document.getElementById('visitEval').value;
-            const editId = document.getElementById('visitEditId').value;
-
-            if(!dept || !teacher || !date || !ev) return alert('جميع الحقول مطلوبة');
-            
-            let targetListKey = (CURRENT_VISIT_TAB === 'senior') ? 'visits_senior' : 'visits_middle';
-            
-            if (editId) {
-                const idx = DB[targetListKey].findIndex(v => v.id == editId);
-                if (idx !== -1) {
-                    DB[targetListKey][idx].dept = dept;
-                    DB[targetListKey][idx].teacher = teacher;
-                    DB[targetListKey][idx].date = date;
-                    DB[targetListKey][idx].eval = ev;
-                    addSystemLog('تعديل زيارة', `المعلم: ${teacher}`);
-                }
-            } else {
-                const newVisit = { 
-                    id: Date.now(), 
-                    dept: dept, 
-                    teacher: teacher, 
-                    date: date, 
-                    eval: ev, 
-                    visitor: CURRENT_USER.name, 
-                    visitorJob: CURRENT_USER.job || 'زائر',
-                    brandId: CURRENT_BRAND.id // Data Tagging
-                };
-                if(!DB[targetListKey]) DB[targetListKey] = []; 
-                DB[targetListKey].push(newVisit); 
-                addSystemLog('إضافة زيارة', `المعلم: ${teacher} - التاريخ: ${date}`);
-            }
-            
-            saveDB(); renderVisitsTable(); closeModal('addVisitModal');
-        }
-
-        function editVisit(id) {
-            let targetListKey = (CURRENT_VISIT_TAB === 'senior') ? 'visits_senior' : 'visits_middle';
-            const visit = DB[targetListKey].find(v => v.id === id);
-            if (!visit) return;
-            openAddVisitModal(); 
-            document.getElementById('visitEditId').value = visit.id;
-            document.getElementById('visitDept').value = visit.dept;
-            onVisitDeptChange(); 
-            document.getElementById('visitTeacher').value = visit.teacher;
-            document.getElementById('visitDate').value = visit.date;
-            document.getElementById('visitEval').value = visit.eval;
-        }
-
-        function deleteVisit(id) {
-            let targetListKey = (CURRENT_VISIT_TAB === 'senior') ? 'visits_senior' : 'visits_middle';
-            if(confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
-                DB[targetListKey] = DB[targetListKey].filter(v => v.id !== id);
-                addSystemLog('حذف زيارة', `ID: ${id}`);
-                saveDB(); renderVisitsTable();
-            }
-        }
-
-        function viewVisit(id) {
-            let targetListKey = (CURRENT_VISIT_TAB === 'senior') ? 'visits_senior' : 'visits_middle';
-            const visit = DB[targetListKey].find(v => v.id === id);
-            if (!visit) return;
-            const html = `<div style="text-align:right;"><div style="margin-bottom:10px;"><strong style="color:#777;">التاريخ:</strong> <b>${visit.date}</b></div><div style="margin-bottom:10px;"><strong style="color:#777;">القسم:</strong> <b>${visit.dept}</b></div><div style="margin-bottom:10px;"><strong style="color:#777;">المعلم/ة:</strong> <b>${visit.teacher}</b></div><div style="margin-bottom:10px;"><strong style="color:#777;">التقييم:</strong> <b>${visit.eval}</b></div><hr><div style="margin-bottom:5px;"><strong style="color:#777;">قام بالزيارة:</strong></div><div>${visit.visitor}</div></div>`;
-            document.getElementById('viewVisitContent').innerHTML = html;
-            document.getElementById('viewVisitModal').style.display = 'flex';
-        }
-
-        function renderPerformanceChart() {
-            const filter = document.getElementById('perfMonthFilter').value; 
-            // Filter by context
-            let allVisits = [...filterByContext(DB.visits_senior||[]), ...filterByContext(DB.visits_middle||[])]; 
-            if(filter !== 'all') allVisits = allVisits.filter(v => v.date.split('-')[1] === filter);
-            const counts = {}; (DB.settings.evaluation_grades || []).forEach(c => counts[c.name] = 0);
-            allVisits.forEach(v => { if(counts[v.eval] !== undefined) counts[v.eval]++; else counts[v.eval] = (counts[v.eval] || 0) + 1; });
-            const ctx = document.getElementById('perfChart').getContext('2d'); if(performanceChartInstance) performanceChartInstance.destroy();
-            performanceChartInstance = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(counts), datasets: [{ label: 'عدد المعلمين', data: Object.values(counts), backgroundColor: '#1e4078', barThickness: 50 }] }, options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } } });
-        }
-        
-        // === Distinguished & Care Needed Auto-Generation Logic ===
-        function renderDistinguishedTables() {
-            const filter = document.getElementById('distMonthFilter').value;
-            
-            // Helper to get AUTO entries from Visits
-            const getAutoEntries = (criteriaText) => {
-                let allV = [...filterByContext(DB.visits_senior||[]), ...filterByContext(DB.visits_middle||[])];
-                if(filter !== 'all') allV = allV.filter(v => v.date.split('-')[1] === filter);
-                return allV.filter(v => v.eval.includes(criteriaText)).map(v => ({
-                    id: 'AUTO_' + v.id,
-                    date: v.date,
-                    teacher: v.teacher,
-                    dept: v.dept,
-                    eval: v.eval,
-                    reason: 'تم الإدراج تلقائياً بناءً على تقييم الزيارة الصفية.',
-                    isAuto: true
-                }));
-            };
-
-            const autoDistinguished = getAutoEntries('يتجاوز التوقعات بكثير');
-            const autoCare = getAutoEntries('يفي بالتوقعات جزئيا');
-
-            const renderTbl = (manualDataKey, tbodyId, autoList) => { 
-                const tbody = document.getElementById(tbodyId); tbody.innerHTML = ''; 
-                let manualList = filterByContext(DB[manualDataKey] || []);
-                if(filter !== 'all') manualList = manualList.filter(item => item.date && item.date.split('-')[1] === filter);
-                
-                // Combine Lists
-                const fullList = [...autoList, ...manualList];
-
-                fullList.forEach((item, idx) => { 
-                    const isAuto = item.isAuto === true;
-                    const sourceBadge = isAuto ? '<span class="status-badge" style="background:#e2e3e5;">تلقائي</span>' : '<span class="status-badge" style="background:#d1ecf1;">يدوي</span>';
-                    const deleteBtn = isAuto ? '' : `<button class="action-btn btn-delete" onclick="deleteDistItem('${manualDataKey}', ${item.id})">حذف</button>`;
-                    
-                    tbody.innerHTML += `<tr><td>${idx+1}</td><td>${item.date || '-'}</td><td>${item.teacher}</td><td>${item.dept}</td><td>${item.eval}</td><td class="reason-cell">${item.reason}</td><td>${sourceBadge} ${deleteBtn}</td></tr>`; 
-                }); 
-            };
-
-            renderTbl('distinguished', 'distinguishedTableBody', autoDistinguished); 
-            renderTbl('care_needed', 'careTableBody', autoCare);
-        }
-        
-        function openDistinguishedModal(type) { 
-            if(!canEdit('distinguished') && !isAdminUser()) return alert('لا تملك صلاحية'); 
-            document.getElementById('distinguishedForm').reset(); 
-            document.getElementById('distType').value = type; 
-            document.getElementById('distinguishedModalTitle').innerText = (type === 'distinguished') ? 'إضافة معلم متميز' : 'إضافة معلم يحتاج رعاية'; 
-            
-            const dSel = document.getElementById('distDept'); 
-            dSel.innerHTML = '<option value="">اختر القسم...</option>'; 
-            (DB.departments || []).forEach(d => dSel.innerHTML += `<option value="${d.name}">${d.name}</option>`); 
-            
-            const eSel = document.getElementById('distEval'); 
-            eSel.innerHTML = '<option value="">اختر التقييم...</option>'; 
-            (DB.settings.evaluation_grades || []).forEach(g => {
-                if(g.status !== 'inactive') eSel.innerHTML += `<option value="${g.name}">${g.name}</option>`;
-            });
-            
-            document.getElementById('distinguishedModal').style.display = 'flex'; 
-        }
-        function onDistinguishedDeptChange() { const dept = document.getElementById('distDept').value; const tSel = document.getElementById('distTeacher'); tSel.innerHTML = '<option value="">اختر المعلم/ة...</option>'; (DB.teachers || []).filter(t => t.dept === dept).forEach(t => tSel.innerHTML += `<option value="${t.name}">${t.name}</option>`); }
-        function saveDistinguishedEntry() { const type = document.getElementById('distType').value; const key = (type === 'distinguished') ? 'distinguished' : 'care_needed'; const obj = { id: Date.now(), dept: document.getElementById('distDept').value, teacher: document.getElementById('distTeacher').value, eval: document.getElementById('distEval').value, reason: document.getElementById('distReason').value, date: document.getElementById('distDate').value || new Date().toISOString().slice(0,10), brandId: CURRENT_BRAND.id }; if(!obj.dept || !obj.teacher) return alert('البيانات ناقصة'); if(!DB[key]) DB[key] = []; DB[key].push(obj); saveDB(); renderDistinguishedTables(); closeModal('distinguishedModal'); }
-        function deleteDistItem(key, id) { if(!canEdit('distinguished') && !isAdminUser()) return; if(confirm('حذف؟')) { DB[key] = DB[key].filter(x => x.id !== id); saveDB(); renderDistinguishedTables(); } }
-        
-        // === Qualitative Report Auto-Show ===
-        function renderQualitativeTable() { 
-            const tbody = document.getElementById('qualitativeTableBody'); tbody.innerHTML = ''; 
-            const filter = document.getElementById('qualMonthFilter').value;
-            let list = filterByContext(DB.qualitative_reports || []);
-            
-            // Filter by Month (Auto-Show current month is handled by filter selection default)
-            if(filter !== 'all') list = list.filter(item => item.date && item.date.split('-')[1] === filter);
-
-            // Filter by Dept if not Admin/Senior
-            const isRestricted = !isAdminUser() && !DB.senior.some(u => u.id === CURRENT_USER.id) && CURRENT_USER.role !== 'supervisor';
-            if (isRestricted && CURRENT_USER.dept) {
-                list = list.filter(item => item.dept === CURRENT_USER.dept);
-            }
-
-            list.forEach((item, idx) => { 
-                const delBtn = (!isRestricted) ? `<button class="action-btn btn-delete" onclick="deleteQualitative(${item.id})">حذف</button>` : '';
-                tbody.innerHTML += `<tr><td>${idx+1}</td><td>${item.date || '-'}</td><td>${item.dept}</td><td class="reason-cell">${item.strength}</td><td class="reason-cell">${item.improve}</td><td>${delBtn}</td></tr>`; 
-            }); 
-        }
-        function openQualitativeModal() { if(!canEdit('qualitative') && !isAdminUser()) return alert('لا تملك صلاحية'); document.getElementById('qualitativeForm').reset(); const dSel = document.getElementById('qualDept'); dSel.innerHTML = '<option value="">اختر القسم...</option>'; (DB.departments || []).forEach(d => dSel.innerHTML += `<option value="${d.name}">${d.name}</option>`); document.getElementById('addQualitativeModal').style.display = 'flex'; }
-        function saveQualitative() { const obj = { id: Date.now(), dept: document.getElementById('qualDept').value, strength: document.getElementById('qualStrength').value, improve: document.getElementById('qualImprove').value, date: document.getElementById('qualDate').value || new Date().toISOString().slice(0,10), brandId: CURRENT_BRAND.id }; if(!obj.dept) return alert('اختر القسم'); if(!DB.qualitative_reports) DB.qualitative_reports = []; DB.qualitative_reports.push(obj); saveDB(); renderQualitativeTable(); closeModal('addQualitativeModal'); }
-        function deleteQualitative(id) { if(!canEdit('qualitative') && !isAdminUser()) return; if(confirm('حذف؟')) { DB.qualitative_reports = DB.qualitative_reports.filter(x => x.id !== id); saveDB(); renderQualitativeTable(); } }
-
-        // === QUALITY REPORT GENERATOR ===
-        function setReportTab(tab, el) {
-            document.querySelectorAll('#quality-report .custom-tab').forEach(t=>t.classList.remove('active'));
-            el.classList.add('active');
-            if(tab === 'create') { document.getElementById('report-create-pane').style.display='block'; document.getElementById('report-saved-pane').style.display='none'; }
-            else { document.getElementById('report-create-pane').style.display='none'; document.getElementById('report-saved-pane').style.display='block'; renderSavedReports(); }
-        }
-
-        function getMonthName(m) {
-            const months = {"01":"يناير", "02":"فبراير", "03":"مارس", "04":"أبريل", "05":"مايو", "06":"يونيو", "07":"يوليو", "08":"أغسطس", "09":"سبتمبر", "10":"أكتوبر", "11":"نوفمبر", "12":"ديسمبر"};
-            return months[m] || m;
-        }
-
-        function generateQualityReport() {
-            const month = document.getElementById('reportMonthSelect').value;
-            const monthName = getMonthName(month);
-            
-            // Collect Data with Context Filter
-            let seniorVisits = filterByContext(DB.visits_senior || []).filter(v => v.date.split('-')[1] === month);
-            let middleVisits = filterByContext(DB.visits_middle || []).filter(v => v.date.split('-')[1] === month);
-            let allVisits = [...seniorVisits, ...middleVisits];
-            
-            let autoDist = allVisits.filter(v => v.eval.includes('يتجاوز التوقعات بكثير')).map(v => ({...v, reason: 'تلقائي'}));
-            let autoCare = allVisits.filter(v => v.eval.includes('يفي بالتوقعات جزئيا')).map(v => ({...v, reason: 'تلقائي'}));
-            
-            let manualDist = filterByContext(DB.distinguished || []).filter(x => x.date && x.date.split('-')[1] === month);
-            let manualCare = filterByContext(DB.care_needed || []).filter(x => x.date && x.date.split('-')[1] === month);
-            
-            let distinguished = [...autoDist, ...manualDist];
-            let care = [...autoCare, ...manualCare];
-
-            let qualitative = filterByContext(DB.qualitative_reports || []).filter(x => x.date && x.date.split('-')[1] === month);
-            
-            const totalVisitsCount = allVisits.length;
-
-            // --- Chart Generation Logic (Page 6) ---
-            const chartData = {};
-            (DB.departments || []).forEach(d => {
-                chartData[d.name] = { total: 0, exceedsALot: 0, exceeds: 0, meets: 0, partially: 0 };
-            });
-            
-            allVisits.forEach(v => {
-                if(!chartData[v.dept]) chartData[v.dept] = { total: 0, exceedsALot: 0, exceeds: 0, meets: 0, partially: 0 };
-                chartData[v.dept].total++;
-                if(v.eval.includes('يتجاوز التوقعات بكثير') || v.eval.includes('ممتاز')) chartData[v.dept].exceedsALot++;
-                else if(v.eval.includes('يتجاوز التوقعات') || v.eval.includes('جيد جداً')) chartData[v.dept].exceeds++;
-                else if(v.eval.includes('يفي بالتوقعات') || v.eval.includes('جيد')) chartData[v.dept].meets++;
-                else chartData[v.dept].partially++;
-            });
-
-            const ctx = document.getElementById('tempChartCanvas').getContext('2d');
-            const deptLabels = Object.keys(chartData);
-            
-            if(window.tempChart) window.tempChart.destroy();
-
-            window.tempChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: deptLabels,
-                    datasets: [
-                        { label: 'عدد الزيارات', data: deptLabels.map(d => chartData[d].total), backgroundColor: '#92d050' },
-                        { label: 'يتجاوز التوقعات بكثير', data: deptLabels.map(d => chartData[d].exceedsALot), backgroundColor: '#2f75b5' },
-                        { label: 'يتجاوز التوقعات', data: deptLabels.map(d => chartData[d].exceeds), backgroundColor: '#c00000' },
-                        { label: 'يفي بالتوقعات', data: deptLabels.map(d => chartData[d].meets), backgroundColor: '#7030a0' },
-                        { label: 'يفي بالتوقعات جزئيا', data: deptLabels.map(d => chartData[d].partially), backgroundColor: '#ffff00' }
-                    ]
-                },
-                options: {
-                    animation: false, 
-                    responsive: false,
-                    plugins: { legend: { position: 'right' } }
-                }
-            });
-            const chartImageSrc = document.getElementById('tempChartCanvas').toDataURL();
-
-
-            // --- HTML CONSTRUCTION ---
-            let html = ``;
-
-            // PAGE 1: COVER
-            html += `
-            <div class="a4-page" style="display:flex; flex-direction:column; justify-content:space-between; padding:30px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-                    <div style="width:30%; text-align:left;">${DB.settings.ministryLogo ? `<img src="${DB.settings.ministryLogo}" style="height:80px;">` : '<h2>Ministry of Education</h2>'}</div>
-                    <div style="width:30%; text-align:center;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Emblem_of_Bahrain.svg/1200px-Emblem_of_Bahrain.svg.png" style="height:100px;"></div>
-                    <div style="width:30%; text-align:right;"><h2 style="margin:0; font-size:18px;">وزارة التربية والتعليم</h2><h3 style="margin:5px 0 0 0; font-size:16px;">${DB.settings.schoolName || ''}</h3></div>
-                </div>
-                <div style="background:#f2f2f2; border-radius:20px; padding:60px 40px; text-align:center; margin:0 auto; width:90%;">
-                    <h1 style="margin:0 0 20px 0; font-size:24px; font-weight:bold;">تقرير متابعة جودة التعليم والتعلم للقيادة العليا والوسطى</h1>
-                    <h2 style="margin:0 0 20px 0; font-size:22px; color:#1e4078;">${DB.settings.schoolName || ''} - ${CURRENT_BRAND.name}</h2>
-                    <h2 style="margin:0 0 20px 0; font-size:22px; color:#da291c; text-decoration:underline;">شهر ${monthName}</h2>
-                    <h3 style="margin:0; font-size:20px;">العام الدراسي ${DB.settings.schoolYear}</h3>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:50px;">
-                    <div style="text-align:center; width:30%;"><p style="font-weight:bold; margin-bottom:30px;">يعتمد، مديرة المدرسة</p><p style="font-family:'Tajawal'; font-size:18px;">${DB.settings.sig_director || ''}</p></div>
-                    <div style="text-align:center; width:30%;">${DB.settings.schoolStamp ? `<img src="${DB.settings.schoolStamp}" style="width:120px;">` : ''}</div>
-                    <div style="text-align:center; width:30%;"><p style="font-weight:bold; margin-bottom:30px;">إعداد المديرة المساعدة</p><p style="font-family:'Tajawal'; font-size:18px;">${DB.settings.sig_assistant || ''}</p></div>
-                </div>
-                ${DB.settings.footer_text ? `<div style="text-align:${DB.settings.footer_align}; font-size:${DB.settings.footer_fontsize}pt; margin-top:20px; border-top:1px solid #eee; padding-top:10px;">${DB.settings.footer_text}</div>` : ''}
-            </div>`;
-
-            // PAGE 2: MIDDLE LEADERSHIP
-            html += `
-            <div class="a4-page" style="padding:30px;">
-                <h3 style="text-decoration:underline; margin-bottom:20px; line-height:1.6;">أولاً: متابعة تسليم القيادة الوسطى للمهام</h3>
-                <table class="report-table-custom">
-                    <thead><tr><th width="30%">القسم</th><th width="20%">عدد الزيارات</th><th width="15%">محضر الاجتماع</th><th width="15%">الخطة الأسبوعية</th><th width="20%">ملاحظات</th></tr></thead>
-                    <tbody>`;
-            const middleLeaders = DB.middle || [];
-            if (middleLeaders.length > 0) {
-                middleLeaders.forEach(u => {
-                    const visitCount = middleVisits.filter(v => v.visitor === u.name).length;
-                    html += `<tr><td class="bold-col">${u.job || u.name}</td><td style="font-weight:bold; font-size:16px;">${visitCount}</td><td style="font-weight:bold;">يوجد</td><td style="font-weight:bold;">يوجد</td><td></td></tr>`;
-                });
-            } else { html += `<tr><td colspan="5">لا توجد بيانات للقيادة الوسطى</td></tr>`; }
-            html += `</tbody></table>
-                <h3 style="text-decoration:underline; margin-bottom:20px;">ثانياً: عدد الزيارات التي نُفذت خلال شهر ${monthName}:</h3>
-                <div style="font-size:18px; font-weight:bold; margin-right:20px;"><p>1- القيادة العليا = ${seniorVisits.length} زيارة</p><p>2- القيادة الوسطى = ${middleVisits.length} زيارة</p></div>
-                ${DB.settings.footer_text ? `<div style="text-align:${DB.settings.footer_align}; font-size:${DB.settings.footer_fontsize}pt; margin-top:auto; position:absolute; bottom:30px; width:90%; border-top:1px solid #eee; padding-top:10px;">${DB.settings.footer_text}</div>` : ''}
-            </div>`;
-
-            // PAGE 3+: VISITS DETAIL
-            html += `<div class="a4-page" style="padding:30px;">
-                <h3 style="text-align:center; text-decoration:underline; margin-bottom:20px;">ثالثًا: بيان أسماء المعلمين المُزارين</h3>
-                <table class="report-table-custom">
-                    <thead><tr><th width="5%">ت</th><th width="20%">اسم المعلم</th><th width="15%">القسم</th><th width="15%">تاريخ الزيارة</th><th width="20%">تقييم الزيارة</th><th width="25%">اسم الزائر</th></tr></thead>
-                    <tbody>`;
-            
-            const seniorOrder = DB.settings.visitor_order_senior || [];
-            const middleOrder = DB.settings.visitor_order_middle || [];
-            
-            const processVisits = (names, visitsPool, typeName) => {
-                let rows = '';
-                names.forEach(visitorName => {
-                    const visits = visitsPool.filter(v => v.visitor === visitorName);
-                    if(visits.length > 0) {
-                        visits.forEach((v, idx) => {
-                            rows += `<tr><td>${idx + 1}</td><td>${v.teacher}</td><td>${v.dept}</td><td>${v.date}</td><td>${v.eval}</td>`;
-                            if (idx === 0) { rows += `<td rowspan="${visits.length}" style="vertical-align:middle; font-weight:bold;">${v.visitor}<br><small>${v.visitorJob || typeName}</small></td>`; }
-                            rows += `</tr>`;
-                        });
-                        rows += `<tr class="report-row-summary"><td colspan="6">مجموع الزيارات = ${visits.length} زيارات</td></tr>`;
-                    }
-                });
-                return rows;
-            };
-
-            html += processVisits(seniorOrder, seniorVisits, 'القيادة العليا');
-            const otherSenior = (DB.senior || []).map(u=>u.name).filter(n => !seniorOrder.includes(n));
-            html += processVisits(otherSenior, seniorVisits, 'القيادة العليا');
-
-            html += processVisits(middleOrder, middleVisits, 'القيادة الوسطى');
-            const otherMiddle = (DB.middle || []).map(u=>u.name).filter(n => !middleOrder.includes(n));
-            html += processVisits(otherMiddle, middleVisits, 'القيادة الوسطى');
-
-            html += `<tr class="report-row-total"><td colspan="6">مجموع الزيارات الكلية = ${totalVisitsCount} زيارة</td></tr>`;
-            html += `</tbody></table>
-            ${DB.settings.footer_text ? `<div style="text-align:${DB.settings.footer_align}; font-size:${DB.settings.footer_fontsize}pt; margin-top:20px; border-top:1px solid #eee; padding-top:10px;">${DB.settings.footer_text}</div>` : ''}
-            </div>`;
-
-            // PAGE 6: CHART
-            html += `
-            <div class="a4-page" style="padding:30px;">
-                <h3 style="text-align:right; text-decoration:underline; margin-bottom:20px;">رابعًا: عدد الزيارات الصفية وتقييم الأداء الصفي</h3>
-                <table class="report-table-custom">
-                    <thead>
-                        <tr><th rowspan="2">الاقسام الاكاديمية</th><th rowspan="2">المجموع</th><th colspan="4">مستويات الأداء</th></tr>
-                        <tr><th style="background:#2f75b5; color:white;">يتجاوز كثيراً</th><th style="background:#c00000; color:white;">يتجاوز</th><th style="background:#7030a0; color:white;">يفي</th><th style="background:#ffff00;">يفي جزئيا</th></tr>
-                    </thead>
-                    <tbody>`;
-            
-            let totalExALot = 0, totalEx = 0, totalMeets = 0, totalPart = 0, grandTotal = 0;
-            
-            Object.keys(chartData).forEach(dept => {
-                const d = chartData[dept];
-                html += `<tr><td style="font-weight:bold;">${dept}</td><td>${d.total}</td><td>${d.exceedsALot}</td><td>${d.exceeds}</td><td>${d.meets}</td><td>${d.partially}</td></tr>`;
-                totalExALot += d.exceedsALot; totalEx += d.exceeds; totalMeets += d.meets; totalPart += d.partially; grandTotal += d.total;
-            });
-
-            html += `<tr style="font-weight:bold;"><td>المجموع الكلي</td><td>${grandTotal}</td><td>${totalExALot}</td><td>${totalEx}</td><td>${totalMeets}</td><td>${totalPart}</td></tr></tbody></table>`;
-            html += `<div style="text-align:center; margin-top:30px;"><img src="${chartImageSrc}" style="max-width:100%;"></div>`;
-            html += `${DB.settings.footer_text ? `<div style="text-align:${DB.settings.footer_align}; font-size:${DB.settings.footer_fontsize}pt; margin-top:auto; position:absolute; bottom:30px; width:90%; border-top:1px solid #eee; padding-top:10px;">${DB.settings.footer_text}</div>` : ''}
-            </div>`;
-
-            // PAGE 7: DISTINGUISHED
-            html += `
-            <div class="a4-page" style="padding:30px;">
-                <h3 style="text-align:right; text-decoration:underline; margin-bottom:20px;">سادسًا: المعلمين المتميزين</h3>
-                <table class="report-table-custom">
-                    <thead><tr><th width="5%">#</th><th width="20%">اسم المعلم</th><th width="15%">التقدير</th><th width="40%">المبررات</th><th width="20%">القسم</th></tr></thead>
-                    <tbody>`;
-            distinguished.forEach((d, i) => {
-                let reasons = d.reason.split('\n').map(r=>r.trim()).filter(r=>r).map(r=>`<li>${r}</li>`).join('');
-                if(reasons) reasons = `<ul class="report-list">${reasons}</ul>`; else reasons = d.reason;
-                html += `<tr><td>${i+1}</td><td>${d.teacher}</td><td>${d.eval}</td><td style="text-align:right;">${reasons}</td><td>${d.dept}</td></tr>`;
-            });
-            html += `</tbody></table>
-
-                <h3 style="text-align:center; margin-top:40px; margin-bottom:20px;">المعلمين الأولى بالرعاية</h3>
-                <table class="report-table-custom">
-                    <thead><tr style="background:#bfbfbf;"><th width="5%">#</th><th width="20%">اسم المعلم</th><th width="15%">التقدير</th><th width="40%">المبررات</th><th width="20%">القسم</th></tr></thead>
-                    <tbody>`;
-            care.forEach((d, i) => {
-                let reasons = d.reason.split('\n').map(r=>r.trim()).filter(r=>r).map(r=>`<li>${r}</li>`).join('');
-                if(reasons) reasons = `<ul class="report-list">${reasons}</ul>`; else reasons = d.reason;
-                html += `<tr><td>${i+1}</td><td>${d.teacher}</td><td>${d.eval}</td><td style="text-align:right;">${reasons}</td><td>${d.dept}</td></tr>`;
-            });
-            html += `</tbody></table>
-            ${DB.settings.footer_text ? `<div style="text-align:${DB.settings.footer_align}; font-size:${DB.settings.footer_fontsize}pt; margin-top:auto; position:absolute; bottom:30px; width:90%; border-top:1px solid #eee; padding-top:10px;">${DB.settings.footer_text}</div>` : ''}
-            </div>`;
-
-            // PAGE 9: QUALITATIVE
-            html += `
-            <div class="a4-page" style="padding:30px;">
-                <h3 style="text-align:right; text-decoration:underline; margin-bottom:10px;">سابعًا: التقرير النوعي</h3>
-                <table class="report-table-custom">
-                    <thead><tr><th width="20%">القسم</th><th width="40%">جوانب القوة</th><th width="40%">جوانب التطوير</th></tr></thead>
-                    <tbody>`;
-            qualitative.forEach(q => {
-                let str = q.strength.split('\n').map(r=>r.trim()).filter(r=>r).map(r=>`<li>${r}</li>`).join(''); if(str) str = `<ul class="report-list">${str}</ul>`;
-                let imp = q.improve.split('\n').map(r=>r.trim()).filter(r=>r).map(r=>`<li>${r}</li>`).join(''); if(imp) imp = `<ul class="report-list">${imp}</ul>`;
-                html += `<tr><td style="font-weight:bold;">${q.dept}</td><td style="text-align:right;">${str}</td><td style="text-align:right;">${imp}</td></tr>`;
-            });
-            html += `</tbody></table>
-            ${DB.settings.footer_text ? `<div style="text-align:${DB.settings.footer_align}; font-size:${DB.settings.footer_fontsize}pt; margin-top:auto; position:absolute; bottom:30px; width:90%; border-top:1px solid #eee; padding-top:10px;">${DB.settings.footer_text}</div>` : ''}
-            </div>`;
-
-            document.getElementById('a4-report-content').innerHTML = html;
-        }
-
-        function printReport() { window.print(); }
-
-        function saveReport() {
-            const content = document.getElementById('a4-report-content').innerHTML;
-            const month = document.getElementById('reportMonthSelect').value;
-            const monthName = getMonthName(month);
-            if(content.includes('يرجى اختيار الشهر')) return alert('يرجى إصدار التقرير أولاً');
-            const rpt = { id: Date.now(), name: `تقرير جودة التعليم - شهر ${monthName}`, date: new Date().toLocaleString('en-GB'), html: content, brandId: CURRENT_BRAND.id };
-            if(!DB.saved_reports) DB.saved_reports = []; DB.saved_reports.unshift(rpt); saveDB(); alert('تم حفظ التقرير في السجل');
-        }
-
-        function renderSavedReports() {
-            const div = document.getElementById('savedReportsList'); div.innerHTML = '';
-            filterByContext(DB.saved_reports || []).forEach((r, i) => {
-                div.innerHTML += `
-                <div class="saved-report-item">
-                    <div class="saved-report-info"><h4>${r.name}</h4><small>تم الحفظ في: ${r.date}</small></div>
-                    <div><button class="btn btn-view" onclick="loadSavedReport(${i})"><i class="fas fa-eye"></i> معاينة</button><button class="btn btn-delete" onclick="deleteSavedReport(${i})"><i class="fas fa-trash"></i></button></div>
-                </div>`;
-            });
-        }
-        
-        function loadSavedReport(idx) { 
-            // Warning: Index is based on filtered view, need robust ID matching in real app
-            // Here assuming simple filter maintains order or we re-find by ID
-            // For prototype simplicity, re-filtering:
-            const filteredReports = filterByContext(DB.saved_reports || []);
-            const r = filteredReports[idx]; 
-            document.getElementById('a4-report-content').innerHTML = r.html; setReportTab('create', document.querySelector('.custom-tab:first-child')); 
-        }
-        function deleteSavedReport(idx) { 
-            if(confirm('حذف التقرير؟')) { 
-                const filteredReports = filterByContext(DB.saved_reports || []);
-                const idToDelete = filteredReports[idx].id;
-                DB.saved_reports = DB.saved_reports.filter(r => r.id !== idToDelete);
-                saveDB(); renderSavedReports(); 
-            } 
-        }
-
-        function exportToWord() {
-            const htmlContent = document.getElementById('a4-report-content').innerHTML;
-            if(htmlContent.includes('يرجى اختيار الشهر')) return alert('يرجى إصدار التقرير أولاً');
-
-            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export</title><style>body{font-family:'Cairo', sans-serif;} table{border-collapse:collapse; width:100%;} td,th{border:1px solid black; padding:5px;} .a4-page{margin-bottom:20px; page-break-after:always;}</style></head><body dir='rtl'>";
-            const footer = "</body></html>";
-            const sourceHTML = header+htmlContent+footer;
-            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-            const fileDownload = document.createElement("a");
-            document.body.appendChild(fileDownload);
-            fileDownload.href = source;
-            fileDownload.download = 'تقرير_الجودة.doc';
-            fileDownload.click();
-            document.body.removeChild(fileDownload);
         }
 
         window.onload = function() { initSystem(); };
