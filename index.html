@@ -3,44 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام ارتقاء لمتابعة جودة التعليم</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <title>نظام ارتقاء | Irteqaa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Tajawal:wght@400;500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
-        :root { --primary: #1e4078; --text: #333; --bg: #f7f9fc; --danger: #da291c; --success: #28a745; --warning: #ffc107; --disabled: #e9ecef; }
+        :root { 
+            --primary: #1e4078; 
+            --primary-dark: #163260;
+            --accent: #dcae1d; /* Gold/Yellow accent */
+            --text: #333; 
+            --bg: #f4f7fa; 
+            --danger: #da291c; 
+            --success: #28a745; 
+            --warning: #ffc107; 
+            --disabled: #e9ecef; 
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         body { margin: 0; background: var(--bg); color: var(--text); }
         
-        /* Layout */
+        /* === Layout === */
         .app-container { display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background: white; border-left: 1px solid #e0e0e0; position: fixed; right: 0; top: 0; height: 100%; z-index: 100; transition: 0.3s; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #f0f4f8; display: flex; gap: 10px; align-items: center; }
-        .sidebar-header i { font-size: 1.8rem; color: var(--primary); }
+        .sidebar { width: 260px; background: white; border-left: 1px solid #e0e0e0; position: fixed; right: 0; top: 0; height: 100%; z-index: 100; transition: 0.3s; box-shadow: -2px 0 10px rgba(0,0,0,0.02); }
+        
+        /* Updated Logo Style in Sidebar */
+        .sidebar-header { 
+            padding: 25px 20px; 
+            border-bottom: 1px solid #f0f4f8; 
+            display: flex; 
+            gap: 12px; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .logo-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1;
+        }
+        .logo-ar {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Tajawal', sans-serif;
+        }
+        .logo-en {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #777;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+        .sidebar-icon {
+            font-size: 2.2rem;
+            color: var(--primary);
+        }
+
         .nav-links { list-style: none; padding: 20px 0; margin: 0; }
-        .nav-links li { margin-bottom: 5px; display: none; }
-        .nav-links a { display: flex; align-items: center; padding: 12px 25px; color: #777; text-decoration: none; transition: 0.3s; font-weight: 600; border-right: 4px solid transparent; cursor: pointer; }
-        .nav-links a:hover, .nav-links a.active { color: var(--primary); background: #f0f4f8; border-right-color: var(--primary); }
-        .nav-links a i { margin-left: 10px; width: 25px; text-align: center; }
+        .nav-links li { margin-bottom: 5px; display: none; } /* Hidden by default for permission handling */
+        .nav-links a { display: flex; align-items: center; padding: 12px 25px; color: #666; text-decoration: none; transition: 0.3s; font-weight: 600; border-right: 4px solid transparent; cursor: pointer; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); background: #f0f7ff; border-right-color: var(--primary); }
+        .nav-links a i { margin-left: 12px; width: 25px; text-align: center; font-size: 1.1rem; }
 
         .main-content { margin-right: 260px; flex: 1; padding: 30px; }
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         
         /* User Profile Header */
-        .user-profile { display: flex; align-items: center; gap: 15px; background: white; padding: 8px 20px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .user-profile { display: flex; align-items: center; gap: 15px; background: white; padding: 8px 20px; border-radius: 50px; box-shadow: var(--shadow); border: 1px solid #eee; }
         .user-info-text { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
         .user-name { font-weight: bold; color: var(--primary); font-size: 1rem; }
         .user-job { font-size: 0.8rem; color: #777; font-weight: normal;}
 
-        /* Login Page Styling */
-        .login-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, var(--primary), #2b2b2b); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .login-logo-container { margin-bottom: 25px; }
-        .login-logo-icon { font-size: 3.5rem; color: var(--primary); margin-bottom: 10px; }
-        .login-title { font-size: 1.8rem; font-weight: 700; color: var(--primary); margin: 0; }
-        .login-subtitle { color: #777; font-size: 0.9rem; margin-top: 5px; display: block; }
+        /* === Modern Login Page Styling === */
+        .login-wrapper { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
+            background: linear-gradient(135deg, #1e4078 0%, #0d1b33 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 9999; 
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .login-box { 
+            background: rgba(255, 255, 255, 0.98); 
+            padding: 50px 40px; 
+            border-radius: 20px; 
+            width: 420px; 
+            text-align: center; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+        .login-logo-container { margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; }
+        .login-logo-icon { font-size: 4rem; color: var(--primary); margin-bottom: 10px; }
+        .login-brand-ar { font-size: 2.2rem; font-weight: 800; color: var(--primary); font-family: 'Tajawal', sans-serif; line-height: 1; }
+        .login-brand-en { font-size: 1rem; font-weight: 500; color: #666; font-family: 'Poppins', sans-serif; letter-spacing: 2px; margin-top: 5px; }
+        
+        .login-title-small { font-size: 1rem; color: #555; margin-bottom: 30px; font-weight: 600; position: relative; display: inline-block; padding-bottom: 10px; }
+        .login-title-small::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: var(--accent); border-radius: 2px; }
+
+        .input-group-modern { position: relative; margin-bottom: 20px; text-align: right; }
+        .input-group-modern i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa; transition: 0.3s; }
+        .input-group-modern .form-control { 
+            padding: 14px 45px 14px 15px; 
+            border-radius: 10px; 
+            border: 2px solid #f0f0f0; 
+            background: #fdfdfd;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .input-group-modern .form-control:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(30, 64, 120, 0.1); }
+        .input-group-modern .form-control:focus + i { color: var(--primary); }
+        
+        .btn-login { 
+            background: linear-gradient(135deg, var(--primary) 0%, #2c5aa0 100%); 
+            color: white; 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            margin-top: 10px; 
+            box-shadow: 0 10px 20px rgba(30, 64, 120, 0.2);
+        }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(30, 64, 120, 0.3); }
 
         .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; font-family: inherit; }
         .form-control:disabled { background-color: var(--disabled); cursor: not-allowed; color: #666; }
@@ -49,7 +136,7 @@
         .btn-primary { background: var(--primary); color: white; width: 100%; }
         
         /* Content Sections */
-        .section-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .section-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; display: none; box-shadow: var(--shadow); }
         .section-card.active { display: block; }
 
         /* Dashboard Specific Styles */
@@ -238,17 +325,26 @@
         <div class="login-box">
             <div class="login-logo-container">
                 <i class="fas fa-graduation-cap login-logo-icon"></i>
-                <h1 class="login-title">نظام ارتقاء (Irteqaa)</h1>
-                <span class="login-subtitle">لمتابعة جودة التعليم</span>
-            </div>
-            <h2 style="color:#555; margin:0 0 20px 0; font-size:1.2rem;">تسجيل الدخول</h2>
-            <form id="loginForm" onsubmit="login(event)">
-                <input type="text" id="loginUser" class="form-control" placeholder="اسم المستخدم" required>
-                <div class="password-wrapper" style="margin-bottom:20px;">
-                    <input type="password" id="loginPass" class="form-control" placeholder="كلمة المرور" required>
-                    <i class="fas fa-eye password-icon" onclick="togglePass('loginPass', this)"></i>
+                <div style="line-height: 1.2;">
+                    <div class="login-brand-ar">ارتقاء</div>
+                    <div class="login-brand-en">Irteqaa</div>
                 </div>
-                <button type="submit" class="btn btn-primary">دخول</button>
+            </div>
+            
+            <div class="login-title-small">تسجيل الدخول</div>
+
+            <form id="loginForm" onsubmit="login(event)">
+                <div class="input-group-modern">
+                    <input type="text" id="loginUser" class="form-control" placeholder="اسم المستخدم" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="input-group-modern">
+                    <input type="password" id="loginPass" class="form-control" placeholder="كلمة المرور" required>
+                    <i class="fas fa-eye password-icon" style="cursor: pointer;" onclick="togglePass('loginPass', this)"></i>
+                </div>
+
+                <button type="submit" class="btn btn-login">دخول</button>
                 <div id="loginError" style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 10px; border-radius: 6px; margin-top: 15px; font-size: 0.9rem; line-height: 1.5; display: none; text-align: center;"></div>
             </form>
         </div>
@@ -257,8 +353,11 @@
     <div id="app" class="app-container" style="display:none;">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <i class="fas fa-graduation-cap"></i>
-                <div><div style="font-weight:bold;">ارتقاء</div><small id="sidebarSchoolName" style="color:#888;">...</small></div>
+                <i class="fas fa-graduation-cap sidebar-icon"></i>
+                <div class="logo-group">
+                    <span class="logo-ar">ارتقاء</span>
+                    <span class="logo-en">Irteqaa</span>
+                </div>
             </div>
             <ul class="nav-links">
                 <li id="nav-dashboard"><a onclick="navigate('dashboard')" data-page="dashboard"><i class="fas fa-home"></i> لوحة التحكم</a></li>
@@ -872,13 +971,25 @@
                         <label>كلمة المرور</label><input type="password" id="addPass" class="form-control">
                         
                         <div id="roleWrapper" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                            <label style="color:var(--primary); font-weight:bold;">صلاحية إضافية (اختياري)</label>
-                            <select id="addRole" class="form-control">
+                            <label style="color:var(--primary); font-weight:bold; margin-bottom:5px;">صلاحية إضافية (اختياري)</label>
+                            <select id="addRole" class="form-control" style="margin-bottom:15px;">
                                 <option value="">مستخدم عادي</option>
                                 <option value="supervisor">مشرف للنظام</option>
                                 <option value="admin_support">إداري للنظام</option>
                             </select>
-                            <small style="color:#777; font-size:0.8rem;">* مشرف النظام يملك صلاحيات إضافية محددة. مدير النظام (Admin) هو الوحيد الذي يملك كل الصلاحيات.</small>
+                            
+                            <label style="color:var(--primary); font-weight:bold; margin-bottom:5px;">مدة الصلاحية (اختياري)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex:1;">
+                                    <label style="font-size:0.8rem; color:#777;">تاريخ البدء</label>
+                                    <input type="date" id="addStartDate" class="form-control">
+                                </div>
+                                <div style="flex:1;">
+                                    <label style="font-size:0.8rem; color:#777;">تاريخ الانتهاء</label>
+                                    <input type="date" id="addEndDate" class="form-control">
+                                </div>
+                            </div>
+                            <small style="color:#777; font-size:0.8rem; display:block; margin-top:-10px;">* اترك التواريخ فارغة لصلاحية دائمة.</small>
                         </div>
                     </div>
                 </form>
@@ -1097,7 +1208,7 @@
         SECTIONS.forEach(s => DEFAULT_PERMS[s.id] = {view: true, edit: false});
 
         // Use a new key to ensure clean data start for the user
-        const DB_KEY = 'Irteqaa_System_DB_Final_V7';
+        const DB_KEY = 'Irteqaa_System_DB_Final_V8';
 
         const INITIAL_DB = {
             admins: [{id: 999, name: 'مدير النظام', login: 'admin', pass: 'Hasan@12', status: 'active', job: 'مدير النظام', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS))}],
@@ -1197,6 +1308,22 @@
                     if(DB[grp]) { const u = DB[grp].find(x => x.id == sessionID); if(u) found = u; }
                 });
                 if (found && found.status === 'active') { 
+                    
+                    // CHECK USER EXPIRY
+                    const today = new Date().toISOString().split('T')[0];
+                    if (found.accessStartDate && found.accessStartDate > today) {
+                        alert("عذراً، لم يبدأ تاريخ تفعيل حسابك بعد.");
+                        localStorage.removeItem('Irteqaa_Session');
+                        document.getElementById('loginPage').style.display = 'flex';
+                        return;
+                    }
+                    if (found.accessEndDate && found.accessEndDate < today) {
+                        alert("عذراً، انتهت صلاحية حسابك. يرجى التواصل مع المشرف لاستعادة الصلاحية.");
+                        localStorage.removeItem('Irteqaa_Session');
+                        document.getElementById('loginPage').style.display = 'flex';
+                        return;
+                    }
+
                     CURRENT_USER = found; 
                     
                     // -- Permission & Brand Context Logic --
@@ -1207,16 +1334,10 @@
                     if (isAdminUser()) {
                         targetBrand = DB.brands.find(b => b.id == lastBrandId && b.status === 'active') || DB.brands[0];
                     } else {
-                        // 2. Is Regular User? Check Allowed Brands
-                        // Note: For this prototype, if `allowedBrands` is undefined, we fallback to strict `brandId` matching
                         const allowedIds = found.allowedBrands || (found.brandId ? [found.brandId] : []);
-                        
-                        // Check if last accessed brand is allowed
                         if (lastBrandId && allowedIds.includes(parseInt(lastBrandId))) {
                             targetBrand = DB.brands.find(b => b.id == lastBrandId && b.status === 'active');
                         }
-                        
-                        // Fallback: Pick first allowed brand
                         if (!targetBrand && allowedIds.length > 0) {
                             targetBrand = DB.brands.find(b => b.id === allowedIds[0] && b.status === 'active');
                         }
@@ -1264,7 +1385,24 @@
             });
             
             if (userFound) {
-                if (userFound.status !== 'active') { errBox.innerText = "نعتذر منك، هذا الحساب غير نشط حالياً."; errBox.style.display = 'block'; return; }
+                if (userFound.status !== 'active') { 
+                    errBox.innerText = "نعتذر منك، هذا الحساب غير نشط حالياً."; errBox.style.display = 'block'; 
+                    return; 
+                }
+
+                // === DATE CHECK ===
+                const today = new Date().toISOString().split('T')[0];
+                if (userFound.accessStartDate && userFound.accessStartDate > today) {
+                    errBox.innerText = "عذراً، لم يبدأ تاريخ تفعيل حسابك بعد."; 
+                    errBox.style.display = 'block'; 
+                    return;
+                }
+                if (userFound.accessEndDate && userFound.accessEndDate < today) {
+                    errBox.innerText = "عذراً، انتهت صلاحية حسابك. يرجى التواصل مع المشرف لاستعادة الصلاحية."; 
+                    errBox.style.display = 'block'; 
+                    return;
+                }
+
                 CURRENT_USER = userFound; 
                 localStorage.setItem('Irteqaa_Session', userFound.id); 
                 
@@ -1280,7 +1418,6 @@
                 if(targetBrandId) {
                     localStorage.setItem('Irteqaa_CurrentBrand', targetBrandId);
                     addSystemLog('تسجيل دخول', `المستخدم: ${userFound.name}`); 
-                    // Reload to initialize system with correct brand context
                     location.reload(); 
                 } else {
                     errBox.innerText = "لا يوجد براند مخصص لهذا المستخدم."; errBox.style.display = 'block';
@@ -1633,7 +1770,13 @@
             document.getElementById('editUserId').value=''; document.getElementById('addUserForm').reset(); document.getElementById('addUserModal').style.display='flex'; 
             const d=(CURRENT_TAB==='departments'), t=(CURRENT_TAB==='teachers'); 
             const roleWrapper = document.getElementById('roleWrapper');
-            if(d){document.getElementById('addUserModalTitle').innerText='إضافة قسم'; document.getElementById('userFields').style.display='none'; document.getElementById('deptWrapper').style.display='none';} 
+            
+            // Hide Role wrapper for Depts
+            if(d){
+                document.getElementById('addUserModalTitle').innerText='إضافة قسم'; 
+                document.getElementById('userFields').style.display='none'; 
+                document.getElementById('deptWrapper').style.display='none';
+            } 
             else if(t){
                 document.getElementById('addUserModalTitle').innerText='إضافة معلمة'; 
                 document.getElementById('userFields').style.display='none'; 
@@ -1647,7 +1790,7 @@
                 document.getElementById('addUserModalTitle').innerText='إضافة مستخدم'; 
                 document.getElementById('userFields').style.display='block'; 
                 document.getElementById('deptWrapper').style.display='none';
-                roleWrapper.style.display = 'block'; // Show Role Select only for Leaders
+                roleWrapper.style.display = 'block'; 
             } 
         }
         function editUser(id) { 
@@ -1665,6 +1808,8 @@
                 document.getElementById('addLogin').value=u.login||''; 
                 document.getElementById('addPass').value=u.pass||'';
                 document.getElementById('addRole').value=u.role||'';
+                document.getElementById('addStartDate').value=u.accessStartDate||'';
+                document.getElementById('addEndDate').value=u.accessEndDate||'';
             } 
         }
         function closeModal(id) { document.getElementById(id).style.display='none'; }
@@ -1705,6 +1850,8 @@
                 u.login=document.getElementById('addLogin').value; 
                 u.pass=document.getElementById('addPass').value; 
                 u.role=document.getElementById('addRole').value;
+                u.accessStartDate = document.getElementById('addStartDate').value;
+                u.accessEndDate = document.getElementById('addEndDate').value;
             } 
             
             if(!edit)DB[CURRENT_TAB].push(u); 
@@ -1720,8 +1867,14 @@
             
             document.getElementById('viewUserContent').innerHTML = `
                 <div class="user-view-card"><div class="user-view-avatar">${u.name.charAt(0)}</div><h3 style="color:var(--primary); margin:0;">${u.name}</h3></div>
-                <div class="info-grid"><div class="info-item"><label>الوظيفة</label><span>${u.job || u.dept || '-'}</span></div><div class="info-item"><label>رقم الهاتف</label><span>${u.phone || '-'}</span></div><div class="info-item"><label>الحالة</label><span style="color:${u.status==='active'?'green':'red'}">${u.status==='active'?'مفعل':'معطل'}</span></div><div class="info-item"><label>اسم الدخول</label><span style="background:#eee; padding:2px 5px; border-radius:4px;">${u.login || '-'}</span></div>
-                ${(CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'teachers') ? `<div class="info-item"><label>الصلاحية الإضافية</label><span>${roleTxt}</span></div>` : ''}
+                <div class="info-grid">
+                    <div class="info-item"><label>الوظيفة</label><span>${u.job || u.dept || '-'}</span></div>
+                    <div class="info-item"><label>رقم الهاتف</label><span>${u.phone || '-'}</span></div>
+                    <div class="info-item"><label>الحالة</label><span style="color:${u.status==='active'?'green':'red'}">${u.status==='active'?'مفعل':'معطل'}</span></div>
+                    <div class="info-item"><label>اسم الدخول</label><span style="background:#eee; padding:2px 5px; border-radius:4px;">${u.login || '-'}</span></div>
+                    ${(CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'teachers') ? `<div class="info-item"><label>الصلاحية الإضافية</label><span>${roleTxt}</span></div>` : ''}
+                    <div class="info-item"><label>تاريخ البدء</label><span>${u.accessStartDate || 'غير محدد'}</span></div>
+                    <div class="info-item"><label>تاريخ الانتهاء</label><span>${u.accessEndDate || 'غير محدد'}</span></div>
                 </div>
                 <div class="view-footer-info"><div>آخر تحديث بواسطة: <strong>${u.lastUpdatedBy || 'N/A'}</strong></div><div>${u.lastUpdated || '-'}</div></div>
             `;
