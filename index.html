@@ -825,8 +825,9 @@
                             <th width="5%">#</th>
                             <th width="30%">اسم البراند (الجهة)</th>
                             <th width="20%">البريد الإلكتروني</th>
-                            <th width="15%">الحالة</th>
-                            <th width="30%">الإجراءات</th>
+                            <th width="15%">مدة الصلاحية</th>
+                            <th width="10%">الحالة</th>
+                            <th width="20%">الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="brandsTableBody">
@@ -1020,6 +1021,19 @@
                     <input type="text" id="brandName" class="form-control" required placeholder="مثال: فرع المحرق">
                     <label>البريد الإلكتروني للبراند</label>
                     <input type="email" id="brandEmail" class="form-control" placeholder="example@school.bh">
+                    
+                    <label style="color:var(--primary); font-weight:bold; margin-top:15px; display:block;">مدة صلاحية البراند</label>
+                    <div style="display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 6px; border: 1px solid #eee;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.8rem; color:#777;">تاريخ البدء</label>
+                            <input type="date" id="brandStartDate" class="form-control" style="margin-bottom:0;">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.8rem; color:#777;">تاريخ الانتهاء</label>
+                            <input type="date" id="brandEndDate" class="form-control" style="margin-bottom:0;">
+                        </div>
+                    </div>
+                    <small style="color:#777; font-size:0.8rem; display:block; margin-top:5px;">* اترك التواريخ فارغة لصلاحية دائمة.</small>
                 </form>
             </div>
             <div class="modal-footer">
@@ -1418,6 +1432,19 @@
                     }
 
                     if (targetBrand) {
+                        // === CHECK BRAND VALIDITY HERE ===
+                        const today = new Date().toISOString().split('T')[0];
+                        if (targetBrand.startDate && targetBrand.startDate > today) {
+                            alert("عذراً، لم يبدأ تاريخ تفعيل اشتراك الجهة (البراند) بعد.");
+                            logout();
+                            return;
+                        }
+                        if (targetBrand.endDate && targetBrand.endDate < today) {
+                            alert("عذراً، انتهت مدة صلاحية اشتراك الجهة (البراند). يرجى التواصل مع المشرف.");
+                            logout();
+                            return;
+                        }
+
                         CURRENT_BRAND = targetBrand;
                         showApp();
                     } else {
@@ -1464,7 +1491,7 @@
                     return; 
                 }
 
-                // === DATE CHECK FOR VALIDITY ===
+                // === USER DATE CHECK ===
                 const today = new Date().toISOString().split('T')[0];
                 if (userFound.accessStartDate && userFound.accessStartDate > today) {
                     errBox.innerText = "عذراً، لم يبدأ تاريخ تفعيل حسابك بعد. يرجى التواصل مع المشرف."; 
@@ -1472,7 +1499,7 @@
                     return;
                 }
                 if (userFound.accessEndDate && userFound.accessEndDate < today) {
-                    errBox.innerText = "عذراً، انتهت مدة الصلاحية. يرجى التواصل مع المشرف لاستعادة الصلاحية."; 
+                    errBox.innerText = "عذراً، انتهت مدة صلاحية حسابك. يرجى التواصل مع المشرف لاستعادة الصلاحية."; 
                     errBox.style.display = 'block'; 
                     return;
                 }
@@ -1490,6 +1517,21 @@
                 }
 
                 if(targetBrandId) {
+                    // === BRAND DATE CHECK ===
+                    const brand = DB.brands.find(b => b.id === targetBrandId);
+                    if (brand) {
+                        if (brand.startDate && brand.startDate > today) {
+                            errBox.innerText = "عذراً، لم يبدأ تاريخ تفعيل اشتراك الجهة (البراند) بعد."; 
+                            errBox.style.display = 'block'; 
+                            return;
+                        }
+                        if (brand.endDate && brand.endDate < today) {
+                            errBox.innerText = "عذراً، انتهت مدة صلاحية اشتراك الجهة (البراند). يرجى التواصل مع المشرف."; 
+                            errBox.style.display = 'block'; 
+                            return;
+                        }
+                    }
+
                     localStorage.setItem('Irteqaa_CurrentBrand', targetBrandId);
                     addSystemLog('تسجيل دخول', `المستخدم: ${userFound.name}`); 
                     location.reload(); 
@@ -1628,6 +1670,13 @@
         function switchBrand(id) {
             const newBrand = DB.brands.find(b => b.id === id);
             if(newBrand) {
+                // Check Brand Expiry before switching
+                const today = new Date().toISOString().split('T')[0];
+                if (newBrand.endDate && newBrand.endDate < today && !isAdminUser()) {
+                    alert("عذراً، انتهت مدة صلاحية اشتراك هذه الجهة.");
+                    return;
+                }
+
                 CURRENT_BRAND = newBrand;
                 localStorage.setItem('Irteqaa_CurrentBrand', id);
                 // 3. Auto Refresh (The core requirement)
@@ -2146,11 +2195,19 @@
                 // ADD RESET BUTTON
                 const resetBtn = `<button class="action-btn btn-reset" onclick="resetBrandData(${b.id})" title="إعادة تهيئة"><i class="fas fa-redo"></i> تهيئة</button>`;
                 
+                let validityStr = '-';
+                if(b.startDate || b.endDate) {
+                    const start = b.startDate || 'غير محدد';
+                    const end = b.endDate || 'غير محدد';
+                    validityStr = `<div style="font-size:0.8rem; line-height:1.2;">من: ${start}<br>إلى: ${end}</div>`;
+                }
+
                 tbody.innerHTML += `
                 <tr>
                     <td>${idx+1}</td>
                     <td>${b.name}</td>
                     <td>${b.email || '-'}</td>
+                    <td>${validityStr}</td>
                     <td>${statusBadge}</td>
                     <td>
                         <div style="display:flex; gap:2px; justify-content:center;">
@@ -2177,6 +2234,8 @@
                 document.getElementById('editBrandId').value = b.id;
                 document.getElementById('brandName').value = b.name;
                 document.getElementById('brandEmail').value = b.email;
+                document.getElementById('brandStartDate').value = b.startDate || '';
+                document.getElementById('brandEndDate').value = b.endDate || '';
                 document.getElementById('brandModalTitle').innerText = 'تعديل البراند';
                 document.getElementById('brandModal').style.display = 'flex';
             }
@@ -2186,14 +2245,30 @@
             const id = document.getElementById('editBrandId').value;
             const name = document.getElementById('brandName').value;
             const email = document.getElementById('brandEmail').value;
+            const startDate = document.getElementById('brandStartDate').value;
+            const endDate = document.getElementById('brandEndDate').value;
+
             if(!name) return alert('اسم البراند مطلوب');
 
             if(id) {
                 const b = DB.brands.find(x => x.id == id);
-                if(b) { b.name = name; b.email = email; addSystemLog('تعديل براند', name); }
+                if(b) { 
+                    b.name = name; 
+                    b.email = email; 
+                    b.startDate = startDate;
+                    b.endDate = endDate;
+                    addSystemLog('تعديل براند', name); 
+                }
             } else {
                 // New Brand is clean by default because no data has this ID yet
-                DB.brands.push({id: Date.now(), name: name, email: email, status: 'active'});
+                DB.brands.push({
+                    id: Date.now(), 
+                    name: name, 
+                    email: email, 
+                    status: 'active',
+                    startDate: startDate,
+                    endDate: endDate
+                });
                 addSystemLog('إضافة براند', name);
             }
             saveDB();
