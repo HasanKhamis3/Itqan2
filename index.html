@@ -686,109 +686,179 @@
         function deleteBrand(id) { if(confirm('هل أنت متأكد من حذف هذا البراند؟ سيتم إخفاء جميع البيانات المرتبطة به.')) { DB.brands = DB.brands.filter(x => x.id !== id); resetBrandData(id, true); saveDB(); renderBrandsTable(); updateBrandUI(); if(CURRENT_BRAND.id === id) switchBrand(1); } }
         function resetBrandData(brandId, silent = false) { if(!silent && !confirm('تحذير: سيتم مسح جميع البيانات والمدخلات والمستخدمين والتقارير الخاصة بهذا البراند بشكل نهائي.\nهل أنت متأكد؟')) return; const arraysToClean = [ 'senior', 'middle', 'teachers', 'departments', 'visits_senior', 'visits_middle', 'distinguished', 'care_needed', 'qualitative_reports', 'saved_reports' ]; arraysToClean.forEach(key => { if(DB[key]) { DB[key] = DB[key].filter(item => { if(item.id === 999) return true; const itemBrand = item.brandId || 1; return itemBrand !== brandId; }); } }); saveDB(); if(!silent) alert('تمت إعادة تهيئة بيانات البراند بنجاح.'); if(CURRENT_BRAND.id === brandId) location.reload(); }
 
-        // === MISSING FUNCTIONS IMPLEMENTATION FOR VISITS, DISTINGUISHED, QUALITY, SETTINGS ===
-        
-        // Visits
+        // Visits, Dist, Qual, Report, Settings (Previous)
         function setVisitTab(tab, el) { CURRENT_VISIT_TAB = tab; document.querySelectorAll('#visits .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderVisitsTable(); }
         function renderVisitsTable() { const list = (CURRENT_VISIT_TAB === 'senior') ? DB.visits_senior : DB.visits_middle; const filtered = filterByContext(list); const tbody = document.getElementById('visitsTableBody'); tbody.innerHTML = ''; const filterMonth = document.getElementById('visitMonthFilter').value; filtered.forEach(v => { if(filterMonth !== 'all' && v.date.split('-')[1] !== filterMonth) return; tbody.innerHTML += `<tr><td>${v.date}</td><td>${v.dept}</td><td>${v.teacher}</td><td>${v.eval}</td><td>${v.visitor}</td><td>${v.visitorJob||'-'}</td><td><button class="action-btn btn-delete" onclick="deleteVisit(${v.id})"><i class="fas fa-trash"></i></button></td></tr>`; }); }
         function openAddVisitModal() { document.getElementById('addVisitForm').reset(); document.getElementById('visitEditId').value = ''; const dSelect = document.getElementById('visitDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); const eSelect = document.getElementById('visitEval'); eSelect.innerHTML = '<option value="">اختر التقييم...</option>'; (DB.settings.evaluation_grades||[]).forEach(g => eSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`); document.getElementById('addVisitModal').style.display='flex'; }
         function onVisitDeptChange() { const dept = document.getElementById('visitDept').value; const tSelect = document.getElementById('visitTeacher'); tSelect.innerHTML = '<option value="">اختر المعلم/ة...</option>'; if(dept) { filterByContext(DB.teachers||[]).filter(t => t.dept === dept).forEach(t => tSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`); } }
         function saveVisit() { const dept = document.getElementById('visitDept').value; const teacher = document.getElementById('visitTeacher').value; const date = document.getElementById('visitDate').value; const ev = document.getElementById('visitEval').value; if(!dept || !teacher || !date || !ev) return alert('جميع الحقول مطلوبة'); const obj = { id: Date.now(), dept, teacher, date, eval: ev, visitor: CURRENT_USER.name, visitorJob: CURRENT_USER.job || 'مسؤول', brandId: CURRENT_BRAND.id }; if(CURRENT_VISIT_TAB === 'senior') DB.visits_senior.push(obj); else DB.visits_middle.push(obj); saveDB(); renderVisitsTable(); closeModal('addVisitModal'); }
         function deleteVisit(id) { if(confirm('حذف؟')) { if(CURRENT_VISIT_TAB === 'senior') DB.visits_senior = DB.visits_senior.filter(x => x.id !== id); else DB.visits_middle = DB.visits_middle.filter(x => x.id !== id); saveDB(); renderVisitsTable(); } }
-
-        // Distinguished
         function renderDistinguishedTables() { const m = document.getElementById('distMonthFilter').value; const distList = filterByContext(DB.distinguished||[]); const careList = filterByContext(DB.care_needed||[]); const t1 = document.getElementById('distinguishedTableBody'); const t2 = document.getElementById('careTableBody'); t1.innerHTML = ''; t2.innerHTML = ''; distList.forEach((d, i) => { if(m !== 'all' && d.date.split('-')[1] !== m) return; t1.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td>${d.teacher}</td><td>${d.dept}</td><td>${d.eval}</td><td class="reason-cell">${d.reason}</td></tr>`; }); careList.forEach((d, i) => { if(m !== 'all' && d.date.split('-')[1] !== m) return; t2.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td>${d.teacher}</td><td>${d.dept}</td><td>${d.eval}</td><td class="reason-cell">${d.reason}</td></tr>`; }); }
         function openDistinguishedModal(type) { document.getElementById('distType').value = type; document.getElementById('distinguishedForm').reset(); document.getElementById('distinguishedModalTitle').innerText = (type === 'distinguished' ? 'إضافة معلم متميز' : 'إضافة معلم يحتاج رعاية'); const dSelect = document.getElementById('distDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); const eSelect = document.getElementById('distEval'); eSelect.innerHTML = '<option value="">اختر التقدير...</option>'; (DB.settings.evaluation_grades||[]).forEach(g => eSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`); document.getElementById('distinguishedModal').style.display='flex'; }
         function onDistinguishedDeptChange() { const dept = document.getElementById('distDept').value; const tSelect = document.getElementById('distTeacher'); tSelect.innerHTML = '<option value="">اختر المعلم/ة...</option>'; if(dept) { filterByContext(DB.teachers||[]).filter(t => t.dept === dept).forEach(t => tSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`); } }
         function saveDistinguishedEntry() { const type = document.getElementById('distType').value; const dept = document.getElementById('distDept').value; const teacher = document.getElementById('distTeacher').value; const date = document.getElementById('distDate').value; const ev = document.getElementById('distEval').value; const reason = document.getElementById('distReason').value; if(!dept || !teacher || !date) return alert('البيانات ناقصة'); const obj = { id: Date.now(), dept, teacher, date, eval: ev, reason, brandId: CURRENT_BRAND.id }; if(type === 'distinguished') DB.distinguished.push(obj); else DB.care_needed.push(obj); saveDB(); renderDistinguishedTables(); closeModal('distinguishedModal'); }
-
-        // Qualitative
         function renderQualitativeTable() { const m = document.getElementById('qualMonthFilter').value; const list = filterByContext(DB.qualitative_reports||[]); const tbody = document.getElementById('qualitativeTableBody'); tbody.innerHTML = ''; list.forEach((q, i) => { if(m !== 'all' && q.date.split('-')[1] !== m) return; tbody.innerHTML += `<tr><td>${i+1}</td><td>${q.date}</td><td>${q.dept}</td><td class="reason-cell">${q.strength}</td><td class="reason-cell">${q.improve}</td><td><button class="action-btn btn-delete" onclick="deleteQualitative(${q.id})"><i class="fas fa-trash"></i></button></td></tr>`; }); }
         function openQualitativeModal() { document.getElementById('qualitativeForm').reset(); const dSelect = document.getElementById('qualDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); document.getElementById('addQualitativeModal').style.display='flex'; }
         function saveQualitative() { const dept = document.getElementById('qualDept').value; const date = document.getElementById('qualDate').value; const s = document.getElementById('qualStrength').value; const i = document.getElementById('qualImprove').value; if(!dept || !date) return alert('البيانات ناقصة'); DB.qualitative_reports.push({ id: Date.now(), dept, date, strength: s, improve: i, brandId: CURRENT_BRAND.id }); saveDB(); renderQualitativeTable(); closeModal('addQualitativeModal'); }
         function deleteQualitative(id) { if(confirm('حذف؟')) { DB.qualitative_reports = DB.qualitative_reports.filter(x => x.id !== id); saveDB(); renderQualitativeTable(); } }
-
-        // Report
         function setReportTab(tab, el) { document.querySelectorAll('#quality-report .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(tab === 'create') { document.getElementById('report-create-pane').style.display='block'; document.getElementById('report-saved-pane').style.display='none'; } else { document.getElementById('report-create-pane').style.display='none'; document.getElementById('report-saved-pane').style.display='block'; renderSavedReports(); } }
-        function generateQualityReport() { const m = document.getElementById('reportMonthSelect').value; const y = new Date().getFullYear(); 
-            // Dummy content generation for visual confirmation
-            const content = document.getElementById('a4-report-content');
-            let html = `<div class="a4-page"><div class="report-header-box">تقرير جودة التعليم - شهر ${m}/${y}</div><br>`;
-            html += `<h3 style="text-align:center;">إحصائيات الزيارات لشهر ${m}</h3>`;
-            html += `<table class="report-table-custom"><thead><tr><th>القسم</th><th>عدد الزيارات</th><th>متوسط التقييم</th></tr></thead><tbody>`;
-            // Simple stats based on visits
-            const visits = [...filterByContext(DB.visits_senior), ...filterByContext(DB.visits_middle)].filter(v => v.date.split('-')[1] === m);
-            if(visits.length === 0) html += `<tr><td colspan="3">لا توجد زيارات مسجلة لهذا الشهر</td></tr>`;
-            else {
-                const depts = [...new Set(visits.map(v => v.dept))];
-                depts.forEach(d => {
-                    const count = visits.filter(v => v.dept === d).length;
-                    html += `<tr><td>${d}</td><td>${count}</td><td>-</td></tr>`;
-                });
-            }
-            html += `</tbody></table></div>`;
-            content.innerHTML = html;
-        }
+        function generateQualityReport() { const m = document.getElementById('reportMonthSelect').value; const y = new Date().getFullYear(); const content = document.getElementById('a4-report-content'); let html = `<div class="a4-page"><div class="report-header-box">تقرير جودة التعليم - شهر ${m}/${y}</div><br>`; html += `<h3 style="text-align:center;">إحصائيات الزيارات لشهر ${m}</h3>`; html += `<table class="report-table-custom"><thead><tr><th>القسم</th><th>عدد الزيارات</th><th>متوسط التقييم</th></tr></thead><tbody>`; const visits = [...filterByContext(DB.visits_senior), ...filterByContext(DB.visits_middle)].filter(v => v.date.split('-')[1] === m); if(visits.length === 0) html += `<tr><td colspan="3">لا توجد زيارات مسجلة لهذا الشهر</td></tr>`; else { const depts = [...new Set(visits.map(v => v.dept))]; depts.forEach(d => { const count = visits.filter(v => v.dept === d).length; html += `<tr><td>${d}</td><td>${count}</td><td>-</td></tr>`; }); } html += `</tbody></table></div>`; content.innerHTML = html; }
         function printReport() { window.print(); }
-        function exportToWord() { 
-            const html = document.getElementById('a4-report-content').innerHTML;
-            const blob = new Blob(['<!DOCTYPE html><html><head><meta charset="utf-8"><title>Report</title></head><body>' + html + '</body></html>'], { type: 'application/msword' });
-            const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'Quality_Report.doc'; link.click();
-        }
+        function exportToWord() { const html = document.getElementById('a4-report-content').innerHTML; const blob = new Blob(['<!DOCTYPE html><html><head><meta charset="utf-8"><title>Report</title></head><body>' + html + '</body></html>'], { type: 'application/msword' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'Quality_Report.doc'; link.click(); }
         function saveReport() { const m = document.getElementById('reportMonthSelect').value; DB.saved_reports.push({id: Date.now(), month: m, date: new Date().toLocaleDateString(), html: document.getElementById('a4-report-content').innerHTML, brandId: CURRENT_BRAND.id}); saveDB(); alert('تم الحفظ في الأرشيف'); }
         function renderSavedReports() { const list = document.getElementById('savedReportsList'); list.innerHTML = ''; filterByContext(DB.saved_reports).forEach(r => { list.innerHTML += `<div class="saved-report-item"><div class="saved-report-info"><h4>تقرير شهر ${r.month}</h4><small>تم الحفظ: ${r.date}</small></div><button class="btn btn-view" onclick="loadSavedReport('${r.html.replace(/'/g, "\\'")}')">عرض</button></div>`; }); }
         function loadSavedReport(html) { document.getElementById('a4-report-content').innerHTML = html; setReportTab('create', document.querySelector('#quality-report .custom-tab:first-child')); }
-
-        // Settings
         function setSettingTab(tab, el) { document.querySelectorAll('#settings .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.querySelectorAll('.setting-content-pane').forEach(p => p.classList.remove('active')); document.getElementById(tab).classList.add('active'); }
+        
+        // === UPDATED SETTINGS LOGIC WITH FIXES ===
         function loadSettings() { 
-            // Name Logic: Use saved setting OR Brand name
             const savedName = DB.settings.schoolName;
             const brandName = CURRENT_BRAND ? CURRENT_BRAND.name : '';
             document.getElementById('confSchool').value = savedName || brandName;
-            
             document.getElementById('confYear').value = DB.settings.schoolYear || ''; 
             
-            // Images
-            if(DB.settings.ministryLogo) document.getElementById('preview_ministry').src = DB.settings.ministryLogo;
-            if(DB.settings.ministryLogo) document.getElementById('preview_wrap_ministry').style.display = 'inline-block';
-            if(DB.settings.schoolLogo) document.getElementById('preview_school').src = DB.settings.schoolLogo;
-            if(DB.settings.schoolLogo) document.getElementById('preview_wrap_school').style.display = 'inline-block';
-            if(DB.settings.schoolStamp) document.getElementById('preview_stamp').src = DB.settings.schoolStamp;
-            if(DB.settings.schoolStamp) document.getElementById('preview_wrap_stamp').style.display = 'inline-block';
+            if(DB.settings.ministryLogo) { document.getElementById('preview_ministry').src = DB.settings.ministryLogo; document.getElementById('preview_wrap_ministry').style.display = 'inline-block'; }
+            if(DB.settings.schoolLogo) { document.getElementById('preview_school').src = DB.settings.schoolLogo; document.getElementById('preview_wrap_school').style.display = 'inline-block'; }
+            if(DB.settings.schoolStamp) { document.getElementById('preview_stamp').src = DB.settings.schoolStamp; document.getElementById('preview_wrap_stamp').style.display = 'inline-block'; }
             
             document.getElementById('footer_text').value = DB.settings.footerText || ''; 
-            // Re-render setting tables
-            const evalBody = document.getElementById('evalTableBody'); evalBody.innerHTML = ''; (DB.settings.evaluation_criteria||[]).forEach((c,i) => evalBody.innerHTML += `<tr><td><input type="checkbox"></td><td>${i+1}</td><td>${c.name}</td><td>active</td><td></td></tr>`);
-            const gradeBody = document.getElementById('gradeTableBody'); gradeBody.innerHTML = ''; (DB.settings.evaluation_grades||[]).forEach((g,i) => gradeBody.innerHTML += `<tr><td><input type="checkbox"></td><td>${i+1}</td><td>${g.name}</td><td>${g.status}</td><td></td></tr>`);
+            if(DB.settings.footerAlign) document.getElementById('footer_align').value = DB.settings.footerAlign;
+            if(DB.settings.footerFontSize) document.getElementById('footer_fontsize').value = DB.settings.footerFontSize;
+
+            // FIX: Populate Signature Dropdowns (Senior Leadership from Current Brand)
+            const seniors = filterByContext(DB.senior||[]);
+            const dirSelect = document.getElementById('sig_director');
+            const asstSelect = document.getElementById('sig_assistant');
+            dirSelect.innerHTML = '<option value="">اختر مدير المدرسة</option>';
+            asstSelect.innerHTML = '<option value="">اختر المدير المساعد</option>';
+            seniors.forEach(s => {
+                dirSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+                asstSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+            });
+            if(DB.settings.sig_director) dirSelect.value = DB.settings.sig_director;
+            if(DB.settings.sig_assistant) asstSelect.value = DB.settings.sig_assistant;
+
+            const evalBody = document.getElementById('evalTableBody'); evalBody.innerHTML = ''; (DB.settings.evaluation_criteria||[]).forEach((c,i) => evalBody.innerHTML += `<tr><td><input type="checkbox" class="crit-cb" value="${i}"></td><td>${i+1}</td><td>${c.name}</td><td>active</td><td></td></tr>`);
+            const gradeBody = document.getElementById('gradeTableBody'); gradeBody.innerHTML = ''; (DB.settings.evaluation_grades||[]).forEach((g,i) => gradeBody.innerHTML += `<tr><td><input type="checkbox" class="grade-cb" value="${i}"></td><td>${i+1}</td><td>${g.name}</td><td>${g.status}</td><td></td></tr>`);
+            
+            renderVisitorSettings();
+            loadSystemLogs();
         }
-        function saveGeneralSettings() { 
-            DB.settings.schoolName = document.getElementById('confSchool').value; 
-            DB.settings.schoolYear = document.getElementById('confYear').value; 
-            saveDB(); alert('تم حفظ الإعدادات'); 
-        }
+
+        function saveGeneralSettings() { DB.settings.schoolName = document.getElementById('confSchool').value; DB.settings.schoolYear = document.getElementById('confYear').value; saveDB(); alert('تم حفظ الإعدادات'); }
         function triggerFileSelect(id) { document.getElementById(id).click(); }
-        function handleFileUpload(input, previewId, settingKey) {
-            if(input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const res = e.target.result;
-                    document.getElementById(previewId).src = res;
-                    document.getElementById(previewId.replace('preview_', 'preview_wrap_')).style.display = 'inline-block';
-                    DB.settings[settingKey] = res; // Save data URL to DB
-                    saveDB();
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        function removeImage(previewId, settingKey, inputId) {
-            document.getElementById(previewId).src = '';
-            document.getElementById(previewId.replace('preview_', 'preview_wrap_')).style.display = 'none';
-            document.getElementById(inputId).value = '';
-            DB.settings[settingKey] = '';
-            saveDB();
-        }
+        function handleFileUpload(input, previewId, settingKey) { if(input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { const res = e.target.result; document.getElementById(previewId).src = res; document.getElementById(previewId.replace('preview_', 'preview_wrap_')).style.display = 'inline-block'; DB.settings[settingKey] = res; saveDB(); }; reader.readAsDataURL(input.files[0]); } }
+        function removeImage(previewId, settingKey, inputId) { document.getElementById(previewId).src = ''; document.getElementById(previewId.replace('preview_', 'preview_wrap_')).style.display = 'none'; document.getElementById(inputId).value = ''; DB.settings[settingKey] = ''; saveDB(); }
         function openImageModal(src) { document.getElementById('fullImage').src = src; document.getElementById('imageViewModal').style.display = 'flex'; }
+
+        // --- Signature Fixes ---
+        function saveSignatureSettings() {
+            DB.settings.sig_director = document.getElementById('sig_director').value;
+            DB.settings.sig_assistant = document.getElementById('sig_assistant').value;
+            saveDB(); alert('تم حفظ التوقيعات');
+        }
+        function clearSignature(id) { document.getElementById(id).value = ''; saveSignatureSettings(); }
+        function onSigChange() { /* Optional auto-save or UI update */ }
+
+        // --- Footer Fixes ---
+        function saveFooterSettings() {
+            DB.settings.footerText = document.getElementById('footer_text').value;
+            DB.settings.footerAlign = document.getElementById('footer_align').value;
+            DB.settings.footerFontSize = document.getElementById('footer_fontsize').value;
+            saveDB(); alert('تم حفظ إعدادات التذييل');
+        }
+
+        // --- Evaluation Fixes ---
+        function openAddEvalModal() { document.getElementById('addEvalForm').reset(); document.getElementById('addEvalModal').style.display='flex'; }
+        function saveEvalForm() {
+            const name = document.getElementById('evalName').value;
+            if(!name) return alert('الاسم مطلوب');
+            if(!DB.settings.evaluation_criteria) DB.settings.evaluation_criteria = [];
+            DB.settings.evaluation_criteria.push({name: name, status:'active'});
+            saveDB(); loadSettings(); closeModal('addEvalModal');
+        }
+        function openAddGradeModal() { document.getElementById('addGradeForm').reset(); document.getElementById('addGradeModal').style.display='flex'; }
+        function saveGradeForm() {
+            const name = document.getElementById('gradeName').value;
+            if(!name) return alert('الاسم مطلوب');
+            if(!DB.settings.evaluation_grades) DB.settings.evaluation_grades = [];
+            DB.settings.evaluation_grades.push({name: name, status:'active'});
+            saveDB(); loadSettings(); closeModal('addGradeModal');
+        }
+        function deleteSelectedSettings(type) {
+            if(!confirm('هل أنت متأكد من الحذف؟')) return;
+            const cls = (type === 'criteria') ? '.crit-cb' : '.grade-cb';
+            const boxes = document.querySelectorAll(cls + ':checked');
+            const indices = Array.from(boxes).map(b => parseInt(b.value)).sort((a,b) => b-a); // Delete from end
+            
+            if(type === 'criteria') {
+                indices.forEach(i => DB.settings.evaluation_criteria.splice(i, 1));
+            } else {
+                indices.forEach(i => DB.settings.evaluation_grades.splice(i, 1));
+            }
+            saveDB(); loadSettings();
+        }
+        function toggleSelectAllSettings(type, master) {
+            const cls = (type === 'criteria') ? '.crit-cb' : '.grade-cb';
+            document.querySelectorAll(cls).forEach(cb => cb.checked = master.checked);
+        }
+
+        // --- Visitor Fixes ---
+        function renderVisitorSettings() {
+            const sList = document.getElementById('list_visitor_senior'); sList.innerHTML = '';
+            const mList = document.getElementById('list_visitor_middle'); mList.innerHTML = '';
+            
+            (DB.settings.visitor_order_senior || []).forEach((id, i) => {
+                const u = DB.senior.find(x => x.id === id); // Look in global senior list strictly? Or active context?
+                // Usually Visitors are picked from existing users.
+                // Assuming visitors are Senior Leadership members.
+                let user = DB.senior.find(x => x.id === id) || DB.middle.find(x=>x.id===id);
+                if(user) sList.innerHTML += `<li class="visitor-list-item"><span>${user.name}</span><span style="cursor:pointer;color:red;" onclick="removeVisitorFromSetting('senior', ${i})">&times;</span></li>`;
+            });
+
+            (DB.settings.visitor_order_middle || []).forEach((id, i) => {
+                let user = DB.senior.find(x => x.id === id) || DB.middle.find(x=>x.id===id);
+                if(user) mList.innerHTML += `<li class="visitor-list-item"><span>${user.name}</span><span style="cursor:pointer;color:red;" onclick="removeVisitorFromSetting('middle', ${i})">&times;</span></li>`;
+            });
+        }
+        function openVisitorPicker(type) {
+            CURRENT_PICKER_TYPE = type;
+            document.getElementById('visitorSearch').value = '';
+            filterPickerList();
+            document.getElementById('visitorPickerModal').style.display = 'flex';
+        }
+        function filterPickerList() {
+            const term = document.getElementById('visitorSearch').value.toLowerCase();
+            const div = document.getElementById('pickerList'); div.innerHTML = '';
+            // Allow picking from Senior and Middle leadership of current brand
+            const candidates = [...filterByContext(DB.senior), ...filterByContext(DB.middle)];
+            
+            candidates.forEach(u => {
+                if(u.name.toLowerCase().includes(term)) {
+                    div.innerHTML += `<div class="picker-item" onclick="addVisitorFromPicker(${u.id})"><span>${u.name}</span><small>${u.job||''}</small></div>`;
+                }
+            });
+        }
+        function addVisitorFromPicker(id) {
+            if(CURRENT_PICKER_TYPE === 'senior') {
+                if(!DB.settings.visitor_order_senior) DB.settings.visitor_order_senior = [];
+                if(!DB.settings.visitor_order_senior.includes(id)) DB.settings.visitor_order_senior.push(id);
+            } else {
+                if(!DB.settings.visitor_order_middle) DB.settings.visitor_order_middle = [];
+                if(!DB.settings.visitor_order_middle.includes(id)) DB.settings.visitor_order_middle.push(id);
+            }
+            renderVisitorSettings(); closeModal('visitorPickerModal');
+        }
+        function removeVisitorFromSetting(type, index) {
+            if(type === 'senior') DB.settings.visitor_order_senior.splice(index, 1);
+            else DB.settings.visitor_order_middle.splice(index, 1);
+            renderVisitorSettings();
+        }
+        function saveVisitorOrder() { saveDB(); alert('تم حفظ ترتيب الزوار'); }
+
+        // Logs
+        function loadSystemLogs() { const b = document.getElementById('logTableBody'); b.innerHTML = ''; (DB.logs||[]).forEach(l => b.innerHTML += `<tr><td>${l.date}</td><td>${l.user}</td><td>${l.action}</td><td>${l.details} [${l.brand}]</td></tr>`); }
+        function clearSystemLogs() { if(confirm('مسح السجل؟')) { DB.logs = []; saveDB(); loadSystemLogs(); } }
 
         window.onload = function() { initSystem(); };
 
