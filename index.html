@@ -686,7 +686,6 @@
         function deleteBrand(id) { if(confirm('هل أنت متأكد من حذف هذا البراند؟ سيتم إخفاء جميع البيانات المرتبطة به.')) { DB.brands = DB.brands.filter(x => x.id !== id); resetBrandData(id, true); saveDB(); renderBrandsTable(); updateBrandUI(); if(CURRENT_BRAND.id === id) switchBrand(1); } }
         function resetBrandData(brandId, silent = false) { if(!silent && !confirm('تحذير: سيتم مسح جميع البيانات والمدخلات والمستخدمين والتقارير الخاصة بهذا البراند بشكل نهائي.\nهل أنت متأكد؟')) return; const arraysToClean = [ 'senior', 'middle', 'teachers', 'departments', 'visits_senior', 'visits_middle', 'distinguished', 'care_needed', 'qualitative_reports', 'saved_reports' ]; arraysToClean.forEach(key => { if(DB[key]) { DB[key] = DB[key].filter(item => { if(item.id === 999) return true; const itemBrand = item.brandId || 1; return itemBrand !== brandId; }); } }); saveDB(); if(!silent) alert('تمت إعادة تهيئة بيانات البراند بنجاح.'); if(CURRENT_BRAND.id === brandId) location.reload(); }
 
-        // Visits, Dist, Qual, Report, Settings (Previous)
         function setVisitTab(tab, el) { CURRENT_VISIT_TAB = tab; document.querySelectorAll('#visits .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderVisitsTable(); }
         function renderVisitsTable() { const list = (CURRENT_VISIT_TAB === 'senior') ? DB.visits_senior : DB.visits_middle; const filtered = filterByContext(list); const tbody = document.getElementById('visitsTableBody'); tbody.innerHTML = ''; const filterMonth = document.getElementById('visitMonthFilter').value; filtered.forEach(v => { if(filterMonth !== 'all' && v.date.split('-')[1] !== filterMonth) return; tbody.innerHTML += `<tr><td>${v.date}</td><td>${v.dept}</td><td>${v.teacher}</td><td>${v.eval}</td><td>${v.visitor}</td><td>${v.visitorJob||'-'}</td><td><button class="action-btn btn-delete" onclick="deleteVisit(${v.id})"><i class="fas fa-trash"></i></button></td></tr>`; }); }
         function openAddVisitModal() { document.getElementById('addVisitForm').reset(); document.getElementById('visitEditId').value = ''; const dSelect = document.getElementById('visitDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); const eSelect = document.getElementById('visitEval'); eSelect.innerHTML = '<option value="">اختر التقييم...</option>'; (DB.settings.evaluation_grades||[]).forEach(g => eSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`); document.getElementById('addVisitModal').style.display='flex'; }
@@ -710,7 +709,6 @@
         function loadSavedReport(html) { document.getElementById('a4-report-content').innerHTML = html; setReportTab('create', document.querySelector('#quality-report .custom-tab:first-child')); }
         function setSettingTab(tab, el) { document.querySelectorAll('#settings .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.querySelectorAll('.setting-content-pane').forEach(p => p.classList.remove('active')); document.getElementById(tab).classList.add('active'); }
         
-        // === UPDATED SETTINGS LOGIC WITH FIXES ===
         function loadSettings() { 
             const savedName = DB.settings.schoolName;
             const brandName = CURRENT_BRAND ? CURRENT_BRAND.name : '';
@@ -725,7 +723,6 @@
             if(DB.settings.footerAlign) document.getElementById('footer_align').value = DB.settings.footerAlign;
             if(DB.settings.footerFontSize) document.getElementById('footer_fontsize').value = DB.settings.footerFontSize;
 
-            // FIX: Populate Signature Dropdowns (Senior Leadership from Current Brand)
             const seniors = filterByContext(DB.senior||[]);
             const dirSelect = document.getElementById('sig_director');
             const asstSelect = document.getElementById('sig_assistant');
@@ -751,16 +748,14 @@
         function removeImage(previewId, settingKey, inputId) { document.getElementById(previewId).src = ''; document.getElementById(previewId.replace('preview_', 'preview_wrap_')).style.display = 'none'; document.getElementById(inputId).value = ''; DB.settings[settingKey] = ''; saveDB(); }
         function openImageModal(src) { document.getElementById('fullImage').src = src; document.getElementById('imageViewModal').style.display = 'flex'; }
 
-        // --- Signature Fixes ---
         function saveSignatureSettings() {
             DB.settings.sig_director = document.getElementById('sig_director').value;
             DB.settings.sig_assistant = document.getElementById('sig_assistant').value;
             saveDB(); alert('تم حفظ التوقيعات');
         }
         function clearSignature(id) { document.getElementById(id).value = ''; saveSignatureSettings(); }
-        function onSigChange() { /* Optional auto-save or UI update */ }
+        function onSigChange() { }
 
-        // --- Footer Fixes ---
         function saveFooterSettings() {
             DB.settings.footerText = document.getElementById('footer_text').value;
             DB.settings.footerAlign = document.getElementById('footer_align').value;
@@ -768,7 +763,6 @@
             saveDB(); alert('تم حفظ إعدادات التذييل');
         }
 
-        // --- Evaluation Fixes ---
         function openAddEvalModal() { document.getElementById('addEvalForm').reset(); document.getElementById('addEvalModal').style.display='flex'; }
         function saveEvalForm() {
             const name = document.getElementById('evalName').value;
@@ -789,7 +783,7 @@
             if(!confirm('هل أنت متأكد من الحذف؟')) return;
             const cls = (type === 'criteria') ? '.crit-cb' : '.grade-cb';
             const boxes = document.querySelectorAll(cls + ':checked');
-            const indices = Array.from(boxes).map(b => parseInt(b.value)).sort((a,b) => b-a); // Delete from end
+            const indices = Array.from(boxes).map(b => parseInt(b.value)).sort((a,b) => b-a); 
             
             if(type === 'criteria') {
                 indices.forEach(i => DB.settings.evaluation_criteria.splice(i, 1));
@@ -803,15 +797,11 @@
             document.querySelectorAll(cls).forEach(cb => cb.checked = master.checked);
         }
 
-        // --- Visitor Fixes ---
         function renderVisitorSettings() {
             const sList = document.getElementById('list_visitor_senior'); sList.innerHTML = '';
             const mList = document.getElementById('list_visitor_middle'); mList.innerHTML = '';
             
             (DB.settings.visitor_order_senior || []).forEach((id, i) => {
-                const u = DB.senior.find(x => x.id === id); // Look in global senior list strictly? Or active context?
-                // Usually Visitors are picked from existing users.
-                // Assuming visitors are Senior Leadership members.
                 let user = DB.senior.find(x => x.id === id) || DB.middle.find(x=>x.id===id);
                 if(user) sList.innerHTML += `<li class="visitor-list-item"><span>${user.name}</span><span style="cursor:pointer;color:red;" onclick="removeVisitorFromSetting('senior', ${i})">&times;</span></li>`;
             });
@@ -830,11 +820,15 @@
         function filterPickerList() {
             const term = document.getElementById('visitorSearch').value.toLowerCase();
             const div = document.getElementById('pickerList'); div.innerHTML = '';
-            // Allow picking from Senior and Middle leadership of current brand
             const candidates = [...filterByContext(DB.senior), ...filterByContext(DB.middle)];
             
+            // Logic to exclude names already in the list
+            const currentSelectedIds = (CURRENT_PICKER_TYPE === 'senior') 
+                ? (DB.settings.visitor_order_senior || []) 
+                : (DB.settings.visitor_order_middle || []);
+
             candidates.forEach(u => {
-                if(u.name.toLowerCase().includes(term)) {
+                if(u.name.toLowerCase().includes(term) && !currentSelectedIds.includes(u.id)) {
                     div.innerHTML += `<div class="picker-item" onclick="addVisitorFromPicker(${u.id})"><span>${u.name}</span><small>${u.job||''}</small></div>`;
                 }
             });
@@ -856,7 +850,6 @@
         }
         function saveVisitorOrder() { saveDB(); alert('تم حفظ ترتيب الزوار'); }
 
-        // Logs
         function loadSystemLogs() { const b = document.getElementById('logTableBody'); b.innerHTML = ''; (DB.logs||[]).forEach(l => b.innerHTML += `<tr><td>${l.date}</td><td>${l.user}</td><td>${l.action}</td><td>${l.details} [${l.brand}]</td></tr>`); }
         function clearSystemLogs() { if(confirm('مسح السجل؟')) { DB.logs = []; saveDB(); loadSystemLogs(); } }
 
