@@ -972,8 +972,13 @@
             filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); 
             const eSelect = document.getElementById('visitEval'); 
             eSelect.innerHTML = '<option value="">اختر التقدير...</option>'; 
-            const grades = DB.settings.evaluation_grades || [];
-            grades.forEach(c => { if(c.status === 'active') eSelect.innerHTML += `<option value="${c.name}">${c.name}</option>`; });
+            
+            // تم التعديل هنا لجلب البيانات من (الإعدادات - معايير الزيارة الصفية) بدلاً من قائمة التقديرات
+            const criteria = DB.settings.evaluation_criteria || [];
+            criteria.forEach(c => { 
+                if(c.status === 'active') eSelect.innerHTML += `<option value="${c.name}">${c.name}</option>`; 
+            });
+            
             document.getElementById('addVisitModal').style.display='flex'; 
         }
 
