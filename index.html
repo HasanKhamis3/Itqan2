@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Tajawal:wght@400;500;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
@@ -98,9 +97,7 @@
         .input-group-modern .form-control::placeholder { color: #aaa; font-weight: normal; }
         .input-group-modern .form-control:focus { border-color: var(--primary); background: #fff; box-shadow: 0 4px 15px rgba(30, 64, 120, 0.08); outline: none; }
         .input-group-modern .form-control:focus + i { color: var(--primary); }
-        
         .btn-login { background: linear-gradient(135deg, var(--primary) 0%, #29539b 100%); color: white; width: 100%; padding: 16px; border-radius: 12px; font-size: 1.15rem; font-weight: 700; margin-top: 15px; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(30, 64, 120, 0.25); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-login:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(30, 64, 120, 0.35); background: linear-gradient(135deg, #244c8a 0%, #1e4078 100%); }
         .login-error-msg { background-color: #fff2f2; color: #d63031; border: 1px solid #ffdede; padding: 15px; border-radius: 10px; margin-top: 25px; font-size: 0.9rem; line-height: 1.6; display: none; text-align: center; font-weight: 600; animation: shake 0.5s ease-in-out; }
         @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
@@ -108,8 +105,8 @@
         .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; font-family: inherit; }
         .form-control:disabled { background-color: var(--disabled); cursor: not-allowed; color: #666; }
         textarea.form-control { resize: vertical; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px;}
+        .btn-primary { background: var(--primary); color: white; }
         
         .section-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; display: none; box-shadow: var(--shadow); }
         .section-card.active { display: block; }
@@ -122,7 +119,6 @@
         .stat-card.red { border-bottom: 4px solid var(--danger); }
         .stat-card.orange { border-bottom: 4px solid var(--warning); }
         .stat-card.purple { border-bottom: 4px solid #6f42c1; }
-        
         .stat-info h3 { font-size: 2rem; margin: 10px 0 5px 0; font-weight: 700; color: #333; }
         .stat-info p { margin: 0; font-size: 0.9rem; color: #777; font-weight: 600; }
         .stat-icon-bg { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 10px; }
@@ -143,16 +139,13 @@
         .custom-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
         
         .custom-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .custom-table th { background: #2c5aa0; color: white; padding: 12px; text-align: center; font-weight: bold; }
-        .custom-table td { padding: 8px; border-bottom: 1px solid #eee; background: white; text-align: center; vertical-align: middle; }
+        .custom-table th { background: #2c5aa0; color: white; padding: 12px; text-align: center; font-weight: bold; border: 1px solid #ddd; }
+        .custom-table td { padding: 8px; border: 1px solid #ddd; background: white; text-align: center; vertical-align: middle; }
         
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; display: inline-block; min-width: 60px;}
         .status-active { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-inactive { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .role-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; background: #e2e3e5; color: #383d41; }
-        .role-admin { background: #d1ecf1; color: #0c5460; }
-        .role-super { background: #fff3cd; color: #856404; }
-
+        
         .action-btn { padding: 6px 12px; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 0.75rem; margin: 2px; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
         .btn-view { background: #ffc107; color: #333; }
         .btn-edit { background: #17a2b8; }
@@ -162,8 +155,7 @@
         .btn-toggle.off { background: #6c757d; }
         .btn-move { background: #6c757d; padding: 6px 8px; } 
         .btn-reset { background: #fd7e14; }
-        .action-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .action-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .filter-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee; flex-wrap: wrap; }
         .filter-label { font-weight: bold; color: #555; }
@@ -177,14 +169,15 @@
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
         .modal-footer { padding: 15px 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; }
         
-        /* === Report Specific CSS (Web Preview Wrapper only) === */
-        .report-preview-container { background: #525659; padding: 30px; overflow: auto; max-height: 800px; display: flex; justify-content: center; flex-direction: column; align-items: center; }
+        /* === Report Specific CSS (Web Preview) === */
+        .report-preview-container { background: #525659; padding: 30px; overflow: auto; max-height: 800px; display: flex; justify-content: center; flex-direction: column; align-items: center; border-radius: 8px;}
         
-        .report-list { text-align: right; padding-right: 20px; margin: 0; }
-        .report-list li { margin-bottom: 5px; }
-        .saved-report-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 8px; background: #fff; }
-        .saved-report-info h4 { margin: 0 0 5px 0; color: var(--primary); }
-        .saved-report-info small { color: #777; }
+        /* Saved Reports UI */
+        .saved-report-card { border: 1px solid #eee; border-radius: 8px; padding: 15px; display: flex; gap: 20px; align-items: center; background: #fff; margin-bottom: 15px; transition: 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .saved-report-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.08); transform: translateY(-2px); border-color: var(--primary); }
+        .saved-report-thumb { width: 60px; height: 80px; background: #eef4ff; border: 1px solid #d0dff2; display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--primary); border-radius: 4px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
+        .saved-report-details { flex: 1; }
+        .saved-report-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
         @media print {
             body * { visibility: hidden; }
@@ -197,49 +190,18 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .upload-container { border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center; background-color: #fcfcfc; margin-bottom: 20px; position: relative; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .upload-container:hover { border-color: var(--primary); background-color: #f0f4f8; }
-        .upload-label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; width: 100%; text-align: right; }
-        .upload-btn-wrapper { margin-top: 10px; text-align: center; }
         .upload-btn-custom { background-color: #28a745; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
-        .upload-hint { display: block; margin-top: 8px; font-size: 0.8rem; color: #888; font-weight: bold; }
         .image-preview-wrapper { margin-top: 15px; position: relative; display: inline-block; border: 1px solid #ddd; padding: 5px; border-radius: 5px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .image-preview { max-width: 200px; max-height: 100px; display: block; cursor: pointer; }
-        .remove-img-btn { position: absolute; top: -10px; right: -10px; background: #dc3545; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .signature-grid { display: flex; flex-direction: column; gap: 20px; }
-        .signature-card { border: 1px solid #eee; border-radius: 8px; padding: 20px; background: #fcfcfc; text-align: center; width: 100%; }
-        .signature-title { color: var(--primary); font-weight: bold; margin-bottom: 15px; font-size: 1.1rem; }
-        .visitor-section { margin-bottom: 30px; border: 1px solid #eee; padding: 20px; border-radius: 8px; background: white; }
-        .visitor-section-title { font-weight: bold; margin-bottom: 15px; color: #444; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .visitor-list { list-style: none; padding: 0; margin: 0 0 15px 0; }
-        .visitor-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border: 1px solid #eee; margin-bottom: 8px; border-radius: 6px; background: #fff; transition: 0.2s; }
-        .log-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
-        .picker-list { max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
-        .picker-item { padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .picker-item:hover { background-color: #f0f4f8; }
-        .password-wrapper { position: relative; }
-        .password-wrapper input { padding-left: 40px; }
-        .password-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #777; }
-        .perm-list { border: 1px solid #eee; border-radius: 6px; padding: 10px; max-height: 300px; overflow-y: auto; }
-        .perm-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
-        .perm-header { display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; margin-bottom: 10px; font-weight: bold; font-size: 0.9rem; }
+        .remove-img-btn { position: absolute; top: -10px; right: -10px; background: #dc3545; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         
-        .user-view-card { text-align: center; margin-bottom: 20px; }
-        .user-view-avatar { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 15px auto; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: right; background: #f9f9f9; padding: 15px; border-radius: 8px; }
-        .info-item label { display: block; color: #777; font-size: 0.85rem; margin-bottom: 5px; }
-        .info-item span { font-weight: bold; color: #333; }
-        .view-footer-info { margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; font-size: 0.8rem; color: #777; display: flex; justify-content: space-between; background: #fafafa; padding: 10px; border-radius: 5px; }
-
         .brand-switcher-container { margin-left: 15px; position: relative; }
         .brand-btn { background: #f0f4f8; color: var(--primary); border: 1px solid #ddd; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; min-width: 180px; justify-content: space-between; }
-        .brand-btn:hover { background: #e2e6ea; }
-        .brand-dropdown { position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; min-width: 220px; z-index: 1000; display: none; margin-top: 5px; }
+        .brand-dropdown { position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; z-index: 1000; display: none; margin-top: 5px; }
         .brand-dropdown.show { display: block; animation: fadeIn 0.2s; }
-        .brand-item { padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
-        .brand-item:last-child { border-bottom: none; }
+        .brand-item { padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .brand-item:hover { background: #f8f9fa; color: var(--primary); }
         .brand-item.active { background: #eef4ff; color: var(--primary); font-weight: bold; border-right: 3px solid var(--primary); }
-        .brand-icon { width: 24px; height: 24px; background: #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #555; }
-        .brand-label { font-size: 0.9rem; }
 
     </style>
 </head>
@@ -251,21 +213,12 @@
         <div class="login-box">
             <div class="login-logo-container">
                 <i class="fas fa-graduation-cap login-logo-icon"></i>
-                <div class="login-brand-group">
-                    <div class="login-brand-ar">ارتقاء</div>
-                    <div class="login-brand-en">Irteqaa</div>
-                </div>
+                <div class="login-brand-group"><div class="login-brand-ar">ارتقاء</div><div class="login-brand-en">Irteqaa</div></div>
             </div>
             <div class="login-divider"></div>
             <form id="loginForm" onsubmit="login(event)">
-                <div class="input-group-modern">
-                    <input type="text" id="loginUser" class="form-control" placeholder="اسم المستخدم" required>
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="input-group-modern">
-                    <input type="password" id="loginPass" class="form-control" placeholder="كلمة المرور" required>
-                    <i class="fas fa-eye password-icon" style="cursor: pointer;" onclick="togglePass('loginPass', this)"></i>
-                </div>
+                <div class="input-group-modern"><input type="text" id="loginUser" class="form-control" placeholder="اسم المستخدم" required><i class="fas fa-user"></i></div>
+                <div class="input-group-modern"><input type="password" id="loginPass" class="form-control" placeholder="كلمة المرور" required><i class="fas fa-eye password-icon" style="cursor: pointer;" onclick="togglePass('loginPass', this)"></i></div>
                 <button type="submit" class="btn btn-login">تسجيل الدخول</button>
                 <div id="loginError" class="login-error-msg"></div>
             </form>
@@ -274,13 +227,7 @@
 
     <div id="app" class="app-container" style="display:none;">
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <i class="fas fa-graduation-cap sidebar-icon"></i>
-                <div class="logo-group">
-                    <span class="logo-ar">ارتقاء</span>
-                    <span class="logo-en">Irteqaa</span>
-                </div>
-            </div>
+            <div class="sidebar-header"><i class="fas fa-graduation-cap sidebar-icon"></i><div class="logo-group"><span class="logo-ar">ارتقاء</span><span class="logo-en">Irteqaa</span></div></div>
             <ul class="nav-links">
                 <li id="nav-dashboard"><a onclick="navigate('dashboard')" data-page="dashboard"><i class="fas fa-home"></i> لوحة التحكم</a></li>
                 <li id="nav-visits"><a onclick="navigate('visits')" data-page="visits"><i class="fas fa-clipboard-check"></i> الزيارات الصفية</a></li>
@@ -299,18 +246,12 @@
                 <div style="display:flex; align-items:center;">
                     <h2 id="pageTitle" style="margin-left:20px;">...</h2>
                     <div class="brand-switcher-container">
-                        <button class="brand-btn" onclick="toggleBrandDropdown()">
-                            <span id="currentBrandLabel">الجهة الافتراضية</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
+                        <button class="brand-btn" onclick="toggleBrandDropdown()"><span id="currentBrandLabel">الجهة الافتراضية</span><i class="fas fa-chevron-down"></i></button>
                         <div id="brandDropdown" class="brand-dropdown"></div>
                     </div>
                 </div>
                 <div class="user-profile">
-                    <div class="user-info-text">
-                        <span id="headerUserName" class="user-name">المستخدم</span>
-                        <span id="headerUserJob" class="user-job">الوظيفة</span>
-                    </div>
+                    <div class="user-info-text"><span id="headerUserName" class="user-name">المستخدم</span><span id="headerUserJob" class="user-job">الوظيفة</span></div>
                     <button class="btn" style="background:#eee; padding:8px 12px; border-radius:50%;" onclick="logout()" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </header>
@@ -397,9 +338,9 @@
                     <button class="btn btn-restricted" style="background:#2c5aa0; color:white; width:auto;" onclick="openDistinguishedModal('distinguished')"><i class="fas fa-plus-circle"></i> إضافة معلم متميز</button>
                     <button class="btn btn-restricted" style="background:#da291c; color:white; width:auto;" onclick="openDistinguishedModal('care')"><i class="fas fa-plus-circle"></i> إضافة معلم يحتاج رعاية</button>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center;"><div class="table-section-title">المعلمين المتميزين</div><div class="admin-only-btn" style="display:none;"><button class="btn btn-sm" style="background:#17a2b8; color:white; width:auto; padding:5px 10px;" onclick="exportSpecificExcel('distinguished')"><i class="fas fa-file-excel"></i> تصدير</button><button class="btn btn-sm" style="background:#28a745; color:white; width:auto; padding:5px 10px;" onclick="triggerImportExcelGeneric('distinguished')"><i class="fas fa-file-excel"></i> استيراد</button></div></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:bold; color:var(--primary);">المعلمين المتميزين</div><div class="admin-only-btn" style="display:none;"><button class="btn btn-sm" style="background:#17a2b8; color:white; width:auto; padding:5px 10px;" onclick="exportSpecificExcel('distinguished')"><i class="fas fa-file-excel"></i> تصدير</button><button class="btn btn-sm" style="background:#28a745; color:white; width:auto; padding:5px 10px;" onclick="triggerImportExcelGeneric('distinguished')"><i class="fas fa-file-excel"></i> استيراد</button></div></div>
                 <table class="custom-table"><thead><tr><th width="5%">#</th><th width="15%">التاريخ</th><th width="20%">اسم المعلم/ة</th><th width="15%">القسم</th><th width="10%">التقدير</th><th width="25%">المبررات</th></tr></thead><tbody id="distinguishedTableBody"></tbody></table>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px;"><div class="table-section-title">المعلمين الأولى بالرعاية</div><div class="admin-only-btn" style="display:none;"><button class="btn btn-sm" style="background:#17a2b8; color:white; width:auto; padding:5px 10px;" onclick="exportSpecificExcel('care')"><i class="fas fa-file-excel"></i> تصدير</button><button class="btn btn-sm" style="background:#28a745; color:white; width:auto; padding:5px 10px;" onclick="triggerImportExcelGeneric('care')"><i class="fas fa-file-excel"></i> استيراد</button></div></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px;"><div style="font-weight:bold; color:var(--primary);">المعلمين الأولى بالرعاية</div><div class="admin-only-btn" style="display:none;"><button class="btn btn-sm" style="background:#17a2b8; color:white; width:auto; padding:5px 10px;" onclick="exportSpecificExcel('care')"><i class="fas fa-file-excel"></i> تصدير</button><button class="btn btn-sm" style="background:#28a745; color:white; width:auto; padding:5px 10px;" onclick="triggerImportExcelGeneric('care')"><i class="fas fa-file-excel"></i> استيراد</button></div></div>
                 <table class="custom-table"><thead><tr><th width="5%">#</th><th width="15%">التاريخ</th><th width="20%">اسم المعلم/ة</th><th width="15%">القسم</th><th width="10%">التقدير</th><th width="25%">المبررات</th></tr></thead><tbody id="careTableBody"></tbody></table>
             </div>
 
@@ -436,14 +377,14 @@
                             <select id="reportMonthSelect" class="filter-select">
                                 <option value="01">يناير</option><option value="02">فبراير</option><option value="03">مارس</option><option value="04">أبريل</option><option value="05">مايو</option><option value="06">يونيو</option><option value="07">يوليو</option><option value="08">أغسطس</option><option value="09">سبتمبر</option><option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
                             </select>
-                            <button class="btn btn-primary" onclick="generateQualityReport()"> إصدار التقرير</button>
+                            <button class="btn btn-primary" onclick="previewQualityReport()"><i class="fas fa-eye"></i> معاينة التقرير</button>
                         </div>
                         <div style="display:flex; gap:10px;">
-                            <button class="btn btn-view" onclick="exportToWord()"><i class="fas fa-file-word"></i> تحميل Word</button>
+                            <button class="btn btn-edit" onclick="exportToWord()"><i class="fas fa-file-word"></i> تحميل Word</button>
                             <button class="btn btn-toggle" onclick="saveReport()"><i class="fas fa-save"></i> حفظ</button>
                         </div>
                     </div>
-                    <div class="report-preview-container"><div id="a4-report-content"><div style="text-align:center; padding:50px; color:#fff;"><i class="fas fa-file-alt" style="font-size:3rem; margin-bottom:15px; display:block;"></i>يرجى اختيار الشهر والضغط على "إصدار التقرير" ثم "تحميل Word"</div></div></div>
+                    <div class="report-preview-container" style="background:#525659; border:1px solid #333;"><div id="a4-report-content" style="background:white; width:100%; min-height:500px; padding:20px; text-align:center;"><div style="padding:100px; color:#666;"><i class="fas fa-file-alt" style="font-size:4rem; margin-bottom:20px; display:block;"></i>يرجى اختيار الشهر والضغط على "معاينة التقرير" لعرض النتائج هنا، أو "تحميل Word" لتصديره مباشرة.</div></div></div>
                 </div>
                 <div id="report-saved-pane" style="display:none;"><div id="savedReportsList"></div></div>
             </div>
@@ -452,7 +393,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
                     <h3>إدارة المستخدمين</h3>
                     <div id="userActionButtons" style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button id="addBtnMain" class="btn" style="background:#2c5aa0; color:white;" onclick="openAddUserModal()"><i class="fas fa-plus"></i> إضافة جديد</button>
+                        <button id="addBtnMain" class="btn btn-primary" onclick="openAddUserModal()"><i class="fas fa-plus"></i> إضافة جديد</button>
                         <button class="btn" style="background:#17a2b8; color:white;" onclick="exportExcel()"><i class="fas fa-file-excel"></i> تصدير إكسل</button>
                         <button class="btn" style="background:#28a745; color:white;" onclick="triggerImportExcel()"><i class="fas fa-file-excel"></i> استيراد إكسل</button>
                         <button class="btn" style="background:#dc3545; color:white;" onclick="deleteSelected()"><i class="fas fa-trash"></i> حذف المحدد</button>
@@ -505,7 +446,6 @@
                         <input type="file" id="file_ministry" hidden accept="image/*" onchange="handleFileUpload(this, 'preview_ministry', 'ministryLogo')">
                         <div class="upload-btn-wrapper" id="btn_wrap_ministry">
                             <button type="button" class="upload-btn-custom setting-edit-btn" onclick="triggerFileSelect('file_ministry')"><i class="fas fa-upload"></i> تحميل شعار الوزارة</button>
-                             <span class="upload-hint">الحجم المقترح: 200x80 بكسل</span>
                         </div>
                         <div id="preview_wrap_ministry" style="display:none;" class="image-preview-wrapper"><img id="preview_ministry" class="image-preview" onclick="openImageModal(this.src)"><button class="remove-img-btn setting-edit-btn" onclick="removeImage('preview_ministry', 'ministryLogo', 'file_ministry')"><i class="fas fa-times"></i></button></div>
                     </div>
@@ -514,7 +454,6 @@
                         <input type="file" id="file_school" hidden accept="image/*" onchange="handleFileUpload(this, 'preview_school', 'schoolLogo')">
                         <div class="upload-btn-wrapper" id="btn_wrap_school">
                             <button type="button" class="upload-btn-custom setting-edit-btn" onclick="triggerFileSelect('file_school')"><i class="fas fa-upload"></i> تحميل شعار المدرسة</button>
-                             <span class="upload-hint">الحجم المقترح: 200x80 بكسل</span>
                         </div>
                         <div id="preview_wrap_school" style="display:none;" class="image-preview-wrapper"><img id="preview_school" class="image-preview" onclick="openImageModal(this.src)"><button class="remove-img-btn setting-edit-btn" onclick="removeImage('preview_school', 'schoolLogo', 'file_school')"><i class="fas fa-times"></i></button></div>
                     </div>
@@ -523,7 +462,6 @@
                         <input type="file" id="file_stamp" hidden accept="image/*" onchange="handleFileUpload(this, 'preview_stamp', 'schoolStamp')">
                         <div class="upload-btn-wrapper" id="btn_wrap_stamp">
                             <button type="button" class="upload-btn-custom setting-edit-btn" onclick="triggerFileSelect('file_stamp')"><i class="fas fa-upload"></i> تحميل ختم المدرسة</button>
-                             <span class="upload-hint">يستخدم في التقارير الرسمية</span>
                         </div>
                         <div id="preview_wrap_stamp" style="display:none;" class="image-preview-wrapper"><img id="preview_stamp" class="image-preview" onclick="openImageModal(this.src)"><button class="remove-img-btn setting-edit-btn" onclick="removeImage('preview_stamp', 'schoolStamp', 'file_stamp')"><i class="fas fa-times"></i></button></div>
                     </div>
@@ -533,7 +471,7 @@
                 <div id="sig" class="setting-content-pane"><div class="signature-grid"><div class="signature-card"><div class="signature-title">مدير/ة المدرسة</div><div class="form-group"><select id="sig_director" class="form-control" onchange="renderSignatureOptions()"><option value="">اختر مدير المدرسة</option></select></div><div style="display:flex; gap:10px; justify-content:center; margin-top:20px;"><button class="btn btn-primary setting-edit-btn" onclick="saveSignatureSettings()">حفظ</button><button class="btn setting-edit-btn" style="background:#dc3545; color:white;" onclick="clearSignature('sig_director')">إزالة</button></div></div><div class="signature-card"><div class="signature-title">المدير/ة المساعد/ة</div><div class="form-group"><select id="sig_assistant" class="form-control" onchange="renderSignatureOptions()"><option value="">اختر المدير المساعد</option></select></div><div style="display:flex; gap:10px; justify-content:center; margin-top:20px;"><button class="btn btn-primary setting-edit-btn" onclick="saveSignatureSettings()">حفظ</button><button class="btn setting-edit-btn" style="background:#dc3545; color:white;" onclick="clearSignature('sig_assistant')">إزالة</button></div></div></div></div>
                 <div id="fot" class="setting-content-pane"><div class="form-group" style="margin-bottom:20px;"><label style="display:block; font-weight:bold; margin-bottom:5px;">تذييل الصفحة (النص)</label><input type="text" id="footer_text" class="form-control" placeholder="إدارة العمليات التعليمية المنطقة (1) رئيس مدارس- أفنان محمد أمين"><label style="display:block; font-weight:bold; margin-bottom:5px; margin-top:10px;">محاذاة التذييل</label><select id="footer_align" class="form-control"><option value="center">وسط</option><option value="right">يمين</option><option value="left">يسار</option></select></div><div class="form-group" style="margin-bottom:20px;"><label style="display:block; font-weight:bold; margin-bottom:5px;">حجم الخط</label><select id="footer_fontsize" class="form-control"><option value="10">10 نقطة</option><option value="12">12 نقطة</option><option value="14">14 نقطة</option><option value="16">16 نقطة</option></select></div><div style="text-align:left; margin-top:20px;"><button class="btn setting-edit-btn" style="background:#28a745; color:white; font-weight:bold;" onclick="saveFooterSettings()">حفظ إعدادات التذييل</button></div></div>
                 <div id="eval" class="setting-content-pane"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;"><h3>معايير الزيارة الصفية</h3><div><button class="btn setting-edit-btn" style="background:#dc3545; color:white; font-size:0.8rem;" onclick="deleteSelectedSettings('criteria')">حذف المحدد</button><button class="btn setting-edit-btn" style="background:#2c5aa0; color:white;" onclick="openAddEvalModal()"><i class="fas fa-plus"></i> إضافة معيار</button></div></div><table class="custom-table"><thead><tr><th width="5%"><input type="checkbox" id="selectAllCriteria" class="custom-checkbox" onchange="toggleSelectAllSettings('criteria', this)"></th><th width="10%">#</th><th width="45%">اسم المعيار</th><th width="15%">الحالة</th><th width="25%">الإجراءات</th></tr></thead><tbody id="evalTableBody"></tbody></table><hr style="margin: 40px 0; border-top: 1px solid #ddd;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;"><h3>قائمة التقديرات</h3><div><button class="btn setting-edit-btn" style="background:#dc3545; color:white; font-size:0.8rem;" onclick="deleteSelectedSettings('grades')">حذف المحدد</button><button class="btn setting-edit-btn" style="background:#2c5aa0; color:white;" onclick="openAddGradeModal()"><i class="fas fa-plus"></i> إضافة تقدير</button></div></div><table class="custom-table"><thead><tr><th width="5%"><input type="checkbox" id="selectAllGrades" class="custom-checkbox" onchange="toggleSelectAllSettings('grades', this)"></th><th width="10%">#</th><th width="45%">اسم التقدير</th><th width="15%">الحالة</th><th width="25%">الإجراءات</th></tr></thead><tbody id="gradeTableBody"></tbody></table></div>
-                <div id="vis" class="setting-content-pane"><div class="visitor-section"><div class="visitor-section-title">القيادة العليا</div><ul id="list_visitor_senior" class="visitor-list"></ul><button class="btn-add-visitor setting-edit-btn" onclick="openVisitorPicker('senior')">+ إضافة زائر</button></div><div class="visitor-section"><div class="visitor-section-title">القيادة الوسطى</div><ul id="list_visitor_middle" class="visitor-list"></ul><button class="btn-add-visitor setting-edit-btn" onclick="openVisitorPicker('middle')">+ إضافة زائر</button></div><div style="text-align: left; margin-top: 20px;"><button class="btn btn-toggle setting-edit-btn" onclick="saveVisitorOrder()">حفظ الترتيب</button></div></div>
+                <div id="vis" class="setting-content-pane"><div class="visitor-section"><div class="visitor-section-title">القيادة العليا</div><ul id="list_visitor_senior" class="visitor-list"></ul><button class="btn-add-visitor setting-edit-btn" onclick="openVisitorPicker('senior')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">+ إضافة زائر</button></div><div class="visitor-section"><div class="visitor-section-title">القيادة الوسطى</div><ul id="list_visitor_middle" class="visitor-list"></ul><button class="btn-add-visitor setting-edit-btn" onclick="openVisitorPicker('middle')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">+ إضافة زائر</button></div><div style="text-align: left; margin-top: 20px;"><button class="btn btn-toggle setting-edit-btn" onclick="saveVisitorOrder()">حفظ الترتيب</button></div></div>
                 <div id="log" class="setting-content-pane"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h4 style="color:var(--primary); margin:0;">سجل العمليات (Audit Log)</h4><div><button class="btn" style="background:#17a2b8; color:white; font-size:0.8rem;" onclick="loadSystemLogs()"><i class="fas fa-sync"></i> تحديث</button><button class="btn setting-edit-btn" style="background:#dc3545; color:white; font-size:0.8rem;" onclick="clearSystemLogs()"><i class="fas fa-trash"></i> مسح السجل</button></div></div><div class="log-table-wrapper"><table class="custom-table" style="font-size:0.9rem;"><thead><tr><th width="20%">التاريخ والوقت</th><th width="20%">المستخدم</th><th width="20%">الحدث</th><th width="40%">التفاصيل</th></tr></thead><tbody id="logTableBody"></tbody></table></div></div>
             </div>
         </main>
@@ -555,7 +493,7 @@
     <script>
         const SECTIONS = [{id: 'dashboard', name: 'لوحة التحكم'}, {id: 'visits', name: 'الزيارات الصفية'}, {id: 'performance', name: 'تقييم الأداء'}, {id: 'distinguished', name: 'المعلمين المتميزين'}, {id: 'qualitative', name: 'التقرير النوعي'}, {id: 'quality-report', name: 'تقرير جودة التعليم'}, {id: 'user-management', name: 'إدارة المستخدمين'}, {id: 'system-admin', name: 'إعدادات مدير النظام'}, {id: 'settings', name: 'الإعدادات'}];
         const DEFAULT_PERMS = {}; SECTIONS.forEach(s => DEFAULT_PERMS[s.id] = {view: true, edit: false});
-        const DB_KEY = 'Irteqaa_System_DB_V17';
+        const DB_KEY = 'Irteqaa_System_DB_V18';
         const INITIAL_DB = { admins: [{id: 999, name: 'مدير النظام', login: 'admin', pass: 'Hasan@12', status: 'active', job: 'مدير النظام', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS))}], senior: [{id: 1, name: 'علياء محمد مبارك الدوسري', job: 'مديرة المدرسة', phone: '39669118', login: '39669118', pass: '39669118', status: 'active', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS)), dateAdded: '2025/01/01', brandId: 1, allowedBrands: [1]}], middle: [], teachers: [], departments: [], visits_senior: [], visits_middle: [], distinguished: [], care_needed: [], qualitative_reports: [], saved_reports: [], settings: { schoolName: 'مدرسة مدينة حمد الابتدائية للبنات', schoolYear: '2025 / 2026م', evaluation_criteria: [], evaluation_grades: [{name:'ممتاز', status:'active'}, {name:'جيد جداً', status:'active'}, {name:'جيد', status:'active'}, {name:'مقبول', status:'active'}, {name:'ضعيف', status:'active'}, {name:'يتجاوز التوقعات كثيراً', status:'active'}, {name:'يتجاوز التوقعات', status:'active'}, {name:'يفي بالتوقعات', status:'active'}, {name:'يفي بالتوقعات جزئيا', status:'active'}], visitor_order_senior: [], visitor_order_middle: [] }, brands: [{id: 1, name: 'الفرع الرئيسي', email: 'main@school.bh', status: 'active'}], logs: [] };
         SECTIONS.forEach(sec => { INITIAL_DB.admins[0].permissions[sec.id] = {view: true, edit: true}; });
         const MONTH_NAMES_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
@@ -579,7 +517,6 @@
         function switchBrand(id) { const newBrand = DB.brands.find(b => b.id === id); if(newBrand) { const today = new Date().toISOString().split('T')[0]; if (newBrand.endDate && newBrand.endDate < today && !isAdminUser()) { alert("يرجى التواصل مع المشرف."); return; } CURRENT_BRAND = newBrand; localStorage.setItem('Irteqaa_CurrentBrand', id); location.reload(); } }
         function filterByContext(list) { if(!list) return []; return list.filter(item => { const itemBrandId = item.brandId || 1; if(item.id === 999) return false; return itemBrandId === CURRENT_BRAND.id; }); }
 
-        // Date Handling Utilities
         function updateDateFilterOptions(data, selectId) {
             const select = document.getElementById(selectId);
             const currentSelection = select.value; 
@@ -679,7 +616,7 @@
         }
         function animateValue(id, start, end, duration) { if (start === end) return; const obj = document.getElementById(id); let startTimestamp = null; const step = (timestamp) => { if (!startTimestamp) startTimestamp = timestamp; const progress = Math.min((timestamp - startTimestamp) / duration, 1); obj.innerHTML = Math.floor(progress * (end - start) + start); if (progress < 1) { window.requestAnimationFrame(step); } }; window.requestAnimationFrame(step); }
         function setTab(tab, el) { CURRENT_TAB = tab; document.querySelectorAll('#user-management .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(document.getElementById('selectAll')) document.getElementById('selectAll').checked = false; renderTable(); }
-        function renderTable() { const headRow = document.getElementById('tableHeadRow'); const tbody = document.getElementById('usersTableBody'); const addBtn = document.getElementById('addBtnMain'); const bulkPermBtn = document.getElementById('bulkPermBtn'); tbody.innerHTML = ''; const canEditUsers = canEdit('user-management'); const actionButtons = document.getElementById('userActionButtons'); const noEditMsg = document.getElementById('noEditPermissionMsg'); if(canEditUsers) { actionButtons.style.display = 'flex'; noEditMsg.style.display = 'none'; } else { actionButtons.style.display = 'none'; noEditMsg.style.display = 'block'; } let headerHTML = `<th width="5%"><input type="checkbox" id="selectAll" class="custom-checkbox" onchange="toggleSelectAll(this)" ${canEditUsers?'':'disabled'}></th>`; if (CURRENT_TAB === 'departments') { headerHTML += `<th width="10%">الترتيب</th><th width="40%">اسم القسم</th><th width="15%">الحالة</th><th width="30%">الإدارة</th>`; addBtn.innerText = "إضافة قسم جديد"; if(bulkPermBtn) bulkPermBtn.style.display = 'none'; } else if (CURRENT_TAB === 'teachers') { headerHTML += `<th width="5%">#</th><th width="25%">الاسم</th><th width="15%">القسم</th><th width="15%">الحالة</th><th width="35%">الإجراءات</th>`; addBtn.innerText = "إضافة اسم جديد"; if(bulkPermBtn) bulkPermBtn.style.display = 'inline-flex'; } else { headerHTML += `<th width="5%">#</th><th width="25%">الاسم</th><th width="15%">الوظيفة</th><th width="15%">صلاحية إضافية</th><th width="10%">الحالة</th><th width="25%">الإجراءات</th>`; addBtn.innerText = "إضافة اسم جديد"; if(bulkPermBtn) bulkPermBtn.style.display = 'inline-flex'; } headRow.innerHTML = headerHTML; let list = filterByContext(DB[CURRENT_TAB] || []); list.forEach((u, idx) => { const isActive = u.status === 'active'; const statusBadge = isActive ? `<span class="status-badge status-active">مفعل</span>` : `<span class="status-badge status-inactive">معطل</span>`; let row = `<td><input type="checkbox" class="custom-checkbox user-select-cb" value="${u.id}" ${canEditUsers ? '' : 'disabled'}></td><td>${idx+1}</td><td>${u.name}</td>`; if (CURRENT_TAB === 'departments') { row += `<td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:2px; flex-wrap:wrap;">`; } else if (CURRENT_TAB === 'teachers') { row += `<td>${u.dept || '-'}</td><td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:2px; flex-wrap:wrap;">`; } else { let roleTxt = '-'; if(u.role === 'supervisor') roleTxt = '<span class="role-badge role-super">مشرف</span>'; if(u.role === 'admin_support') roleTxt = '<span class="role-badge role-admin">إداري</span>'; row += `<td>${u.job || '-'}</td><td>${roleTxt}</td><td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:2px; flex-wrap:wrap;">`; } if(canEditUsers) { row += `<button class="action-btn btn-move" onclick="moveItem('${CURRENT_TAB}', ${u.id}, 'up')" title="نقل لأعلى"><i class="fas fa-arrow-up"></i></button><button class="action-btn btn-move" onclick="moveItem('${CURRENT_TAB}', ${u.id}, 'down')" title="نقل لأسفل"><i class="fas fa-arrow-down"></i></button>`; } if (CURRENT_TAB === 'departments') { if(canEditUsers) { row += `<button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleStatus(${u.id})"><i class="fas fa-power-off"></i> ${isActive?'تعطيل':'تفعيل'}</button><button class="action-btn btn-edit" onclick="editUser(${u.id})"><i class="fas fa-edit"></i> تعديل</button><button class="action-btn btn-delete" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i> حذف</button>`; } } else { row += `<button class="action-btn btn-view" onclick="viewUser(${u.id})"><i class="fas fa-eye"></i> معاينة</button>`; if (canEditUsers) { row += `<button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleStatus(${u.id})"><i class="fas fa-power-off"></i> ${isActive?'تعطيل':'تفعيل'}</button><button class="action-btn btn-edit" onclick="editUser(${u.id})"><i class="fas fa-edit"></i> تعديل</button><button class="action-btn btn-delete" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i> حذف</button><button class="action-btn btn-perm" onclick="openPerms(${u.id})"><i class="fas fa-key"></i> صلاحيات</button>`; } } row += `</div></td>`; const tr = document.createElement('tr'); tr.innerHTML = row; tbody.appendChild(tr); }); }
+        function renderTable() { const headRow = document.getElementById('tableHeadRow'); const tbody = document.getElementById('usersTableBody'); const addBtn = document.getElementById('addBtnMain'); const bulkPermBtn = document.getElementById('bulkPermBtn'); tbody.innerHTML = ''; const canEditUsers = canEdit('user-management'); const actionButtons = document.getElementById('userActionButtons'); const noEditMsg = document.getElementById('noEditPermissionMsg'); if(canEditUsers) { actionButtons.style.display = 'flex'; noEditMsg.style.display = 'none'; } else { actionButtons.style.display = 'none'; noEditMsg.style.display = 'block'; } let headerHTML = `<th width="5%"><input type="checkbox" id="selectAll" class="custom-checkbox" onchange="toggleSelectAll(this)" ${canEditUsers?'':'disabled'}></th>`; if (CURRENT_TAB === 'departments') { headerHTML += `<th width="10%">الترتيب</th><th width="40%">اسم القسم</th><th width="15%">الحالة</th><th width="30%">الإدارة</th>`; addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة قسم جديد"; if(bulkPermBtn) bulkPermBtn.style.display = 'none'; } else if (CURRENT_TAB === 'teachers') { headerHTML += `<th width="5%">#</th><th width="25%">الاسم</th><th width="15%">القسم</th><th width="15%">الحالة</th><th width="35%">الإجراءات</th>`; addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة اسم جديد"; if(bulkPermBtn) bulkPermBtn.style.display = 'inline-flex'; } else { headerHTML += `<th width="5%">#</th><th width="25%">الاسم</th><th width="15%">الوظيفة</th><th width="15%">صلاحية إضافية</th><th width="10%">الحالة</th><th width="25%">الإجراءات</th>`; addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة اسم جديد"; if(bulkPermBtn) bulkPermBtn.style.display = 'inline-flex'; } headRow.innerHTML = headerHTML; let list = filterByContext(DB[CURRENT_TAB] || []); list.forEach((u, idx) => { const isActive = u.status === 'active'; const statusBadge = isActive ? `<span class="status-badge status-active">مفعل</span>` : `<span class="status-badge status-inactive">معطل</span>`; let row = `<td><input type="checkbox" class="custom-checkbox user-select-cb" value="${u.id}" ${canEditUsers ? '' : 'disabled'}></td><td>${idx+1}</td><td>${u.name}</td>`; if (CURRENT_TAB === 'departments') { row += `<td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:2px; flex-wrap:wrap;">`; } else if (CURRENT_TAB === 'teachers') { row += `<td>${u.dept || '-'}</td><td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:2px; flex-wrap:wrap;">`; } else { let roleTxt = '-'; if(u.role === 'supervisor') roleTxt = '<span class="role-badge role-super">مشرف</span>'; if(u.role === 'admin_support') roleTxt = '<span class="role-badge role-admin">إداري</span>'; row += `<td>${u.job || '-'}</td><td>${roleTxt}</td><td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:2px; flex-wrap:wrap;">`; } if(canEditUsers) { row += `<button class="action-btn btn-move" onclick="moveItem('${CURRENT_TAB}', ${u.id}, 'up')" title="نقل لأعلى"><i class="fas fa-arrow-up"></i></button><button class="action-btn btn-move" onclick="moveItem('${CURRENT_TAB}', ${u.id}, 'down')" title="نقل لأسفل"><i class="fas fa-arrow-down"></i></button>`; } if (CURRENT_TAB === 'departments') { if(canEditUsers) { row += `<button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleStatus(${u.id})"><i class="fas fa-power-off"></i> ${isActive?'تعطيل':'تفعيل'}</button><button class="action-btn btn-edit" onclick="editUser(${u.id})"><i class="fas fa-edit"></i> تعديل</button><button class="action-btn btn-delete" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i> حذف</button>`; } } else { row += `<button class="action-btn btn-view" onclick="viewUser(${u.id})"><i class="fas fa-eye"></i> معاينة</button>`; if (canEditUsers) { row += `<button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleStatus(${u.id})"><i class="fas fa-power-off"></i> ${isActive?'تعطيل':'تفعيل'}</button><button class="action-btn btn-edit" onclick="editUser(${u.id})"><i class="fas fa-edit"></i> تعديل</button><button class="action-btn btn-delete" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i> حذف</button><button class="action-btn btn-perm" onclick="openPerms(${u.id})"><i class="fas fa-key"></i> صلاحيات</button>`; } } row += `</div></td>`; const tr = document.createElement('tr'); tr.innerHTML = row; tbody.appendChild(tr); }); }
 
         function moveItem(collection, id, d) {
             const l = DB[collection];
@@ -780,8 +717,18 @@
         function triggerImportExcel() { document.getElementById('importExcelInput').click(); }
         function handleExcelImport(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const firstSheet = workbook.Sheets[workbook.SheetNames[0]]; const jsonData = XLSX.utils.sheet_to_json(firstSheet, {defval: ""}); if (jsonData.length === 0) return alert('الملف فارغ!'); let count = 0; let skipped = 0; const dateAdded = new Date().toLocaleDateString('en-GB'); jsonData.forEach((row, index) => { let name = (CURRENT_TAB === 'departments') ? (row['اسم القسم'] || row['الاسم'] || row['Name'] || '') : (row['الاسم'] || row['Name'] || ''); if (name) { const exists = DB[CURRENT_TAB].some(u => u.name === name && u.brandId === CURRENT_BRAND.id); if (!exists) { const newUser = { id: Date.now() + index, name: name, status: 'active', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS)), dateAdded: dateAdded, lastUpdated: new Date().toLocaleString('en-GB'), lastUpdatedBy: CURRENT_USER ? CURRENT_USER.name : 'Import', brandId: CURRENT_BRAND.id, allowedBrands: [CURRENT_BRAND.id] }; if (CURRENT_TAB === 'departments') { DB[CURRENT_TAB].push(newUser); count++; } else if (CURRENT_TAB === 'teachers') { newUser.dept = row['القسم'] || row['Department'] || ''; DB[CURRENT_TAB].push(newUser); count++; } else { newUser.job = row['الوظيفة'] || row['Job'] || ''; newUser.phone = row['رقم الهاتف'] || row['Phone'] || ''; newUser.login = row['اسم المستخدم'] || row['User'] || ''; newUser.pass = row['كلمة المرور'] || row['Pass'] || ''; DB[CURRENT_TAB].push(newUser); count++; } } else { skipped++; } } }); if (count > 0) { saveDB(); renderTable(); alert(`تم استيراد ${count} سجل بنجاح.`); } else { alert('لم يتم استيراد أي سجل جديد.'); } input.value = ""; }; reader.readAsArrayBuffer(input.files[0]); } }
         function exportSpecificExcel(type) { let data = []; let headers = []; let filename = type + '.xlsx'; if (type === 'visits') { const list = (CURRENT_VISIT_TAB === 'senior') ? DB.visits_senior : DB.visits_middle; const filteredList = filterByContext(list); headers = ['التاريخ', 'القسم', 'المعلم', 'التقييم', 'الزائر']; filteredList.forEach(v => data.push({'التاريخ':v.date, 'القسم':v.dept, 'المعلم':v.teacher, 'التقييم':v.eval, 'الزائر':v.visitor})); filename = (CURRENT_VISIT_TAB === 'senior' ? 'Senior_Visits' : 'Middle_Visits') + '.xlsx'; } else if (type === 'qualitative') { headers = ['التاريخ', 'القسم', 'جوانب القوة', 'جوانب التطوير']; filterByContext(DB.qualitative_reports).forEach(q => data.push({'التاريخ':q.date, 'القسم':q.dept, 'جوانب القوة':q.strength, 'جوانب التطوير':q.improve})); } else if (type === 'distinguished') { headers = ['التاريخ', 'القسم', 'المعلم', 'التقييم', 'المبررات']; filterByContext(DB.distinguished).forEach(d => data.push({'التاريخ':d.date, 'القسم':d.dept, 'المعلم':d.teacher, 'التقييم':d.eval, 'المبررات':d.reason})); } else if (type === 'care') { headers = ['التاريخ', 'القسم', 'المعلم', 'التقييم', 'المبررات']; filterByContext(DB.care_needed).forEach(d => data.push({'التاريخ':d.date, 'القسم':d.dept, 'المعلم':d.teacher, 'التقييم':d.eval, 'المبررات':d.reason})); } const ws = XLSX.utils.json_to_sheet(data, { header: headers }); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Sheet1"); XLSX.writeFile(wb, filename); }
+        
+        function getVisitorJobByName(name) {
+            if (!name) return 'غير محدد';
+            const u1 = (DB.senior || []).find(u => u.name.trim() === name.trim());
+            if (u1) return u1.job || 'القيادة العليا';
+            const u2 = (DB.middle || []).find(u => u.name.trim() === name.trim());
+            if (u2) return u2.job || 'القيادة الوسطى';
+            return 'غير محدد';
+        }
+
         function triggerImportExcelGeneric(type) { CURRENT_IMPORT_TARGET = type; document.getElementById('importExcelGenericInput').click(); }
-        function handleExcelImportGeneric(input) { if (!input.files || !input.files[0]) return; const reader = new FileReader(); reader.onload = function(e) { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]); if (jsonData.length === 0) return alert('الملف فارغ'); let count = 0; const targetType = CURRENT_IMPORT_TARGET; jsonData.forEach((row, idx) => { const id = Date.now() + idx; if (targetType === 'visits') { const arr = (CURRENT_VISIT_TAB === 'senior') ? DB.visits_senior : DB.visits_middle; arr.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', visitor: row['الزائر'] || CURRENT_USER.name, visitorJob: 'مستورد', brandId: CURRENT_BRAND.id }); count++; } else if (targetType === 'qualitative') { DB.qualitative_reports.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', strength: row['جوانب القوة'] || '', improve: row['جوانب التطوير'] || '', brandId: CURRENT_BRAND.id }); count++; } else if (targetType === 'distinguished') { DB.distinguished.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', reason: row['المبررات'] || '', brandId: CURRENT_BRAND.id }); count++; } else if (targetType === 'care') { DB.care_needed.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', reason: row['المبررات'] || '', brandId: CURRENT_BRAND.id }); count++; } }); if (count > 0) { saveDB(); alert(`تم استيراد ${count} سجل إلى ${CURRENT_BRAND.name}`); if(targetType === 'visits') renderVisitsTable(); if(targetType === 'qualitative') renderQualitativeTable(); if(targetType === 'distinguished' || targetType === 'care') renderDistinguishedTables(); } input.value = ''; }; reader.readAsArrayBuffer(input.files[0]); }
+        function handleExcelImportGeneric(input) { if (!input.files || !input.files[0]) return; const reader = new FileReader(); reader.onload = function(e) { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]); if (jsonData.length === 0) return alert('الملف فارغ'); let count = 0; const targetType = CURRENT_IMPORT_TARGET; jsonData.forEach((row, idx) => { const id = Date.now() + idx; if (targetType === 'visits') { const arr = (CURRENT_VISIT_TAB === 'senior') ? DB.visits_senior : DB.visits_middle; let vName = row['الزائر'] || CURRENT_USER.name; let vJob = getVisitorJobByName(vName); arr.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', visitor: vName, visitorJob: vJob, brandId: CURRENT_BRAND.id }); count++; } else if (targetType === 'qualitative') { DB.qualitative_reports.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', strength: row['جوانب القوة'] || '', improve: row['جوانب التطوير'] || '', brandId: CURRENT_BRAND.id }); count++; } else if (targetType === 'distinguished') { DB.distinguished.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', reason: row['المبررات'] || '', brandId: CURRENT_BRAND.id }); count++; } else if (targetType === 'care') { DB.care_needed.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', reason: row['المبررات'] || '', brandId: CURRENT_BRAND.id }); count++; } }); if (count > 0) { saveDB(); alert(`تم استيراد ${count} سجل إلى ${CURRENT_BRAND.name}`); if(targetType === 'visits') renderVisitsTable(); if(targetType === 'qualitative') renderQualitativeTable(); if(targetType === 'distinguished' || targetType === 'care') renderDistinguishedTables(); } input.value = ''; }; reader.readAsArrayBuffer(input.files[0]); }
         function renderBrandsTable() { if(!isAdminUser()) return; const tbody = document.getElementById('brandsTableBody'); tbody.innerHTML = ''; DB.brands.forEach((b, idx) => { const isDefault = (b.id === 1); const today = new Date().toISOString().split('T')[0]; const isExpired = b.endDate && b.endDate < today; const isActive = b.status === 'active'; let statusBadge; if(isExpired) { statusBadge = `<span class="status-badge status-inactive">منتهية الصلاحية</span>`; } else { statusBadge = isActive ? `<span class="status-badge status-active">نشط</span>` : `<span class="status-badge status-inactive">معطل</span>`; } const deleteBtn = isDefault ? '' : `<button class="action-btn btn-delete" onclick="deleteBrand(${b.id})"><i class="fas fa-trash"></i></button>`; const resetBtn = `<button class="action-btn btn-reset" onclick="resetBrandData(${b.id})" title="إعادة تهيئة"><i class="fas fa-redo"></i> تهيئة</button>`; let validityStr = '-'; if(b.startDate || b.endDate) { const start = b.startDate || 'غير محدد'; const end = b.endDate || 'غير محدد'; validityStr = `<div style="font-size:0.8rem; line-height:1.2;">من: ${start}<br>إلى: ${end}</div>`; } tbody.innerHTML += `<tr><td>${idx+1}</td><td>${b.name}</td><td>${b.email || '-'}</td><td>${validityStr}</td><td>${statusBadge}</td><td><div style="display:flex; gap:2px; justify-content:center;"><button class="action-btn btn-edit" onclick="editBrand(${b.id})"><i class="fas fa-edit"></i> تعديل</button><button class="action-btn btn-toggle ${isActive?'':'off'}" onclick="toggleBrandStatus(${b.id})"><i class="fas fa-power-off"></i> ${isActive?'تعطيل':'تفعيل'}</button>${resetBtn}${deleteBtn}</div></td></tr>`; }); }
         function openBrandModal() { document.getElementById('brandForm').reset(); document.getElementById('editBrandId').value = ''; document.getElementById('brandModalTitle').innerText = 'إضافة براند جديد'; document.getElementById('brandModal').style.display = 'flex'; }
         function editBrand(id) { const b = DB.brands.find(x => x.id === id); if(b) { document.getElementById('editBrandId').value = b.id; document.getElementById('brandName').value = b.name; document.getElementById('brandEmail').value = b.email; document.getElementById('brandStartDate').value = b.startDate || ''; document.getElementById('brandEndDate').value = b.endDate || ''; document.getElementById('brandModalTitle').innerText = 'تعديل البراند'; document.getElementById('brandModal').style.display = 'flex'; } }
@@ -986,7 +933,11 @@
         function deleteQualitative(id) { if(confirm('حذف؟')) { DB.qualitative_reports = DB.qualitative_reports.filter(x => x.id !== id); saveDB(); renderQualitativeTable(); } }
         function setReportTab(tab, el) { document.querySelectorAll('#quality-report .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(tab === 'create') { document.getElementById('report-create-pane').style.display='block'; document.getElementById('report-saved-pane').style.display='none'; } else { document.getElementById('report-create-pane').style.display='none'; document.getElementById('report-saved-pane').style.display='block'; renderSavedReports(); } }
         
-        // ========= REPORT GENERATION LOGIC (MATCHING IMAGES FOR WORD EXPORT) =========
+        // ========= REPORT GENERATION LOGIC (PERFECT WORD FORMATTING) =========
+        async function previewQualityReport() {
+            await generateQualityReport();
+        }
+
         async function generateQualityReport() {
             const m = document.getElementById('reportMonthSelect').value;
             const y = DB.settings.schoolYear || '2025 / 2026م';
@@ -1008,49 +959,52 @@
             const dirName = sigDirId ? (DB.senior.find(u => u.id == sigDirId)?.name || '') : '';
             const asstName = sigAsstId ? (DB.senior.find(u => u.id == sigAsstId)?.name || '') : '';
 
-            // --- CSS Styles Embedded specifically for the exported Word format ---
-            const inlineTableStyle = `border-collapse: collapse; width: 100%; text-align: center; direction: rtl; font-family: 'Cairo', sans-serif; font-size: 13pt;`;
-            const thStyle = `border: 1px solid black; padding: 10px; background-color: #bfbfbf; font-weight: bold; color: black;`;
-            const thBlackStyle = `border: 1px solid black; padding: 10px; background-color: #000; font-weight: bold; color: #fff;`;
-            const tdStyle = `border: 1px solid black; padding: 10px; vertical-align: middle;`;
-            
+            // --- HTML structure built specifically to play nicely with MS Word ---
             let html = ``;
+            
+            // Reusable Table Style Definitions
+            const tStyle = `border-collapse: collapse; width: 100%; text-align: center; font-family: 'Cairo', 'Times New Roman', sans-serif; font-size: 13pt; direction: rtl;`;
+            const tdStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle;`;
+            const thStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #bfbfbf;`;
+            const thBlack = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #000; color: #fff;`;
+
+            // Function to add footer
+            const getFooter = () => `<div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; margin-top: 50px; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl;">${footerText}</div>`;
+            const pageBreak = `<br clear="all" style="mso-special-character:line-break;page-break-before:always">`;
 
             // --- PAGE 1: COVER ---
             html += `
-            <div style="font-family: 'Cairo', sans-serif; direction: rtl; page-break-after: always; text-align: center; position: relative; min-height: 1000px;">
-                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: none !important;">
                     <tr>
-                        <td align="right" width="33%"><img src="${schoolLogo}" height="100" style="max-width: 150px;"></td>
-                        <td align="center" width="33%"><img src="${ministryLogo}" height="100" style="max-width: 250px;"></td>
-                        <td align="left" width="33%"></td>
+                        <td align="right" width="50%" style="border: none !important;"><img src="${schoolLogo}" height="100" style="max-width: 150px;"></td>
+                        <td align="left" width="50%" style="border: none !important;"><img src="${ministryLogo}" height="100" style="max-width: 250px;"></td>
                     </tr>
                 </table>
                 <br><br><br>
-                <div style="background-color: #f2f2f2; border-radius: 20px; padding: 40px 20px; border: 1px solid #ddd; margin: 40px auto; width: 85%;">
+                <div style="background-color: #f2f2f2; border-radius: 20px; padding: 40px 20px; border: 1px solid #ddd; margin: 40px auto; width: 85%; text-align: center;">
                     <h1 style="font-size: 26pt; font-weight: bold; margin-bottom: 20px; color: #000;">تقرير متابعة جودة التعليم للقيادة العليا والوسطى</h1>
                     <h2 style="font-size: 20pt; color: #2c5aa0; margin-bottom: 20px;">${DB.settings.schoolName || 'مدرسة مدينة حمد الابتدائية للبنات'}</h2>
                     <h3 style="font-size: 18pt; color: red; text-decoration: underline; margin-bottom: 15px;">شهر ${mName}</h3>
                     <h4 style="font-size: 16pt; margin-bottom: 10px; color: #000;">العام الدراسي ${y}</h4>
                 </div>
-                <br><br><br><br><br><br>
-                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 50px;">
+                <br><br><br><br>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 50px; border: none !important;">
                     <tr>
-                        <td align="center" width="50%">
+                        <td align="center" width="50%" style="border: none !important;">
                             <div style="font-weight: bold; font-size: 16pt; margin-bottom: 20px;">يعتمد، مديرة المدرسة<br>أ. ${dirName}</div>
+                            ${DB.settings.schoolStamp ? `<img src="${DB.settings.schoolStamp}" height="110">` : ''}
                         </td>
-                        <td align="center" width="50%">
+                        <td align="center" width="50%" style="border: none !important;">
                             <div style="font-weight: bold; font-size: 16pt; margin-bottom: 20px;">إعداد المديرة المساعدة<br>أ. ${asstName}</div>
                         </td>
                     </tr>
                 </table>
-                ${DB.settings.schoolStamp ? `<div style="text-align: right; padding-right: 80px; margin-top: 20px;"><img src="${DB.settings.schoolStamp}" height="110"></div>` : '<br><br><br><br>'}
-                <div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; margin-top: 50px; border-top: 1px solid #ccc; padding-top: 10px;">
-                    ${footerText}
-                </div>
-            </div>`;
+                ${getFooter()}
+            </div>
+            ${pageBreak}`;
 
-            // --- Page 2: Middle Leadership Follow-up ---
+            // --- PAGE 2: Middle Leadership Follow-up ---
             const middleLeaders = filterByContext(DB.middle);
             let middleRows = '';
             middleLeaders.forEach(leader => {
@@ -1067,18 +1021,18 @@
             });
 
             html += `
-            <div style="font-family: 'Cairo', sans-serif; direction: rtl; page-break-after: always; position: relative; min-height: 1000px;">
+            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
                 <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">أولاً: متابعة تسليم القيادة الوسطى (الزيارات / محاضر الاجتماعات / الخطة الأسبوعية) للمواد الدراسية إلى المدير/ة المساعد/ة في المدرسة</h3>
                 <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${inlineTableStyle}">
+                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
                     <thead>
                         <tr>
                             <th rowspan="2" style="${thStyle} width: 25%;">القسم</th>
                             <th colspan="4" style="${thStyle} width: 75%;">متابعة القيادة العليا للقيادة الوسطى</th>
                         </tr>
                         <tr>
-                            <th style="${thStyle} width: 15%;">عدد استمارات الزيارات الصفية التي نُفذت من قبل المعلم الأول أو المنسق خلال الشهر</th>
-                            <th style="${thStyle} width: 15%;">يوجد محضر اجتماع المعلم الأول أو المنسق مع المعلمين</th>
+                            <th style="${thStyle} width: 15%;">عدد استمارات الزيارات الصفية المنفذة خلال الشهر</th>
+                            <th style="${thStyle} width: 15%;">يوجد محضر اجتماع للمعلم الأول أو المنسق</th>
                             <th style="${thStyle} width: 15%;">توجد خطه أسبوعية للمعلم الأول أو المنسق</th>
                             <th style="${thStyle} width: 30%;">أسباب عدم التسليم</th>
                         </tr>
@@ -1093,12 +1047,11 @@
                     <div style="margin-bottom:10px;">1- القيادة العليا = ${seniorVisits.length} زيارة</div>
                     <div>2- القيادة الوسطى = ${middleVisits.length} زيارة</div>
                 </div>
-                <div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 10px;">
-                    ${footerText}
-                </div>
-            </div>`;
+                ${getFooter()}
+            </div>
+            ${pageBreak}`;
 
-            // --- Page 3+: Visit Details (Dynamic) ---
+            // --- PAGE 3+: Visit Details (Dynamic) ---
             const seniorVisitors = DB.settings.visitor_order_senior && DB.settings.visitor_order_senior.length > 0 
                 ? DB.settings.visitor_order_senior.map(id => DB.senior.find(u => u.id == id)).filter(Boolean)
                 : filterByContext(DB.senior);
@@ -1125,7 +1078,7 @@
                         <td style="${tdStyle} width: 20%;">${v.eval}</td>`;
                     
                     if(idx === 0) {
-                        tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold; vertical-align: middle;">${visitor.name}<br><span style="font-weight: normal; font-size: 11pt;">${visitor.job || ''}</span></td>`;
+                        tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold;">${visitor.name}<br><span style="font-weight: normal; font-size: 11pt;">${visitor.job || ''}</span></td>`;
                     }
                     tableContent += `</tr>`;
                 });
@@ -1137,30 +1090,28 @@
             tableContent += `<tr><td colspan="6" style="border: 2px solid black; padding: 12px; background-color: #b4c6e7; font-weight: bold; text-align: center;">مجموع الزيارات الكلية = ${allVisits.length} زيارة</td></tr>`;
 
             html += `
-            <div style="font-family: 'Cairo', sans-serif; direction: rtl; page-break-after: always; position: relative; min-height: 1000px;">
+            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
                 <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">ثالثاً: بيان أسماء المعلمين المُزارين من قبل القيادة العليا والوسطى خلال شهر ${mName}</h3>
                 <br>
                 ${visitorCount > 0 ? `
-                <table border="1" cellpadding="8" cellspacing="0" style="${inlineTableStyle}">
+                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
                     <thead>
                         <tr>
-                            <th style="${thBlackStyle} width: 5%;">ت</th>
-                            <th style="${thBlackStyle} width: 25%;">اسم المعلم</th>
-                            <th style="${thBlackStyle} width: 15%;">القسم</th>
-                            <th style="${thBlackStyle} width: 15%;">تاريخ الزيارة</th>
-                            <th style="${thBlackStyle} width: 20%;">تقييم الزيارة</th>
-                            <th style="${thBlackStyle} width: 20%;">اسم الزائر</th>
+                            <th style="${thBlack} width: 5%;">ت</th>
+                            <th style="${thBlack} width: 25%;">اسم المعلم</th>
+                            <th style="${thBlack} width: 15%;">القسم</th>
+                            <th style="${thBlack} width: 15%;">تاريخ الزيارة</th>
+                            <th style="${thBlack} width: 20%;">تقييم الزيارة</th>
+                            <th style="${thBlack} width: 20%;">اسم الزائر</th>
                         </tr>
                     </thead>
                     <tbody>${tableContent}</tbody>
                 </table>` : `<div style="text-align:center; padding:20px; font-size:14pt;">لا توجد زيارات مسجلة.</div>`}
-                
-                <div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 10px;">
-                    ${footerText}
-                </div>
-            </div>`;
+                ${getFooter()}
+            </div>
+            ${pageBreak}`;
 
-            // --- Page 6: Statistics & Chart ---
+            // --- PAGE 6: Statistics & Chart ---
             const departments = [...new Set(allVisits.map(v => v.dept))];
             const colHeaders = ['يتجاوز التوقعات بكثير', 'يتجاوز التوقعات', 'يفي بالتوقعات', 'يفي بالتوقعات جزئيا'];
             let finalStatsRows = '';
@@ -1180,10 +1131,10 @@
             })));
 
             html += `
-            <div style="font-family: 'Cairo', sans-serif; direction: rtl; page-break-after: always; position: relative; min-height: 1000px;">
+            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
                 <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">رابعاً: عدد الزيارات الصفية وتقييم الأداء الصفي</h3>
                 <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${inlineTableStyle}">
+                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
                     <thead>
                         <tr>
                             <th rowspan="2" style="${thStyle}">#</th>
@@ -1213,12 +1164,11 @@
                 <div style="text-align: center; margin-top: 30px;">
                     <img src="${chartImg}" style="max-width: 90%; height: auto; border: 1px solid #ddd; padding: 10px;">
                 </div>
-                <div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 10px;">
-                    ${footerText}
-                </div>
-            </div>`;
+                ${getFooter()}
+            </div>
+            ${pageBreak}`;
 
-            // --- Page 7: Distinguished & Care ---
+            // --- PAGE 7: Distinguished & Care ---
             const distinguished = filterByContext(DB.distinguished);
             let distRows = '';
             distinguished.forEach((d, i) => { distRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${d.teacher}</td><td style="${tdStyle}">${d.eval}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
@@ -1228,26 +1178,25 @@
             care.forEach((d, i) => { careRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${d.teacher}</td><td style="${tdStyle}">${d.eval}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
 
             html += `
-            <div style="font-family: 'Cairo', sans-serif; direction: rtl; page-break-after: always; position: relative; min-height: 1000px;">
+            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
                 <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">سادساً: حصر أسماء المعلمين المتميزين في الأقسام الأكاديمية</h3>
                 <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${inlineTableStyle}">
+                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
                     <thead><tr><th style="${thStyle} width: 5%;">الرقم</th><th style="${thStyle} width: 25%;">اسم المعلم</th><th style="${thStyle} width: 15%;">التقدير</th><th style="${thStyle} width: 35%;">المبررات</th><th style="${thStyle} width: 20%;">القسم الأكاديمي</th></tr></thead>
                     <tbody>${distRows || `<tr><td colspan="5" style="${tdStyle}">لا توجد بيانات</td></tr>`}</tbody>
                 </table>
                 <br><br>
                 <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">حصر أسماء المعلمين الأولى بالرعاية في الأقسام الأكاديمية</h3>
                 <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${inlineTableStyle}">
+                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
                     <thead><tr><th style="${thStyle} width: 5%;">الرقم</th><th style="${thStyle} width: 25%;">اسم المعلم</th><th style="${thStyle} width: 15%;">التقدير</th><th style="${thStyle} width: 35%;">المبررات</th><th style="${thStyle} width: 20%;">القسم الأكاديمي</th></tr></thead>
                     <tbody>${careRows || `<tr><td colspan="5" style="${tdStyle}">لا توجد بيانات</td></tr>`}</tbody>
                 </table>
-                <div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 10px;">
-                    ${footerText}
-                </div>
-            </div>`;
+                ${getFooter()}
+            </div>
+            ${pageBreak}`;
 
-            // --- Page 9: Qualitative Report ---
+            // --- PAGE 9: Qualitative Report ---
             const qualitative = filterByContext(DB.qualitative_reports);
             let qualRows = '';
             qualitative.forEach(q => {
@@ -1260,23 +1209,20 @@
             });
 
             html += `
-            <div style="font-family: 'Cairo', sans-serif; direction: rtl; position: relative; min-height: 1000px;">
+            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
                 <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">سابعاً: التقرير النوعي</h3>
                 <h4 style="text-decoration: underline; text-align: center; font-size: 14pt; margin-bottom: 20px; font-weight: bold;">جوانب القوة والتطوير لأداء المعلمين خلال الزيارات الصفية في الأقسام الأكاديمية</h4>
                 <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${inlineTableStyle}">
+                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
                     <thead><tr><th style="${thStyle}">الأقسام الأكاديمية</th><th style="${thStyle}">جوانب القوة</th><th style="${thStyle}">جوانب بحاجة إلى تطوير</th></tr></thead>
                     <tbody>${qualRows || `<tr><td colspan="3" style="${tdStyle}">لا توجد بيانات</td></tr>`}</tbody>
                 </table>
-                <div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 10px;">
-                    ${footerText}
-                </div>
+                ${getFooter()}
             </div>`;
 
             content.innerHTML = html;
         }
 
-        // Helper to generate chart image
         function generateReportChart(labels, datasets) {
             return new Promise((resolve) => {
                 const canvas = document.getElementById('tempChartCanvas');
@@ -1287,10 +1233,9 @@
             });
         }
 
-        // Word Export 
-        function exportToWord() {
-            const htmlContent = document.getElementById('a4-report-content').innerHTML;
-            const fullHtml = `
+        // Export to MS Word Fix
+        function wrapForWord(htmlContent) {
+            return `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head>
                     <meta charset="utf-8">
@@ -1301,7 +1246,12 @@
                 </body>
                 </html>
             `;
-            // Add UTF-8 BOM to make Word recognize Arabic correctly
+        }
+
+        function exportToWord() {
+            const htmlContent = document.getElementById('a4-report-content').innerHTML;
+            if(!htmlContent.includes('تقرير متابعة جودة')) return alert('يرجى معاينة التقرير أولاً قبل التحميل');
+            const fullHtml = wrapForWord(htmlContent);
             const blob = new Blob(['\ufeff' + fullHtml], { type: 'application/msword' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -1309,10 +1259,58 @@
             link.click();
         }
 
-        function saveReport() { const m = document.getElementById('reportMonthSelect').value; DB.saved_reports.push({id: Date.now(), month: m, date: new Date().toLocaleDateString(), html: document.getElementById('a4-report-content').innerHTML, brandId: CURRENT_BRAND.id}); saveDB(); alert('تم الحفظ في الأرشيف'); }
-        function renderSavedReports() { const list = document.getElementById('savedReportsList'); list.innerHTML = ''; filterByContext(DB.saved_reports).forEach(r => { list.innerHTML += `<div class="saved-report-item"><div class="saved-report-info"><h4>تقرير شهر ${r.month}</h4><small>تم الحفظ: ${r.date}</small></div><button class="btn btn-view" onclick="loadSavedReport('${r.html.replace(/'/g, "\\'")}')">عرض</button></div>`; }); }
-        function loadSavedReport(html) { document.getElementById('a4-report-content').innerHTML = html; setReportTab('create', document.querySelector('#quality-report .custom-tab:first-child')); }
-        function setSettingTab(tab, el) { document.querySelectorAll('#settings .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.querySelectorAll('.setting-content-pane').forEach(p => p.classList.remove('active')); document.getElementById(tab).classList.add('active'); }
+        function saveReport() { 
+            const m = document.getElementById('reportMonthSelect').value; 
+            const htmlContent = document.getElementById('a4-report-content').innerHTML;
+            if(!htmlContent.includes('تقرير متابعة جودة')) return alert('يرجى معاينة التقرير أولاً قبل الحفظ');
+            DB.saved_reports.push({id: Date.now(), month: m, date: new Date().toLocaleDateString('en-GB'), html: htmlContent, brandId: CURRENT_BRAND.id}); 
+            saveDB(); 
+            alert('تم الحفظ في الأرشيف بنجاح'); 
+        }
+
+        function renderSavedReports() { 
+            const list = document.getElementById('savedReportsList'); 
+            list.innerHTML = ''; 
+            filterByContext(DB.saved_reports).forEach(r => { 
+                list.innerHTML += `
+                <div class="saved-report-card">
+                    <div class="saved-report-thumb"><i class="fas fa-file-word"></i></div>
+                    <div class="saved-report-details">
+                        <h4 style="margin:0 0 5px 0; color:var(--primary);">تقرير جودة التعليم - شهر ${r.month}</h4>
+                        <small style="color:#777; font-weight:bold;">تاريخ الحفظ: ${r.date}</small>
+                    </div>
+                    <div class="saved-report-actions">
+                        <button class="action-btn btn-view" onclick="viewSavedReport(${r.id})"><i class="fas fa-eye"></i> معاينة</button>
+                        <button class="action-btn btn-edit" onclick="editSavedReport(${r.id})"><i class="fas fa-edit"></i> تعديل</button>
+                        <button class="action-btn btn-toggle" onclick="downloadSavedReportItem(${r.id})"><i class="fas fa-download"></i> تنزيل</button>
+                        <button class="action-btn btn-perm" onclick="printSavedReportItem(${r.id})"><i class="fas fa-print"></i> طباعة</button>
+                        <button class="action-btn btn-delete" onclick="deleteSavedReport(${r.id})"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                </div>`; 
+            }); 
+        }
+        
+        function viewSavedReport(id) {
+            const r = DB.saved_reports.find(x => x.id === id);
+            if(r) { document.getElementById('a4-report-content').innerHTML = r.html; setReportTab('create', document.querySelector('#quality-report .custom-tab:first-child')); }
+        }
+        function editSavedReport(id) {
+            const r = DB.saved_reports.find(x => x.id === id);
+            if(r) { document.getElementById('reportMonthSelect').value = r.month; setReportTab('create', document.querySelector('#quality-report .custom-tab:first-child')); generateQualityReport(); }
+        }
+        function downloadSavedReportItem(id) {
+            const r = DB.saved_reports.find(x => x.id === id);
+            if(r) { const blob = new Blob(['\ufeff' + wrapForWord(r.html)], { type: 'application/msword' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Quality_Report_${r.month}.doc`; link.click(); }
+        }
+        function printSavedReportItem(id) {
+            const r = DB.saved_reports.find(x => x.id === id);
+            if(r) { const printWin = window.open('', '', 'width=800,height=900'); printWin.document.write('<html dir="rtl"><head><title>Print</title></head><body>' + r.html + '</body></html>'); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 500); }
+        }
+        function deleteSavedReport(id) {
+            if(confirm('هل أنت متأكد من حذف التقرير المحفوظ؟')) { DB.saved_reports = DB.saved_reports.filter(x => x.id !== id); saveDB(); renderSavedReports(); }
+        }
+
+        function setReportTab(tab, el) { document.querySelectorAll('#quality-report .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(tab === 'create') { document.getElementById('report-create-pane').style.display='block'; document.getElementById('report-saved-pane').style.display='none'; } else { document.getElementById('report-create-pane').style.display='none'; document.getElementById('report-saved-pane').style.display='block'; renderSavedReports(); } }
         
         function loadSettings() { 
             const savedName = DB.settings.schoolName;
