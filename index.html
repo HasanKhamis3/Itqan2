@@ -591,9 +591,13 @@
 
     <div id="brandModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span id="brandModalTitle">إضافة براند</span> <span onclick="closeModal('brandModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="brandForm"><input type="hidden" id="editBrandId"><label>اسم البراند</label><input type="text" id="brandName" class="form-control" required placeholder="مثال: فرع المحرق"><label>البريد الإلكتروني للبراند</label><input type="email" id="brandEmail" class="form-control" placeholder="example@school.bh"><label style="color:var(--primary); font-weight:bold; margin-top:15px; display:block;">مدة صلاحية البراند</label><div style="display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 6px; border: 1px solid #eee;"><div style="flex:1;"><label style="font-size:0.8rem; color:#777;">تاريخ البدء</label><input type="date" id="brandStartDate" class="form-control" style="margin-bottom:0;"></div><div style="flex:1;"><label style="font-size:0.8rem; color:#777;">تاريخ الانتهاء</label><input type="date" id="brandEndDate" class="form-control" style="margin-bottom:0;"></div></div><small style="color:#777; font-size:0.8rem; display:block; margin-top:5px;">* اترك التواريخ فارغة لصلاحية دائمة.</small></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveBrand()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('brandModal')">إلغاء</button></div></div></div>
     <div id="addUserModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span id="addUserModalTitle">إضافة اسم جديد</span> <span onclick="closeModal('addUserModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="addUserForm"><input type="hidden" id="editUserId"><label>الاسم الكامل / اسم القسم</label><input type="text" id="addName" class="form-control" required><div id="deptWrapper" class="form-group" style="display:none;"><label>القسم</label><select id="addDept" class="form-control"></select></div><div id="userFields"><label>الوظيفة</label><input type="text" id="addJob" class="form-control"><label>رقم الهاتف</label><input type="text" id="addPhone" class="form-control"><label>اسم الدخول</label><input type="text" id="addLogin" class="form-control"><label>كلمة المرور</label><input type="password" id="addPass" class="form-control"><div id="roleWrapper" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;"><label style="color:var(--primary); font-weight:bold; margin-bottom:5px;">صلاحية إضافية (اختياري)</label><select id="addRole" class="form-control" style="margin-bottom:15px;"><option value="">مستخدم عادي</option><option value="supervisor">مشرف للنظام</option><option value="admin_support">إداري للنظام</option></select></div></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveUserForm()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('addUserModal')">إلغاء</button></div></div></div>
+    
     <div id="distinguishedModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span id="distinguishedModalTitle">إضافة</span> <span onclick="closeModal('distinguishedModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="distinguishedForm"><input type="hidden" id="distType"><input type="hidden" id="distEditId"><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التاريخ</label><input type="date" class="form-control" id="distDate"></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">القسم</label><select id="distDept" class="form-control" onchange="onDistinguishedDeptChange()"><option value="">اختر القسم...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">اسم المعلم/ة</label><select id="distTeacher" class="form-control"><option value="">اختر المعلم/ة...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التقدير</label><select id="distEval" class="form-control"><option value="">اختر التقدير...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">المبررات / ملاحظات</label><textarea id="distReason" class="form-control" rows="4"></textarea></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveDistinguishedEntry()">حفظ البيانات</button><button class="btn" style="background:#ddd;" onclick="closeModal('distinguishedModal')">إلغاء</button></div></div></div>
+    
     <div id="addQualitativeModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span>إضافة تقرير نوعي</span> <span onclick="closeModal('addQualitativeModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="qualitativeForm"><input type="hidden" id="qualEditId"><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التاريخ</label><input type="date" class="form-control" id="qualDate"></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">القسم</label><select id="qualDept" class="form-control"><option value="">اختر القسم...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">جوانب القوة</label><textarea id="qualStrength" class="form-control" rows="4" placeholder="سجل جوانب القوة هنا..."></textarea></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">جوانب بحاجة إلى تطوير</label><textarea id="qualImprove" class="form-control" rows="4" placeholder="سجل جوانب التطوير هنا..."></textarea></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveQualitative()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('addQualitativeModal')">إلغاء</button></div></div></div>
+    
     <div id="addVisitModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span>إضافة زيارة صفية</span> <span onclick="closeModal('addVisitModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="addVisitForm"><input type="hidden" id="visitEditId"> <div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">القسم</label><select id="visitDept" class="form-control" onchange="onVisitDeptChange()"><option value="">اختر القسم...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">المعلم/ة</label><select id="visitTeacher" class="form-control"><option value="">اختر المعلم/ة...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">تاريخ الزيارة</label><input type="date" id="visitDate" class="form-control"></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التقييم</label><select id="visitEval" class="form-control"><option value="">اختر التقدير...</option></select></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveVisit()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('addVisitModal')">إلغاء</button></div></div></div>
+    
     <div id="viewVisitModal" class="modal-overlay"><div class="modal-box"><div class="modal-header">تفاصيل الزيارة <span onclick="closeModal('viewVisitModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body" id="viewVisitContent"></div><div class="modal-footer"><button class="btn" style="background:#28a745; color:white;" onclick="closeModal('viewVisitModal')">إغلاق</button></div></div></div>
     <div id="addEvalModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span>إضافة/تعديل معيار تقييم</span> <span onclick="closeModal('addEvalModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="addEvalForm"><input type="hidden" id="editEvalId"><label>اسم المعيار</label><input type="text" id="evalName" class="form-control" required placeholder="مثال: التخطيط الفعال"></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveEvalForm()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('addEvalModal')">إلغاء</button></div></div></div>
     <div id="addGradeModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span>إضافة/تعديل تقدير</span> <span onclick="closeModal('addGradeModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="addGradeForm"><input type="hidden" id="editGradeId"><label>اسم التقدير</label><input type="text" id="gradeName" class="form-control" required placeholder="مثال: ممتاز"></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveGradeForm()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('addGradeModal')">إلغاء</button></div></div></div>
@@ -1096,13 +1100,21 @@
             const canEditVisits = canEdit('visits');
 
             filtered.forEach(v => { 
+                // Dynamic Job Fetching based on the original user base
+                let displayJob = v.visitorJob || '-';
+                const userPool = CURRENT_VISIT_TAB === 'senior' ? DB.senior : DB.middle;
+                const uMatch = (userPool || []).find(u => u.name === v.visitor);
+                if(uMatch && uMatch.job) {
+                    displayJob = uMatch.job;
+                }
+
                 let row = `<tr>
                     <td>${v.date}</td>
                     <td style="font-weight:bold;">${v.dept}</td>
                     <td style="color:var(--primary); font-weight:bold;">${v.teacher}</td>
                     <td><span style="background:#eef4ff; color:var(--primary); padding:4px 8px; border-radius:4px; font-size:0.85rem;">${v.eval}</span></td>
                     <td>${v.visitor}</td>
-                    <td>${v.visitorJob||'-'}</td>
+                    <td>${displayJob}</td>
                     <td>
                         <div style="display:flex; justify-content:center; gap:4px;">
                             <button class="action-btn btn-view" onclick="viewVisit(${v.id})" title="معاينة"><i class="fas fa-eye"></i></button>`;
@@ -1236,15 +1248,64 @@
             t1.innerHTML = ''; t2.innerHTML = ''; 
             
             distList.forEach((d, i) => { 
-                t1.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="color:var(--primary); font-weight:bold;">${d.teacher}</td><td>${d.dept}</td><td><span class="status-badge status-active">${d.eval}</span></td><td style="text-align:right;">${d.reason}</td><td><button class="action-btn btn-delete" onclick="deleteDistItem('distinguished', ${d.id})" title="حذف"><i class="fas fa-trash"></i></button></td></tr>`; 
+                t1.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="color:var(--primary); font-weight:bold;">${d.teacher}</td><td>${d.dept}</td><td><span class="status-badge status-active">${d.eval}</span></td><td style="text-align:right;">${d.reason}</td><td>
+                    <div style="display:flex; justify-content:center; gap:4px;">
+                        <button class="action-btn btn-edit" onclick="editDistItem('distinguished', ${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn btn-delete" onclick="deleteDistItem('distinguished', ${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td></tr>`; 
             }); 
             careList.forEach((d, i) => { 
-                t2.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="color:var(--danger); font-weight:bold;">${d.teacher}</td><td>${d.dept}</td><td><span class="status-badge status-inactive">${d.eval}</span></td><td style="text-align:right;">${d.reason}</td><td><button class="action-btn btn-delete" onclick="deleteDistItem('care_needed', ${d.id})" title="حذف"><i class="fas fa-trash"></i></button></td></tr>`; 
+                t2.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="color:var(--danger); font-weight:bold;">${d.teacher}</td><td>${d.dept}</td><td><span class="status-badge status-inactive">${d.eval}</span></td><td style="text-align:right;">${d.reason}</td><td>
+                    <div style="display:flex; justify-content:center; gap:4px;">
+                        <button class="action-btn btn-edit" onclick="editDistItem('care_needed', ${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn btn-delete" onclick="deleteDistItem('care_needed', ${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td></tr>`; 
             }); 
         }
-        function openDistinguishedModal(type) { document.getElementById('distType').value = type; document.getElementById('distinguishedForm').reset(); document.getElementById('distinguishedModalTitle').innerText = (type === 'distinguished' ? 'إضافة معلم متميز' : 'إضافة معلم يحتاج رعاية'); const dSelect = document.getElementById('distDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); const eSelect = document.getElementById('distEval'); eSelect.innerHTML = '<option value="">اختر التقدير...</option>'; (DB.settings.evaluation_grades||[]).forEach(g => { if(g.status === 'active') eSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`; }); document.getElementById('distinguishedModal').style.display='flex'; }
+
+        window.editDistItem = function(key, id) {
+            if(!canEdit('distinguished')) return;
+            const item = DB[key].find(x => x.id === id);
+            if(!item) return;
+            const type = (key === 'distinguished') ? 'distinguished' : 'care';
+            openDistinguishedModal(type); 
+            document.getElementById('distEditId').value = item.id;
+            document.getElementById('distDate').value = item.date;
+            document.getElementById('distDept').value = item.dept;
+            onDistinguishedDeptChange(); 
+            document.getElementById('distTeacher').value = item.teacher;
+            document.getElementById('distEval').value = item.eval;
+            document.getElementById('distReason').value = item.reason;
+        };
+
+        function openDistinguishedModal(type) { document.getElementById('distType').value = type; document.getElementById('distEditId').value = ''; document.getElementById('distinguishedForm').reset(); document.getElementById('distinguishedModalTitle').innerText = (type === 'distinguished' ? 'إضافة معلم متميز' : 'إضافة معلم يحتاج رعاية'); const dSelect = document.getElementById('distDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); const eSelect = document.getElementById('distEval'); eSelect.innerHTML = '<option value="">اختر التقدير...</option>'; (DB.settings.evaluation_grades||[]).forEach(g => { if(g.status === 'active') eSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`; }); document.getElementById('distinguishedModal').style.display='flex'; }
         function onDistinguishedDeptChange() { const dept = document.getElementById('distDept').value; const tSelect = document.getElementById('distTeacher'); tSelect.innerHTML = '<option value="">اختر المعلم/ة...</option>'; if(dept) { filterByContext(DB.teachers||[]).filter(t => t.dept === dept).forEach(t => tSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`); } }
-        function saveDistinguishedEntry() { const type = document.getElementById('distType').value; const key = (type === 'distinguished') ? 'distinguished' : 'care_needed'; const dept = document.getElementById('distDept').value; const teacher = document.getElementById('distTeacher').value; const date = document.getElementById('distDate').value; const ev = document.getElementById('distEval').value; const reason = document.getElementById('distReason').value; if(!dept || !teacher || !date) return alert('البيانات ناقصة'); const obj = { id: Date.now(), dept, teacher, date, eval: ev, reason, brandId: CURRENT_BRAND.id }; if(!DB[key]) DB[key] = []; DB[key].push(obj); saveDB(); renderDistinguishedTables(); closeModal('distinguishedModal'); }
+        
+        function saveDistinguishedEntry() { 
+            const type = document.getElementById('distType').value; 
+            const key = (type === 'distinguished') ? 'distinguished' : 'care_needed'; 
+            const id = document.getElementById('distEditId').value;
+            const dept = document.getElementById('distDept').value; 
+            const teacher = document.getElementById('distTeacher').value; 
+            const date = document.getElementById('distDate').value || new Date().toISOString().slice(0,10); 
+            const ev = document.getElementById('distEval').value; 
+            const reason = document.getElementById('distReason').value; 
+            
+            if(!dept || !teacher || !date) return alert('البيانات ناقصة'); 
+            
+            if(id) {
+                const item = DB[key].find(x => x.id.toString() === id.toString());
+                if(item) { item.dept = dept; item.teacher = teacher; item.date = date; item.eval = ev; item.reason = reason; }
+            } else {
+                const obj = { id: Date.now(), dept, teacher, date, eval: ev, reason, brandId: CURRENT_BRAND.id }; 
+                if(!DB[key]) DB[key] = []; 
+                DB[key].push(obj); 
+            }
+            saveDB(); renderDistinguishedTables(); closeModal('distinguishedModal'); 
+        }
+
         window.deleteDistItem = function(key, id) { if(confirm('حذف؟')) { DB[key] = DB[key].filter(x => x.id !== id); saveDB(); renderDistinguishedTables(); } }
         
         function renderQualitativeTable() { 
@@ -1253,20 +1314,62 @@
             const tbody = document.getElementById('qualitativeTableBody'); 
             tbody.innerHTML = ''; 
             list.forEach((q, i) => { 
-                tbody.innerHTML += `<tr><td>${i+1}</td><td>${q.date}</td><td style="font-weight:bold;">${q.dept}</td><td style="text-align:right; white-space:pre-wrap;">${q.strength}</td><td style="text-align:right; white-space:pre-wrap;">${q.improve}</td><td><button class="action-btn btn-delete" onclick="deleteQualitative(${q.id})" title="حذف"><i class="fas fa-trash"></i></button></td></tr>`; 
+                tbody.innerHTML += `<tr><td>${i+1}</td><td>${q.date}</td><td style="font-weight:bold;">${q.dept}</td><td style="text-align:right; white-space:pre-wrap;">${q.strength}</td><td style="text-align:right; white-space:pre-wrap;">${q.improve}</td><td>
+                    <div style="display:flex; justify-content:center; gap:4px;">
+                        <button class="action-btn btn-edit" onclick="editQualitative(${q.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn btn-delete" onclick="deleteQualitative(${q.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td></tr>`; 
             }); 
         }
-        function openQualitativeModal() { document.getElementById('qualitativeForm').reset(); const dSelect = document.getElementById('qualDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); document.getElementById('addQualitativeModal').style.display='flex'; }
-        function saveQualitative() { const dept = document.getElementById('qualDept').value; const date = document.getElementById('qualDate').value; const s = document.getElementById('qualStrength').value; const i = document.getElementById('qualImprove').value; if(!dept || !date) return alert('البيانات ناقصة'); DB.qualitative_reports.push({ id: Date.now(), dept, date, strength: s, improve: i, brandId: CURRENT_BRAND.id }); saveDB(); renderQualitativeTable(); closeModal('addQualitativeModal'); }
+
+        window.editQualitative = function(id) {
+            if(!canEdit('qualitative')) return;
+            const item = DB.qualitative_reports.find(x => x.id === id);
+            if(!item) return;
+            openQualitativeModal(); 
+            document.getElementById('qualEditId').value = item.id;
+            document.getElementById('qualDate').value = item.date;
+            document.getElementById('qualDept').value = item.dept;
+            document.getElementById('qualStrength').value = item.strength;
+            document.getElementById('qualImprove').value = item.improve;
+        };
+
+        function openQualitativeModal() { document.getElementById('qualitativeForm').reset(); document.getElementById('qualEditId').value = ''; const dSelect = document.getElementById('qualDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); document.getElementById('addQualitativeModal').style.display='flex'; }
+        
+        function saveQualitative() { 
+            const id = document.getElementById('qualEditId').value;
+            const dept = document.getElementById('qualDept').value; 
+            const date = document.getElementById('qualDate').value || new Date().toISOString().slice(0,10); 
+            const s = document.getElementById('qualStrength').value; 
+            const i = document.getElementById('qualImprove').value; 
+            if(!dept || !date) return alert('البيانات ناقصة'); 
+            
+            if(id) {
+                const item = DB.qualitative_reports.find(x => x.id.toString() === id.toString());
+                if(item) { item.dept = dept; item.date = date; item.strength = s; item.improve = i; }
+            } else {
+                DB.qualitative_reports.push({ id: Date.now(), dept, date, strength: s, improve: i, brandId: CURRENT_BRAND.id }); 
+            }
+            saveDB(); renderQualitativeTable(); closeModal('addQualitativeModal'); 
+        }
+
         window.deleteQualitative = function(id) { if(confirm('حذف؟')) { DB.qualitative_reports = DB.qualitative_reports.filter(x => x.id !== id); saveDB(); renderQualitativeTable(); } }
 
-        // ========= REPORT GENERATION LOGIC (PERFECT WORD FORMATTING) =========
+        // ========================================================
+        // REPORT GENERATION LOGIC (A4 STYLE FOR PRINTING & WORD)
+        // ========================================================
         window.setReportTab = function(tab, el) { 
             document.querySelectorAll('#quality-report .custom-tab').forEach(t => t.classList.remove('active')); 
             el.classList.add('active'); 
             if(tab === 'create') { document.getElementById('report-create-pane').style.display='block'; document.getElementById('report-saved-pane').style.display='none'; } 
             else { document.getElementById('report-create-pane').style.display='none'; document.getElementById('report-saved-pane').style.display='block'; renderSavedReports(); } 
         };
+
+        function getMonthName(m) {
+            const months = {"01":"يناير", "02":"فبراير", "03":"مارس", "04":"أبريل", "05":"مايو", "06":"يونيو", "07":"يوليو", "08":"أغسطس", "09":"سبتمبر", "10":"أكتوبر", "11":"نوفمبر", "12":"ديسمبر"};
+            return months[m] || m;
+        }
 
         window.generateQualityReport = async function() {
             const m = document.getElementById('reportMonthSelect').value;
@@ -1292,13 +1395,11 @@
             // --- HTML structure built specifically to play nicely with MS Word ---
             let html = ``;
             
-            // Reusable Table Style Definitions
             const tStyle = `border-collapse: collapse; width: 100%; text-align: center; font-family: 'Cairo', 'Times New Roman', sans-serif; font-size: 13pt; direction: rtl;`;
             const tdStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle;`;
             const thStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #bfbfbf;`;
             const thBlack = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #000; color: #fff;`;
 
-            // Function to add footer
             const getFooter = () => `<div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; margin-top: 50px; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl;">${footerText}</div>`;
             const pageBreak = `<br clear="all" style="mso-special-character:line-break;page-break-before:always">`;
 
@@ -1400,6 +1501,11 @@
                 if(visits.length === 0) return;
 
                 visits.forEach((v, idx) => {
+                    // Update dynamically if job changed
+                    let displayJob = v.visitorJob || '-';
+                    const uMatch = (DB.senior || []).concat(DB.middle || []).find(u => u.name === v.visitor);
+                    if(uMatch && uMatch.job) { displayJob = uMatch.job; }
+
                     tableContent += `<tr>
                         <td style="${tdStyle} width: 5%;">${idx + 1}</td>
                         <td style="${tdStyle} width: 25%; text-align: right;">${v.teacher}</td>
@@ -1408,7 +1514,7 @@
                         <td style="${tdStyle} width: 20%;">${v.eval}</td>`;
                     
                     if(idx === 0) {
-                        tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold;">${visitor.name}<br><span style="font-weight: normal; font-size: 11pt;">${visitor.job || ''}</span></td>`;
+                        tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold;">${visitor.name}<br><span style="font-weight: normal; font-size: 11pt;">${displayJob}</span></td>`;
                     }
                     tableContent += `</tr>`;
                 });
@@ -1445,20 +1551,33 @@
             const departments = [...new Set(allVisits.map(v => v.dept))];
             const colHeaders = ['يتجاوز التوقعات بكثير', 'يتجاوز التوقعات', 'يفي بالتوقعات', 'يفي بالتوقعات جزئيا'];
             let finalStatsRows = '';
+            
+            const chartDataToRender = {};
             departments.forEach((dept, i) => {
                 const vs = allVisits.filter(v => v.dept === dept);
+                chartDataToRender[dept] = { total: vs.length, exceedsALot: 0, exceeds: 0, meets: 0, partially: 0 };
+                
                 let cells = '';
-                colHeaders.forEach(h => {
+                colHeaders.forEach((h, hIdx) => {
                      const c = vs.filter(v => v.eval === h || (h === 'يتجاوز التوقعات بكثير' && v.eval === 'ممتاز')).length;
                      cells += `<td style="${tdStyle}">${c || ''}</td>`;
+                     if(hIdx === 0) chartDataToRender[dept].exceedsALot = c;
+                     if(hIdx === 1) chartDataToRender[dept].exceeds = c;
+                     if(hIdx === 2) chartDataToRender[dept].meets = c;
+                     if(hIdx === 3) chartDataToRender[dept].partially = c;
                 });
                 finalStatsRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right; font-weight: bold;">قسم ${dept}</td><td style="${tdStyle} font-weight: bold;">${vs.length}</td>${cells}</tr>`;
             });
-            const chartImg = await generateReportChart(departments, colHeaders.map((header, idx) => ({
-                label: header,
-                data: departments.map(d => { const vs = allVisits.filter(v => v.dept === d); return vs.filter(v => v.eval === header || (header === 'يتجاوز التوقعات بكثير' && v.eval === 'ممتاز')).length; }),
-                backgroundColor: ['#3cba9f', '#dcae1d', '#8e5ea2', '#3e95cd'][idx]
-            })));
+            
+            const chartDatasets = [
+                { label: 'عدد الزيارات', data: departments.map(d => chartDataToRender[d].total), backgroundColor: '#92d050' },
+                { label: 'يتجاوز التوقعات بكثير', data: departments.map(d => chartDataToRender[d].exceedsALot), backgroundColor: '#2f75b5' },
+                { label: 'يتجاوز التوقعات', data: departments.map(d => chartDataToRender[d].exceeds), backgroundColor: '#c00000' },
+                { label: 'يفي بالتوقعات', data: departments.map(d => chartDataToRender[d].meets), backgroundColor: '#7030a0' },
+                { label: 'يفي بالتوقعات جزئيا', data: departments.map(d => chartDataToRender[d].partially), backgroundColor: '#ffff00' }
+            ];
+
+            const chartImg = await generateReportChart(departments, chartDatasets);
 
             html += `
             <div class="a4-page" style="direction: rtl; font-family: 'Cairo', sans-serif;">
@@ -1558,8 +1677,18 @@
                 const canvas = document.getElementById('tempChartCanvas');
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: datasets }, options: { responsive: false, animation: false, scales: { y: { beginAtZero: true }, x: { stacked: false } }, plugins: { legend: { position: 'right' } } } });
-                setTimeout(() => resolve(canvas.toDataURL('image/png')), 100);
+                if(window.tempChart) window.tempChart.destroy();
+                window.tempChart = new Chart(ctx, { 
+                    type: 'bar', 
+                    data: { labels: labels, datasets: datasets }, 
+                    options: { 
+                        responsive: false, 
+                        animation: false, 
+                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, 
+                        plugins: { legend: { position: 'right' } } 
+                    } 
+                });
+                setTimeout(() => resolve(canvas.toDataURL('image/png')), 200);
             });
         }
 
