@@ -11,7 +11,7 @@
     
     <style>
         :root { 
-            --primary: #2b579a; /* تم التحديث ليتطابق مع الصورة */
+            --primary: #2b579a; 
             --primary-dark: #1e4078;
             --accent: #dcae1d;
             --text: #333; 
@@ -188,24 +188,40 @@
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
         .modal-footer { padding: 15px 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; }
         
-        /* Report Web Preview */
-        .report-preview-container { background: #525659; padding: 30px; overflow: auto; max-height: 800px; display: flex; justify-content: center; flex-direction: column; align-items: center; border-radius: 8px;}
-        
-        /* Saved Reports UI */
-        .saved-report-card { border: 1px solid #eee; border-radius: 8px; padding: 15px; display: flex; gap: 20px; align-items: center; background: #fff; margin-bottom: 15px; transition: 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .saved-report-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.08); transform: translateY(-2px); border-color: var(--primary); }
-        .saved-report-thumb { width: 60px; height: 80px; background: #eef4ff; border: 1px solid #d0dff2; display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--primary); border-radius: 4px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
-        .saved-report-details { flex: 1; }
-        .saved-report-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        /* =======================================
+           REPORT GENERATION CSS (NEW A4 STYLES)
+           ======================================= */
+        .report-preview-container { background: #525659; padding: 30px; overflow: auto; max-height: 800px; display: flex; justify-content: center; border-radius: 8px; }
+        .a4-page { background: white; width: 210mm; min-height: 297mm; padding: 15mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); margin-bottom: 20px; position: relative; color: black; font-family: 'Cairo', sans-serif; page-break-after: always; }
+        .a4-page:last-child { page-break-after: auto; }
+        .report-table-custom { width:100%; border-collapse:collapse; margin-bottom:20px; font-size:14px; page-break-inside: avoid; }
+        .report-table-custom th, .report-table-custom td { border:1px solid black; padding:8px; text-align:center; vertical-align:middle; }
+        .report-table-custom th { background-color:#bfbfbf; font-weight:bold; }
+        .align-right { text-align: right !important; }
+        .bold-col { font-weight:bold; }
+        .report-header-box { background-color: #000; color: #fff; padding: 10px; text-align: center; font-weight: bold; }
+        .report-sub-header { background-color: #bfbfbf; padding: 8px; font-weight: bold; border: 1px solid #000; text-align: center; }
+        .report-row-summary { background-color: #bfbfbf; font-weight: bold; }
+        .report-row-total { background-color: #b4c6e7; font-weight: bold; }
+        .report-list { text-align: right; padding-right: 20px; margin: 0; }
+        .report-list li { margin-bottom: 5px; }
+
+        .saved-report-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: 0.3s;}
+        .saved-report-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.08); transform: translateY(-2px); border-color: var(--primary); }
+        .saved-report-info h4 { margin: 0 0 5px 0; color: var(--primary); }
+        .saved-report-info small { color: #777; font-weight: bold; }
 
         @media print {
             body * { visibility: hidden; }
             #a4-report-content, #a4-report-content * { visibility: visible; }
-            #a4-report-content { position: absolute; left: 0; top: 0; margin: 0; padding: 0; width: 100%; }
+            .a4-page { position: relative; left: 0; top: 0; margin: 0; padding: 0; width: 100%; box-shadow: none; height: auto; margin-bottom: 0; }
+            .sidebar, .top-header, .filter-container, .btn, .custom-tabs { display: none !important; }
+            .report-preview-container { background: white !important; padding: 0 !important; overflow: visible !important; max-height: none !important; border:none !important; }
         }
 
         .setting-content-pane { display: none; animation: fadeIn 0.3s; }
         .setting-content-pane.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .upload-container { border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center; background-color: #fcfcfc; margin-bottom: 20px; position: relative; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .upload-container:hover { border-color: var(--primary); background-color: #f0f4f8; }
         .upload-btn-custom { background-color: #28a745; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
@@ -390,23 +406,49 @@
                     <div class="custom-tab active" onclick="setReportTab('create', this)">إنشاء تقرير</div>
                     <div class="custom-tab" onclick="setReportTab('saved', this)">سجل التقارير المحفوظة</div>
                 </div>
+
                 <div id="report-create-pane">
                     <div class="filter-container" style="justify-content: space-between;">
                         <div style="display:flex; align-items:center; gap:10px;">
                             <label class="filter-label">شهر التقرير:</label>
                             <select id="reportMonthSelect" class="filter-select">
-                                <option value="01">يناير</option><option value="02">فبراير</option><option value="03">مارس</option><option value="04">أبريل</option><option value="05">مايو</option><option value="06">يونيو</option><option value="07">يوليو</option><option value="08">أغسطس</option><option value="09">سبتمبر</option><option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+                                <option value="01">يناير</option>
+                                <option value="02">فبراير</option>
+                                <option value="03">مارس</option>
+                                <option value="04">أبريل</option>
+                                <option value="05">مايو</option>
+                                <option value="06">يونيو</option>
+                                <option value="07">يوليو</option>
+                                <option value="08">أغسطس</option>
+                                <option value="09">سبتمبر</option>
+                                <option value="10">أكتوبر</option>
+                                <option value="11">نوفمبر</option>
+                                <option value="12">ديسمبر</option>
                             </select>
-                            <button class="btn btn-primary" onclick="previewQualityReport()"><i class="fas fa-eye"></i> معاينة التقرير</button>
+                            <button class="btn btn-primary" onclick="generateQualityReport()"> إصدار التقرير</button>
                         </div>
                         <div style="display:flex; gap:10px;">
-                            <button class="btn btn-edit" onclick="exportToWord()"><i class="fas fa-file-word"></i> تحميل Word</button>
+                            <button class="btn btn-view" onclick="printReport()"><i class="fas fa-print"></i> طباعة</button>
+                            <button class="btn btn-edit" onclick="exportToWord()"><i class="fas fa-file-word"></i> تصدير Word</button>
                             <button class="btn btn-toggle" onclick="saveReport()"><i class="fas fa-save"></i> حفظ</button>
                         </div>
                     </div>
-                    <div class="report-preview-container" style="background:#525659; border:1px solid #333;"><div id="a4-report-content" style="background:white; width:100%; min-height:500px; padding:20px; text-align:center;"><div style="padding:100px; color:#666;"><i class="fas fa-file-alt" style="font-size:4rem; margin-bottom:20px; display:block;"></i>يرجى اختيار الشهر والضغط على "معاينة التقرير" لعرض النتائج هنا، أو "تحميل Word" لتصديره مباشرة.</div></div></div>
+
+                    <div class="report-preview-container">
+                        <div id="a4-report-content">
+                            <div class="a4-page">
+                                <div style="text-align:center; padding:50px; color:#888;">
+                                    <i class="fas fa-file-alt" style="font-size:3rem; margin-bottom:15px; display:block;"></i>
+                                    يرجى اختيار الشهر والضغط على "إصدار التقرير"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="report-saved-pane" style="display:none;"><div id="savedReportsList"></div></div>
+
+                <div id="report-saved-pane" style="display:none;">
+                    <div id="savedReportsList"></div>
+                </div>
             </div>
 
             <div id="user-management" class="section-card">
@@ -1121,315 +1163,375 @@
         function openQualitativeModal() { document.getElementById('qualitativeForm').reset(); const dSelect = document.getElementById('qualDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); document.getElementById('addQualitativeModal').style.display='flex'; }
         function saveQualitative() { const dept = document.getElementById('qualDept').value; const date = document.getElementById('qualDate').value; const s = document.getElementById('qualStrength').value; const i = document.getElementById('qualImprove').value; if(!dept || !date) return alert('البيانات ناقصة'); DB.qualitative_reports.push({ id: Date.now(), dept, date, strength: s, improve: i, brandId: CURRENT_BRAND.id }); saveDB(); renderQualitativeTable(); closeModal('addQualitativeModal'); }
         function deleteQualitative(id) { if(confirm('حذف؟')) { DB.qualitative_reports = DB.qualitative_reports.filter(x => x.id !== id); saveDB(); renderQualitativeTable(); } }
-        function setReportTab(tab, el) { document.querySelectorAll('#quality-report .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(tab === 'create') { document.getElementById('report-create-pane').style.display='block'; document.getElementById('report-saved-pane').style.display='none'; } else { document.getElementById('report-create-pane').style.display='none'; document.getElementById('report-saved-pane').style.display='block'; renderSavedReports(); } }
         
-        // ========= REPORT GENERATION LOGIC (PERFECT WORD FORMATTING) =========
-        async function previewQualityReport() {
-            await generateQualityReport();
+        // ========================================================
+        // REPORT GENERATION LOGIC (A4 STYLE FOR PRINTING & WORD)
+        // ========================================================
+        function setReportTab(tab, el) { 
+            document.querySelectorAll('#quality-report .custom-tab').forEach(t => t.classList.remove('active')); 
+            el.classList.add('active'); 
+            if(tab === 'create') { 
+                document.getElementById('report-create-pane').style.display='block'; 
+                document.getElementById('report-saved-pane').style.display='none'; 
+            } else { 
+                document.getElementById('report-create-pane').style.display='none'; 
+                document.getElementById('report-saved-pane').style.display='block'; 
+                renderSavedReports(); 
+            } 
         }
 
-        async function generateQualityReport() {
-            const m = document.getElementById('reportMonthSelect').value;
-            const y = DB.settings.schoolYear || '2025 / 2026م';
-            const mName = MONTH_NAMES_AR[parseInt(m) - 1];
-            const content = document.getElementById('a4-report-content');
+        function getMonthName(m) {
+            const months = {"01":"يناير", "02":"فبراير", "03":"مارس", "04":"أبريل", "05":"مايو", "06":"يونيو", "07":"يوليو", "08":"أغسطس", "09":"سبتمبر", "10":"أكتوبر", "11":"نوفمبر", "12":"ديسمبر"};
+            return months[m] || m;
+        }
+
+        function generateQualityReport() {
+            const month = document.getElementById('reportMonthSelect').value;
+            const monthName = getMonthName(month);
             
-            const seniorVisits = filterByContext(DB.visits_senior).filter(v => v.date.split('-')[1] === m);
-            const middleVisits = filterByContext(DB.visits_middle).filter(v => v.date.split('-')[1] === m);
-            const allVisits = [...seniorVisits, ...middleVisits];
+            let seniorVisits = filterByContext(DB.visits_senior || []).filter(v => v.date.split('-')[1] === month);
+            let middleVisits = filterByContext(DB.visits_middle || []).filter(v => v.date.split('-')[1] === month);
+            let allVisits = [...seniorVisits, ...middleVisits];
+            
+            let distinguished = filterByContext(DB.distinguished || []).filter(x => x.date && x.date.split('-')[1] === month);
+            let care = filterByContext(DB.care_needed || []).filter(x => x.date && x.date.split('-')[1] === month);
+            let qualitative = filterByContext(DB.qualitative_reports || []).filter(x => x.date && x.date.split('-')[1] === month);
+            
+            const totalVisitsCount = allVisits.length;
 
-            const ministryLogo = DB.settings.ministryLogo || ''; 
-            const schoolLogo = DB.settings.schoolLogo || '';
-            const footerText = DB.settings.footerText || document.getElementById('footer_text')?.value || '';
-            const footerAlign = DB.settings.footerAlign || 'center';
-            const footerFontSize = DB.settings.footerFontSize || '12';
+            const chartData = {};
+            (filterByContext(DB.departments) || []).forEach(d => {
+                chartData[d.name] = { total: 0, exceedsALot: 0, exceeds: 0, meets: 0, partially: 0 };
+            });
+            
+            allVisits.forEach(v => {
+                if(!chartData[v.dept]) chartData[v.dept] = { total: 0, exceedsALot: 0, exceeds: 0, meets: 0, partially: 0 };
+                chartData[v.dept].total++;
+                if(v.eval.includes('يتجاوز التوقعات بكثير') || v.eval.includes('ممتاز')) chartData[v.dept].exceedsALot++;
+                else if(v.eval.includes('يتجاوز التوقعات') || v.eval.includes('جيد جداً')) chartData[v.dept].exceeds++;
+                else if(v.eval.includes('يفي بالتوقعات') || v.eval.includes('جيد')) chartData[v.dept].meets++;
+                else chartData[v.dept].partially++;
+            });
 
+            const ctx = document.getElementById('tempChartCanvas').getContext('2d');
+            const deptLabels = Object.keys(chartData);
+            
+            if(window.tempChart) window.tempChart.destroy();
+
+            window.tempChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: deptLabels,
+                    datasets: [
+                        { label: 'عدد الزيارات', data: deptLabels.map(d => chartData[d].total), backgroundColor: '#92d050' },
+                        { label: 'يتجاوز التوقعات بكثير', data: deptLabels.map(d => chartData[d].exceedsALot), backgroundColor: '#2f75b5' },
+                        { label: 'يتجاوز التوقعات', data: deptLabels.map(d => chartData[d].exceeds), backgroundColor: '#c00000' },
+                        { label: 'يفي بالتوقعات', data: deptLabels.map(d => chartData[d].meets), backgroundColor: '#7030a0' },
+                        { label: 'يفي بالتوقعات جزئيا', data: deptLabels.map(d => chartData[d].partially), backgroundColor: '#ffff00' }
+                    ]
+                },
+                options: { animation: false, responsive: false, plugins: { legend: { position: 'right' } } }
+            });
+            const chartImageSrc = document.getElementById('tempChartCanvas').toDataURL();
+
+            // Footer settings
+            const fText = DB.settings.footerText || '';
+            const fAlign = DB.settings.footerAlign || 'center';
+            const fSize = DB.settings.footerFontSize || '12';
+            const footerHtml = fText ? `<div style="text-align:${fAlign}; font-size:${fSize}pt; margin-top:auto; position:absolute; bottom:30px; width:90%; border-top:1px solid #eee; padding-top:10px;">${fText}</div>` : '';
+
+            // Signature settings
             const sigDirId = DB.settings.sig_director;
             const sigAsstId = DB.settings.sig_assistant;
             const dirName = sigDirId ? (DB.senior.find(u => u.id == sigDirId)?.name || '') : '';
             const asstName = sigAsstId ? (DB.senior.find(u => u.id == sigAsstId)?.name || '') : '';
 
-            // --- HTML structure built specifically to play nicely with MS Word ---
             let html = ``;
-            
-            // Reusable Table Style Definitions
-            const tStyle = `border-collapse: collapse; width: 100%; text-align: center; font-family: 'Cairo', 'Times New Roman', sans-serif; font-size: 13pt; direction: rtl;`;
-            const tdStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle;`;
-            const thStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #bfbfbf;`;
-            const thBlack = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #000; color: #fff;`;
-
-            // Function to add footer
-            const getFooter = () => `<div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; margin-top: 50px; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl;">${footerText}</div>`;
-            const pageBreak = `<br clear="all" style="mso-special-character:line-break;page-break-before:always">`;
 
             // --- PAGE 1: COVER ---
             html += `
-            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
-                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: none !important;">
-                    <tr>
-                        <td align="right" width="50%" style="border: none !important;"><img src="${schoolLogo}" height="100" style="max-width: 150px;"></td>
-                        <td align="left" width="50%" style="border: none !important;"><img src="${ministryLogo}" height="100" style="max-width: 250px;"></td>
-                    </tr>
-                </table>
-                <br><br><br>
-                <div style="background-color: #f2f2f2; border-radius: 20px; padding: 40px 20px; border: 1px solid #ddd; margin: 40px auto; width: 85%; text-align: center;">
-                    <h1 style="font-size: 26pt; font-weight: bold; margin-bottom: 20px; color: #000;">تقرير متابعة جودة التعليم للقيادة العليا والوسطى</h1>
-                    <h2 style="font-size: 20pt; color: #2c5aa0; margin-bottom: 20px;">${DB.settings.schoolName || 'مدرسة مدينة حمد الابتدائية للبنات'}</h2>
-                    <h3 style="font-size: 18pt; color: red; text-decoration: underline; margin-bottom: 15px;">شهر ${mName}</h3>
-                    <h4 style="font-size: 16pt; margin-bottom: 10px; color: #000;">العام الدراسي ${y}</h4>
+            <div class="a4-page" style="display:flex; flex-direction:column; justify-content:space-between; padding:30px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+                    <div style="width:30%; text-align:left;">${DB.settings.ministryLogo ? `<img src="${DB.settings.ministryLogo}" style="height:80px;">` : '<h2>Ministry of Education</h2>'}</div>
+                    <div style="width:30%; text-align:center;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Emblem_of_Bahrain.svg/1200px-Emblem_of_Bahrain.svg.png" style="height:100px;"></div>
+                    <div style="width:30%; text-align:right;"><h2 style="margin:0; font-size:18px;">وزارة التربية والتعليم</h2><h3 style="margin:5px 0 0 0; font-size:16px;">${DB.settings.schoolName || ''}</h3></div>
                 </div>
-                <br><br><br><br>
-                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 50px; border: none !important;">
-                    <tr>
-                        <td align="center" width="50%" style="border: none !important;">
-                            <div style="font-weight: bold; font-size: 16pt; margin-bottom: 20px;">يعتمد، مديرة المدرسة<br>أ. ${dirName}</div>
-                            ${DB.settings.schoolStamp ? `<img src="${DB.settings.schoolStamp}" height="110">` : ''}
-                        </td>
-                        <td align="center" width="50%" style="border: none !important;">
-                            <div style="font-weight: bold; font-size: 16pt; margin-bottom: 20px;">إعداد المديرة المساعدة<br>أ. ${asstName}</div>
-                        </td>
-                    </tr>
-                </table>
-                ${getFooter()}
-            </div>
-            ${pageBreak}`;
-
-            // --- PAGE 2: Middle Leadership Follow-up ---
-            const middleLeaders = filterByContext(DB.middle);
-            let middleRows = '';
-            middleLeaders.forEach(leader => {
-                const visitsCount = middleVisits.filter(v => v.visitor === leader.name).length;
-                const existsText = (leader.status === 'active') ? 'يوجد' : 'لا يوجد';
-                middleRows += `
-                <tr>
-                    <td style="${tdStyle} font-weight: bold; text-align: right;">${leader.job || leader.name}</td>
-                    <td style="${tdStyle}">${visitsCount}</td>
-                    <td style="${tdStyle}">${existsText}</td>
-                    <td style="${tdStyle}">${existsText}</td>
-                    <td style="${tdStyle}">${existsText}</td>
-                </tr>`;
-            });
-
-            html += `
-            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
-                <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">أولاً: متابعة تسليم القيادة الوسطى (الزيارات / محاضر الاجتماعات / الخطة الأسبوعية) للمواد الدراسية إلى المدير/ة المساعد/ة في المدرسة</h3>
-                <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" style="${thStyle} width: 25%;">القسم</th>
-                            <th colspan="4" style="${thStyle} width: 75%;">متابعة القيادة العليا للقيادة الوسطى</th>
-                        </tr>
-                        <tr>
-                            <th style="${thStyle} width: 15%;">عدد استمارات الزيارات الصفية المنفذة خلال الشهر</th>
-                            <th style="${thStyle} width: 15%;">يوجد محضر اجتماع للمعلم الأول أو المنسق</th>
-                            <th style="${thStyle} width: 15%;">توجد خطه أسبوعية للمعلم الأول أو المنسق</th>
-                            <th style="${thStyle} width: 30%;">أسباب عدم التسليم</th>
-                        </tr>
-                    </thead>
-                    <tbody>${middleRows}</tbody>
-                </table>
-                <div style="font-size: 14pt; font-weight: bold; margin: 25px 0; text-align: right; line-height: 1.6;">
-                    ملاحظات عامة: يتم التنسيق مع القيادة الوسطى لتنفيذ الزيارات الصفية بحسب ما يتناسب مع ظروف الجداول والنصاب المسند لهم.
+                <div style="background:#f2f2f2; border-radius:20px; padding:60px 40px; text-align:center; margin:0 auto; width:90%;">
+                    <h1 style="margin:0 0 20px 0; font-size:24px; font-weight:bold;">تقرير متابعة جودة التعليم والتعلم للقيادة العليا والوسطى</h1>
+                    <h2 style="margin:0 0 20px 0; font-size:22px; color:#1e4078;">${DB.settings.schoolName || ''}</h2>
+                    <h2 style="margin:0 0 20px 0; font-size:22px; color:#da291c; text-decoration:underline;">شهر ${monthName}</h2>
+                    <h3 style="margin:0; font-size:20px;">العام الدراسي ${DB.settings.schoolYear}</h3>
                 </div>
-                <div style="margin-top: 50px; font-weight: bold; font-size: 16pt; text-align: right;">
-                    <div style="text-decoration: underline; margin-bottom: 15px;">ثانياً: عدد الزيارات التي نُفذت خلال شهر ${mName} من قبل:</div>
-                    <div style="margin-bottom:10px;">1- القيادة العليا = ${seniorVisits.length} زيارة</div>
-                    <div>2- القيادة الوسطى = ${middleVisits.length} زيارة</div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:50px;">
+                    <div style="text-align:center; width:30%;"><p style="font-weight:bold; margin-bottom:30px;">يعتمد، مديرة المدرسة</p><p style="font-family:'Tajawal'; font-size:18px;">أ. ${dirName}</p></div>
+                    <div style="text-align:center; width:30%;">${DB.settings.schoolStamp ? `<img src="${DB.settings.schoolStamp}" style="width:120px;">` : ''}</div>
+                    <div style="text-align:center; width:30%;"><p style="font-weight:bold; margin-bottom:30px;">إعداد المديرة المساعدة</p><p style="font-family:'Tajawal'; font-size:18px;">أ. ${asstName}</p></div>
                 </div>
-                ${getFooter()}
-            </div>
-            ${pageBreak}`;
-
-            // --- PAGE 3+: Visit Details (Dynamic) ---
-            const seniorVisitors = DB.settings.visitor_order_senior && DB.settings.visitor_order_senior.length > 0 
-                ? DB.settings.visitor_order_senior.map(id => DB.senior.find(u => u.id == id)).filter(Boolean)
-                : filterByContext(DB.senior);
-                
-            const middleVisitors = DB.settings.visitor_order_middle && DB.settings.visitor_order_middle.length > 0
-                ? DB.settings.visitor_order_middle.map(id => DB.middle.find(u => u.id == id)).filter(Boolean)
-                : filterByContext(DB.middle);
-
-            const allVisitorsSorted = [...seniorVisitors, ...middleVisitors];
-            
-            let tableContent = '';
-            let visitorCount = 0;
-
-            allVisitorsSorted.forEach(visitor => {
-                const visits = allVisits.filter(v => v.visitor === visitor.name);
-                if(visits.length === 0) return;
-
-                visits.forEach((v, idx) => {
-                    tableContent += `<tr>
-                        <td style="${tdStyle} width: 5%;">${idx + 1}</td>
-                        <td style="${tdStyle} width: 25%; text-align: right;">${v.teacher}</td>
-                        <td style="${tdStyle} width: 15%;">${v.dept}</td>
-                        <td style="${tdStyle} width: 15%;">${v.date}</td>
-                        <td style="${tdStyle} width: 20%;">${v.eval}</td>`;
-                    
-                    if(idx === 0) {
-                        tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold;">${visitor.name}<br><span style="font-weight: normal; font-size: 11pt;">${visitor.job || ''}</span></td>`;
-                    }
-                    tableContent += `</tr>`;
-                });
-
-                tableContent += `<tr><td colspan="6" style="${thStyle}">مجموع الزيارات = ${visits.length} زيارات</td></tr>`;
-                visitorCount++;
-            });
-
-            tableContent += `<tr><td colspan="6" style="border: 2px solid black; padding: 12px; background-color: #b4c6e7; font-weight: bold; text-align: center;">مجموع الزيارات الكلية = ${allVisits.length} زيارة</td></tr>`;
-
-            html += `
-            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
-                <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">ثالثاً: بيان أسماء المعلمين المُزارين من قبل القيادة العليا والوسطى خلال شهر ${mName}</h3>
-                <br>
-                ${visitorCount > 0 ? `
-                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
-                    <thead>
-                        <tr>
-                            <th style="${thBlack} width: 5%;">ت</th>
-                            <th style="${thBlack} width: 25%;">اسم المعلم</th>
-                            <th style="${thBlack} width: 15%;">القسم</th>
-                            <th style="${thBlack} width: 15%;">تاريخ الزيارة</th>
-                            <th style="${thBlack} width: 20%;">تقييم الزيارة</th>
-                            <th style="${thBlack} width: 20%;">اسم الزائر</th>
-                        </tr>
-                    </thead>
-                    <tbody>${tableContent}</tbody>
-                </table>` : `<div style="text-align:center; padding:20px; font-size:14pt;">لا توجد زيارات مسجلة.</div>`}
-                ${getFooter()}
-            </div>
-            ${pageBreak}`;
-
-            // --- PAGE 6: Statistics & Chart ---
-            const departments = [...new Set(allVisits.map(v => v.dept))];
-            const colHeaders = ['يتجاوز التوقعات بكثير', 'يتجاوز التوقعات', 'يفي بالتوقعات', 'يفي بالتوقعات جزئيا'];
-            let finalStatsRows = '';
-            departments.forEach((dept, i) => {
-                const vs = allVisits.filter(v => v.dept === dept);
-                let cells = '';
-                colHeaders.forEach(h => {
-                     const c = vs.filter(v => v.eval === h || (h === 'يتجاوز التوقعات بكثير' && v.eval === 'ممتاز')).length;
-                     cells += `<td style="${tdStyle}">${c || ''}</td>`;
-                });
-                finalStatsRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right; font-weight: bold;">قسم ${dept}</td><td style="${tdStyle} font-weight: bold;">${vs.length}</td>${cells}</tr>`;
-            });
-            const chartImg = await generateReportChart(departments, colHeaders.map((header, idx) => ({
-                label: header,
-                data: departments.map(d => { const vs = allVisits.filter(v => v.dept === d); return vs.filter(v => v.eval === header || (header === 'يتجاوز التوقعات بكثير' && v.eval === 'ممتاز')).length; }),
-                backgroundColor: ['#3cba9f', '#dcae1d', '#8e5ea2', '#3e95cd'][idx]
-            })));
-
-            html += `
-            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
-                <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">رابعاً: عدد الزيارات الصفية وتقييم الأداء الصفي</h3>
-                <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" style="${thStyle}">#</th>
-                            <th rowspan="2" style="${thStyle}">الأقسام الأكاديمية</th>
-                            <th rowspan="2" style="${thStyle}">مجموع عدد الزيارات</th>
-                            <th colspan="4" style="${thStyle}">مستويات الأداء</th>
-                        </tr>
-                        <tr>
-                            <th style="${thStyle} background-color: #3cba9f; color: #fff;">يتجاوز التوقعات بكثير</th>
-                            <th style="${thStyle} background-color: #dcae1d; color: #fff;">يتجاوز التوقعات</th>
-                            <th style="${thStyle} background-color: #8e5ea2; color: #fff;">يفي بالتوقعات</th>
-                            <th style="${thStyle} background-color: #3e95cd; color: #fff;">يفي بالتوقعات جزئيا</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${finalStatsRows}
-                        <tr>
-                            <td colspan="2" style="${thStyle} background-color: #b4c6e7;">المجموع الكلي للزيارات الصفية</td>
-                            <td style="${thStyle} background-color: #b4c6e7;">${allVisits.length}</td>
-                            <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>v.eval.includes('بكثير')||v.eval==='ممتاز').length}</td>
-                            <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>v.eval==='يتجاوز التوقعات').length}</td>
-                            <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>v.eval==='يفي بالتوقعات').length}</td>
-                            <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>v.eval.includes('جزئيا')).length}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div style="text-align: center; margin-top: 30px;">
-                    <img src="${chartImg}" style="max-width: 90%; height: auto; border: 1px solid #ddd; padding: 10px;">
-                </div>
-                ${getFooter()}
-            </div>
-            ${pageBreak}`;
-
-            // --- PAGE 7: Distinguished & Care ---
-            const distinguished = filterByContext(DB.distinguished);
-            let distRows = '';
-            distinguished.forEach((d, i) => { distRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${d.teacher}</td><td style="${tdStyle}">${d.eval}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
-
-            const care = filterByContext(DB.care_needed);
-            let careRows = '';
-            care.forEach((d, i) => { careRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${d.teacher}</td><td style="${tdStyle}">${d.eval}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
-
-            html += `
-            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
-                <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">سادساً: حصر أسماء المعلمين المتميزين في الأقسام الأكاديمية</h3>
-                <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
-                    <thead><tr><th style="${thStyle} width: 5%;">الرقم</th><th style="${thStyle} width: 25%;">اسم المعلم</th><th style="${thStyle} width: 15%;">التقدير</th><th style="${thStyle} width: 35%;">المبررات</th><th style="${thStyle} width: 20%;">القسم الأكاديمي</th></tr></thead>
-                    <tbody>${distRows || `<tr><td colspan="5" style="${tdStyle}">لا توجد بيانات</td></tr>`}</tbody>
-                </table>
-                <br><br>
-                <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">حصر أسماء المعلمين الأولى بالرعاية في الأقسام الأكاديمية</h3>
-                <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
-                    <thead><tr><th style="${thStyle} width: 5%;">الرقم</th><th style="${thStyle} width: 25%;">اسم المعلم</th><th style="${thStyle} width: 15%;">التقدير</th><th style="${thStyle} width: 35%;">المبررات</th><th style="${thStyle} width: 20%;">القسم الأكاديمي</th></tr></thead>
-                    <tbody>${careRows || `<tr><td colspan="5" style="${tdStyle}">لا توجد بيانات</td></tr>`}</tbody>
-                </table>
-                ${getFooter()}
-            </div>
-            ${pageBreak}`;
-
-            // --- PAGE 9: Qualitative Report ---
-            const qualitative = filterByContext(DB.qualitative_reports);
-            let qualRows = '';
-            qualitative.forEach(q => {
-                 qualRows += `
-                 <tr>
-                    <td style="${tdStyle} font-weight: bold; width: 20%;">${q.dept}</td>
-                    <td style="${tdStyle} text-align: right; white-space: pre-wrap; width: 40%;"><ul>${q.strength.split('\n').map(l=>`<li>${l}</li>`).join('')}</ul></td>
-                    <td style="${tdStyle} text-align: right; white-space: pre-wrap; width: 40%;"><ul>${q.improve.split('\n').map(l=>`<li>${l}</li>`).join('')}</ul></td>
-                 </tr>`;
-            });
-
-            html += `
-            <div style="direction: rtl; font-family: 'Cairo', sans-serif;">
-                <h3 style="text-decoration: underline; font-size: 16pt; margin-bottom: 20px; font-weight: bold;">سابعاً: التقرير النوعي</h3>
-                <h4 style="text-decoration: underline; text-align: center; font-size: 14pt; margin-bottom: 20px; font-weight: bold;">جوانب القوة والتطوير لأداء المعلمين خلال الزيارات الصفية في الأقسام الأكاديمية</h4>
-                <br>
-                <table border="1" cellpadding="8" cellspacing="0" style="${tStyle}">
-                    <thead><tr><th style="${thStyle}">الأقسام الأكاديمية</th><th style="${thStyle}">جوانب القوة</th><th style="${thStyle}">جوانب بحاجة إلى تطوير</th></tr></thead>
-                    <tbody>${qualRows || `<tr><td colspan="3" style="${tdStyle}">لا توجد بيانات</td></tr>`}</tbody>
-                </table>
-                ${getFooter()}
+                ${footerHtml}
             </div>`;
 
-            content.innerHTML = html;
-        }
+            // --- PAGE 2: MIDDLE LEADERSHIP SUMMARY ---
+            html += `
+            <div class="a4-page" style="padding:30px;">
+                <h3 style="text-decoration:underline; margin-bottom:20px; line-height:1.6;">أولاً: متابعة تسليم القيادة الوسطى (الزيارات / محاضر الاجتماعات / الخطة الأسبوعية) للمواد الدراسية إلى المدير/ة المساعد/ة في المدرسة</h3>
+                <table class="report-table-custom">
+                    <thead><tr><th width="30%">القسم</th><th width="20%">عدد استمارات الزيارات الصفية التي نفذت من قبل المعلم الأول أو المنسق خلال الشهر</th><th width="15%">يوجد محضر اجتماع المعلم الأول أو المنسق مع المعلمين</th><th width="15%">توجد خطة أسبوعية للمعلم الأول أو المنسق</th><th width="20%">أسباب عدم التسليم</th></tr></thead>
+                    <tbody>`;
+            const middleLeaders = filterByContext(DB.middle || []);
+            if (middleLeaders.length > 0) {
+                middleLeaders.forEach(u => {
+                    const visitCount = middleVisits.filter(v => v.visitor === u.name).length;
+                    const existsText = "يوجد"; 
+                    html += `<tr><td class="bold-col">${u.job || u.name}</td><td style="font-weight:bold; font-size:16px;">${visitCount}</td><td style="font-weight:bold;">${existsText}</td><td style="font-weight:bold;">${existsText}</td><td></td></tr>`;
+                });
+            } else { html += `<tr><td colspan="5">لا توجد بيانات للقيادة الوسطى</td></tr>`; }
+            html += `</tbody></table>
+                <p style="font-weight:bold; margin-bottom:40px; margin-top:10px;">ملاحظات عامة: يتم التنسيق مع القيادة الوسطى لتنفيذ الزيارات الصفية بحسب ما يتناسب مع ظروف الجداول والنصاب المسند لهم.</p>
+                <h3 style="text-decoration:underline; margin-bottom:20px;">ثانياً: عدد الزيارات التي نُفذت خلال شهر ${monthName} من قبل:</h3>
+                <div style="font-size:18px; font-weight:bold; margin-right:20px;"><p>1- القيادة العليا = ${seniorVisits.length} زيارة</p><p>2- القيادة الوسطى = ${middleVisits.length} زيارة</p></div>
+                ${footerHtml}
+            </div>`;
 
-        function generateReportChart(labels, datasets) {
-            return new Promise((resolve) => {
-                const canvas = document.getElementById('tempChartCanvas');
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: datasets }, options: { responsive: false, animation: false, scales: { y: { beginAtZero: true }, x: { stacked: false } }, plugins: { legend: { position: 'right' } } } });
-                setTimeout(() => resolve(canvas.toDataURL('image/png')), 100);
+            // --- PAGE 3: VISITS DETAIL ---
+            html += `<div class="a4-page" style="padding:30px;">
+                <h3 style="text-align:center; text-decoration:underline; margin-bottom:20px;">ثالثًا: بيان أسماء المعلمين المُزارين من قبل القيادة العليا والوسطى خلال شهر ${monthName}</h3>
+                <table class="report-table-custom">
+                    <thead><tr><th width="5%">ت</th><th width="20%">اسم المعلم</th><th width="15%">القسم</th><th width="15%">تاريخ الزيارة</th><th width="20%">تقييم الزيارة</th><th width="25%">اسم الزائر</th></tr></thead>
+                    <tbody>`;
+            
+            const seniorOrderIds = DB.settings.visitor_order_senior || [];
+            const middleOrderIds = DB.settings.visitor_order_middle || [];
+            
+            const seniorOrderNames = seniorOrderIds.map(id => { const u = DB.senior.find(x => x.id == id); return u ? u.name : null; }).filter(Boolean);
+            const middleOrderNames = middleOrderIds.map(id => { const u = DB.middle.find(x => x.id == id); return u ? u.name : null; }).filter(Boolean);
+
+            const otherSeniorNames = filterByContext(DB.senior || []).map(u => u.name).filter(n => !seniorOrderNames.includes(n));
+            const otherMiddleNames = filterByContext(DB.middle || []).map(u => u.name).filter(n => !middleOrderNames.includes(n));
+
+            const processVisits = (names, visitsPool, typeName) => {
+                let rows = '';
+                names.forEach(visitorName => {
+                    const visits = visitsPool.filter(v => v.visitor === visitorName);
+                    if(visits.length > 0) {
+                        visits.forEach((v, idx) => {
+                            rows += `<tr>
+                                <td>${idx + 1}</td>
+                                <td>${v.teacher}</td>
+                                <td>${v.dept}</td>
+                                <td>${v.date}</td>
+                                <td>${v.eval}</td>`;
+                            if (idx === 0) {
+                                rows += `<td rowspan="${visits.length}" style="vertical-align:middle; font-weight:bold;">
+                                    ${v.visitor}<br><small>${v.visitorJob || typeName}</small>
+                                </td>`;
+                            }
+                            rows += `</tr>`;
+                        });
+                        rows += `<tr class="report-row-summary"><td colspan="6">مجموع الزيارات = ${visits.length} زيارات</td></tr>`;
+                    }
+                });
+                return rows;
+            };
+
+            html += processVisits(seniorOrderNames, seniorVisits, 'القيادة العليا');
+            html += processVisits(otherSeniorNames, seniorVisits, 'القيادة العليا');
+            html += processVisits(middleOrderNames, middleVisits, 'القيادة الوسطى');
+            html += processVisits(otherMiddleNames, middleVisits, 'القيادة الوسطى');
+
+            html += `<tr class="report-row-total"><td colspan="6">مجموع الزيارات الكلية = ${totalVisitsCount} زيارة</td></tr>`;
+            html += `</tbody></table>
+            ${footerHtml}
+            </div>`;
+
+            // --- PAGE 4: STATISTICS & CHART ---
+            html += `
+            <div class="a4-page" style="padding:30px;">
+                <h3 style="text-align:right; text-decoration:underline; margin-bottom:20px;">رابعًا: عدد الزيارات الصفية وتقييم الأداء الصفي</h3>
+                <table class="report-table-custom">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">الاقسام الاكاديمية</th>
+                            <th rowspan="2">مجموع عدد الزيارات للقسم</th>
+                            <th colspan="4">مستويات الأداء</th>
+                        </tr>
+                        <tr>
+                            <th style="background:#2f75b5; color:white;">يتجاوز التوقعات بكثير</th>
+                            <th style="background:#c00000; color:white;">يتجاوز التوقعات</th>
+                            <th style="background:#7030a0; color:white;">يفي بالتوقعات</th>
+                            <th style="background:#ffff00;">يفي بالتوقعات جزئيا</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            
+            let totalExALot = 0, totalEx = 0, totalMeets = 0, totalPart = 0, grandTotal = 0;
+            
+            Object.keys(chartData).forEach(dept => {
+                const d = chartData[dept];
+                html += `<tr>
+                    <td style="font-weight:bold;">${dept}</td>
+                    <td>${d.total}</td>
+                    <td>${d.exceedsALot || ''}</td>
+                    <td>${d.exceeds || ''}</td>
+                    <td>${d.meets || ''}</td>
+                    <td>${d.partially || ''}</td>
+                </tr>`;
+                totalExALot += d.exceedsALot; totalEx += d.exceeds; totalMeets += d.meets; totalPart += d.partially; grandTotal += d.total;
             });
+
+            html += `<tr style="font-weight:bold; background-color: #b4c6e7;">
+                <td>مجموع عدد الزيارات الصفية للقيادة العليا والوسطى</td>
+                <td>${grandTotal}</td>
+                <td>${totalExALot}</td>
+                <td>${totalEx}</td>
+                <td>${totalMeets}</td>
+                <td>${totalPart}</td>
+            </tr></tbody></table>`;
+
+            html += `<div style="text-align:center; margin-top:30px;"><img src="${chartImageSrc}" style="max-width:100%;"></div>`;
+            html += `${footerHtml}
+            </div>`;
+
+            // --- PAGE 5: DISTINGUISHED & CARE NEEDED ---
+            html += `
+            <div class="a4-page" style="padding:30px;">
+                <h3 style="text-align:right; text-decoration:underline; margin-bottom:20px;">سادسًا: حصر أسماء المعلمين المتميزين في الأقسام الأكاديمية</h3>
+                <table class="report-table-custom">
+                    <thead><tr><th width="5%">الرقم</th><th width="20%">اسم المعلم</th><th width="15%">التقدير</th><th width="40%">المبررات</th><th width="20%">القسم الأكاديمي</th></tr></thead>
+                    <tbody>`;
+            distinguished.forEach((d, i) => {
+                let reasons = d.reason.split('\n').map(r=>r.trim()).filter(r=>r).map(r=>`<li>${r}</li>`).join('');
+                if(reasons) reasons = `<ul class="report-list">${reasons}</ul>`; else reasons = d.reason;
+                html += `<tr><td>${i+1}</td><td>${d.teacher}</td><td>${d.eval}</td><td style="text-align:right;">${reasons}</td><td>${d.dept}</td></tr>`;
+            });
+            if(distinguished.length === 0) html += `<tr><td colspan="5">لا توجد بيانات</td></tr>`;
+            html += `</tbody></table>
+
+                <h3 style="text-align:center; margin-top:40px; margin-bottom:20px;">حصر أسماء المعلمين الأولى بالرعاية في الأقسام الأكاديمية</h3>
+                <table class="report-table-custom">
+                    <thead><tr style="background:#bfbfbf;"><th width="5%">الرقم</th><th width="20%">اسم المعلم</th><th width="15%">التقدير</th><th width="40%">المبررات</th><th width="20%">القسم الأكاديمي</th></tr></thead>
+                    <tbody>`;
+            care.forEach((d, i) => {
+                let reasons = d.reason.split('\n').map(r=>r.trim()).filter(r=>r).map(r=>`<li>${r}</li>`).join('');
+                if(reasons) reasons = `<ul class="report-list">${reasons}</ul>`; else reasons = d.reason;
+                html += `<tr><td>${i+1}</td><td>${d.teacher}</td><td>${d.eval}</td><td style="text-align:right;">${reasons}</td><td>${d.dept}</td></tr>`;
+            });
+            if(care.length === 0) html += `<tr><td colspan="5">لا توجد بيانات</td></tr>`;
+            html += `</tbody></table>
+            ${footerHtml}
+            </div>`;
+
+            // --- PAGE 6: QUALITATIVE REPORT ---
+            html += `
+            <div class="a4-page" style="padding:30px;">
+                <h3 style="text-align:right; text-decoration:underline; margin-bottom:10px;">سابعًا: التقرير النوعي</h3>
+                <h4 style="text-align:center; text-decoration:underline; margin-bottom:20px;">جوانب القوة والتطوير لأداء المعلمين خلال الزيارات الصفية في الأقسام الأكاديمية</h4>
+                
+                <table class="report-table-custom">
+                    <thead><tr><th width="20%">الأقسام الأكاديمية</th><th width="40%">جوانب القوة</th><th width="40%">جوانب بحاجة إلى تطوير</th></tr></thead>
+                    <tbody>`;
+            
+            qualitative.forEach(q => {
+                let str = q.strength.split('\n').map(r=>r.trim()).filter(r=>r).map(r=>`<li>${r}</li>`).join('');
+                if(str) str = `<ul class="report-list">${str}</ul>`;
+                
+                let imp = q.improve.split('\n').map(r=>r.trim()).filter(r=>r).map(r=>`<li>${r}</li>`).join('');
+                if(imp) imp = `<ul class="report-list">${imp}</ul>`;
+
+                html += `<tr><td style="font-weight:bold;">${q.dept}</td><td style="text-align:right;">${str}</td><td style="text-align:right;">${imp}</td></tr>`;
+            });
+            if(qualitative.length === 0) html += `<tr><td colspan="3">لا توجد بيانات</td></tr>`;
+
+            html += `</tbody></table>
+            ${footerHtml}
+            </div>`;
+
+            document.getElementById('a4-report-content').innerHTML = html;
         }
 
-        // Export to MS Word Fix
+        function printReport() {
+            window.print();
+        }
+
+        function saveReport() { 
+            const m = document.getElementById('reportMonthSelect').value; 
+            const monthName = getMonthName(m);
+            const htmlContent = document.getElementById('a4-report-content').innerHTML;
+            if(htmlContent.includes('يرجى اختيار الشهر')) return alert('يرجى إصدار التقرير أولاً');
+            
+            DB.saved_reports.push({
+                id: Date.now(), 
+                name: `تقرير جودة التعليم - شهر ${monthName}`,
+                month: m, 
+                date: new Date().toLocaleDateString('en-GB'), 
+                html: htmlContent, 
+                brandId: CURRENT_BRAND.id
+            }); 
+            saveDB(); 
+            alert('تم الحفظ في الأرشيف بنجاح'); 
+        }
+
+        function renderSavedReports() { 
+            const list = document.getElementById('savedReportsList'); 
+            list.innerHTML = ''; 
+            filterByContext(DB.saved_reports).forEach(r => { 
+                list.innerHTML += `
+                <div class="saved-report-item">
+                    <div class="saved-report-info">
+                        <h4 style="margin:0 0 5px 0; color:var(--primary);">${r.name || ('تقرير جودة التعليم - شهر ' + r.month)}</h4>
+                        <small style="color:#777; font-weight:bold;">تاريخ الحفظ: ${r.date}</small>
+                    </div>
+                    <div>
+                        <button class="action-btn btn-view" onclick="loadSavedReport(${r.id})"><i class="fas fa-eye"></i> معاينة</button>
+                        <button class="action-btn btn-toggle" onclick="downloadSavedReportItem(${r.id})"><i class="fas fa-download"></i> تنزيل</button>
+                        <button class="action-btn btn-perm" onclick="printSavedReportItem(${r.id})"><i class="fas fa-print"></i> طباعة</button>
+                        <button class="action-btn btn-delete" onclick="deleteSavedReport(${r.id})"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                </div>`; 
+            }); 
+        }
+        
+        function loadSavedReport(id) {
+            const r = DB.saved_reports.find(x => x.id === id);
+            if(r) { document.getElementById('a4-report-content').innerHTML = r.html; setReportTab('create', document.querySelector('#quality-report .custom-tab:first-child')); }
+        }
+
+        function deleteSavedReport(id) {
+            if(confirm('هل أنت متأكد من حذف التقرير المحفوظ؟')) { DB.saved_reports = DB.saved_reports.filter(x => x.id !== id); saveDB(); renderSavedReports(); }
+        }
+
+        function downloadSavedReportItem(id) {
+            const r = DB.saved_reports.find(x => x.id === id);
+            if(r) { 
+                const blob = new Blob(['\ufeff' + wrapForWord(r.html)], { type: 'application/msword' }); 
+                const link = document.createElement('a'); 
+                link.href = URL.createObjectURL(blob); 
+                link.download = `${r.name || 'تقرير_الجودة'}.doc`; 
+                link.click(); 
+            }
+        }
+
+        function printSavedReportItem(id) {
+            const r = DB.saved_reports.find(x => x.id === id);
+            if(r) { 
+                const printWin = window.open('', '', 'width=800,height=900'); 
+                printWin.document.write('<html dir="rtl"><head><title>Print</title><style>body{font-family:"Cairo",sans-serif;} .a4-page{page-break-after:always;} table{width:100%; border-collapse:collapse;} th,td{border:1px solid #000; padding:8px; text-align:center;}</style></head><body>' + r.html + '</body></html>'); 
+                printWin.document.close(); printWin.focus(); 
+                setTimeout(() => { printWin.print(); printWin.close(); }, 500); 
+            }
+        }
+
         function wrapForWord(htmlContent) {
             return `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head>
                     <meta charset="utf-8">
                     <title>Quality Report</title>
+                    <style>
+                        body{font-family:'Cairo', sans-serif;} 
+                        table{border-collapse:collapse; width:100%;} 
+                        td,th{border:1px solid black; padding:5px;} 
+                        .a4-page{margin-bottom:20px; page-break-after:always;}
+                    </style>
                 </head>
                 <body dir="rtl">
                     ${htmlContent}
@@ -1440,67 +1542,19 @@
 
         function exportToWord() {
             const htmlContent = document.getElementById('a4-report-content').innerHTML;
-            if(!htmlContent.includes('تقرير متابعة جودة')) return alert('يرجى معاينة التقرير أولاً قبل التحميل');
+            if(htmlContent.includes('يرجى اختيار الشهر')) return alert('يرجى إصدار التقرير أولاً');
+
             const fullHtml = wrapForWord(htmlContent);
-            const blob = new Blob(['\ufeff' + fullHtml], { type: 'application/msword' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'Quality_Report.doc';
-            link.click();
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(fullHtml);
+            const fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = 'تقرير_الجودة.doc';
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
         }
 
-        function saveReport() { 
-            const m = document.getElementById('reportMonthSelect').value; 
-            const htmlContent = document.getElementById('a4-report-content').innerHTML;
-            if(!htmlContent.includes('تقرير متابعة جودة')) return alert('يرجى معاينة التقرير أولاً قبل الحفظ');
-            DB.saved_reports.push({id: Date.now(), month: m, date: new Date().toLocaleDateString('en-GB'), html: htmlContent, brandId: CURRENT_BRAND.id}); 
-            saveDB(); 
-            alert('تم الحفظ في الأرشيف بنجاح'); 
-        }
-
-        function renderSavedReports() { 
-            const list = document.getElementById('savedReportsList'); 
-            list.innerHTML = ''; 
-            filterByContext(DB.saved_reports).forEach(r => { 
-                list.innerHTML += `
-                <div class="saved-report-card">
-                    <div class="saved-report-thumb"><i class="fas fa-file-word"></i></div>
-                    <div class="saved-report-details">
-                        <h4 style="margin:0 0 5px 0; color:var(--primary);">تقرير جودة التعليم - شهر ${r.month}</h4>
-                        <small style="color:#777; font-weight:bold;">تاريخ الحفظ: ${r.date}</small>
-                    </div>
-                    <div class="saved-report-actions">
-                        <button class="action-btn btn-view" onclick="viewSavedReport(${r.id})"><i class="fas fa-eye"></i> معاينة</button>
-                        <button class="action-btn btn-edit" onclick="editSavedReport(${r.id})"><i class="fas fa-edit"></i> تعديل</button>
-                        <button class="action-btn btn-toggle" onclick="downloadSavedReportItem(${r.id})"><i class="fas fa-download"></i> تنزيل</button>
-                        <button class="action-btn btn-perm" onclick="printSavedReportItem(${r.id})"><i class="fas fa-print"></i> طباعة</button>
-                        <button class="action-btn btn-delete" onclick="deleteSavedReport(${r.id})"><i class="fas fa-trash"></i> حذف</button>
-                    </div>
-                </div>`; 
-            }); 
-        }
-        
-        function viewSavedReport(id) {
-            const r = DB.saved_reports.find(x => x.id === id);
-            if(r) { document.getElementById('a4-report-content').innerHTML = r.html; setReportTab('create', document.querySelector('#quality-report .custom-tab:first-child')); }
-        }
-        function editSavedReport(id) {
-            const r = DB.saved_reports.find(x => x.id === id);
-            if(r) { document.getElementById('reportMonthSelect').value = r.month; setReportTab('create', document.querySelector('#quality-report .custom-tab:first-child')); generateQualityReport(); }
-        }
-        function downloadSavedReportItem(id) {
-            const r = DB.saved_reports.find(x => x.id === id);
-            if(r) { const blob = new Blob(['\ufeff' + wrapForWord(r.html)], { type: 'application/msword' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Quality_Report_${r.month}.doc`; link.click(); }
-        }
-        function printSavedReportItem(id) {
-            const r = DB.saved_reports.find(x => x.id === id);
-            if(r) { const printWin = window.open('', '', 'width=800,height=900'); printWin.document.write('<html dir="rtl"><head><title>Print</title></head><body>' + r.html + '</body></html>'); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 500); }
-        }
-        function deleteSavedReport(id) {
-            if(confirm('هل أنت متأكد من حذف التقرير المحفوظ؟')) { DB.saved_reports = DB.saved_reports.filter(x => x.id !== id); saveDB(); renderSavedReports(); }
-        }
-
-        function setReportTab(tab, el) { document.querySelectorAll('#quality-report .custom-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(tab === 'create') { document.getElementById('report-create-pane').style.display='block'; document.getElementById('report-saved-pane').style.display='none'; } else { document.getElementById('report-create-pane').style.display='none'; document.getElementById('report-saved-pane').style.display='block'; renderSavedReports(); } }
+        // ========================================================
         
         function loadSettings() { 
             const savedName = DB.settings.schoolName;
