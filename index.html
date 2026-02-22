@@ -785,15 +785,15 @@
                 const now = new Date();
                 const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
                 const currentYear = String(now.getFullYear());
-                return fullData.filter(item => { if(!item.date) return false; return item.date.startsWith(`${currentYear}-${currentMonth}`); });
+                return fullData.filter(item => { if(!item.date) return false; return String(item.date).startsWith(`${currentYear}-${currentMonth}`); });
             }
             if(mode === 'custom') {
                 const startStr = document.getElementById(prefix + '_StartDate').value;
                 const endStr = document.getElementById(prefix + '_EndDate').value;
                 if(!startStr || !endStr) return fullData; 
-                return fullData.filter(item => { if(!item.date) return false; return item.date >= startStr && item.date <= endStr; });
+                return fullData.filter(item => { if(!item.date) return false; return String(item.date) >= startStr && String(item.date) <= endStr; });
             }
-            return fullData.filter(item => { if(!item.date) return false; return item.date.startsWith(mode); });
+            return fullData.filter(item => { if(!item.date) return false; return String(item.date).startsWith(mode); });
         }
         
         function populateDateFilters() {
@@ -817,9 +817,9 @@
             const total = filteredVisits.length; 
             let exceedsLot = 0, exceeds = 0, meets = 0, partially = 0; 
             filteredVisits.forEach(v => { 
-                if((v.eval||'').includes('يتجاوز التوقعات بكثير') || (v.eval||'')==='ممتاز') exceedsLot++; 
-                else if((v.eval||'').includes('يتجاوز التوقعات') || (v.eval||'').includes('جيد جداً')) exceeds++; 
-                else if((v.eval||'').includes('يفي بالتوقعات') || (v.eval||'').includes('جيد')) meets++; 
+                if(String(v.eval||'').includes('يتجاوز التوقعات بكثير') || String(v.eval||'')==='ممتاز') exceedsLot++; 
+                else if(String(v.eval||'').includes('يتجاوز التوقعات') || String(v.eval||'').includes('جيد جداً')) exceeds++; 
+                else if(String(v.eval||'').includes('يفي بالتوقعات') || String(v.eval||'').includes('جيد')) meets++; 
                 else partially++; 
             }); 
             animateValue('stat_total', parseInt(document.getElementById('stat_total').innerText), total, 1000); 
@@ -1525,8 +1525,8 @@
                 const mName = MONTH_NAMES_AR[parseInt(m) - 1];
                 const content = document.getElementById('a4-report-content');
                 
-                const seniorVisits = filterByContext(DB.visits_senior).filter(v => v && v.date && v.date.split('-')[1] === m);
-                const middleVisits = filterByContext(DB.visits_middle).filter(v => v && v.date && v.date.split('-')[1] === m);
+                const seniorVisits = filterByContext(DB.visits_senior).filter(v => v && v.date && String(v.date).split('-')[1] === m);
+                const middleVisits = filterByContext(DB.visits_middle).filter(v => v && v.date && String(v.date).split('-')[1] === m);
                 const allVisits = [...seniorVisits, ...middleVisits];
 
                 const ministryLogo = DB.settings.ministryLogo || ''; 
@@ -1706,7 +1706,7 @@
                     
                     let cells = '';
                     colHeaders.forEach((h, hIdx) => {
-                         const c = vs.filter(v => (v.eval || '') === h || (h === 'يتجاوز التوقعات بكثير' && (v.eval || '') === 'ممتاز')).length;
+                         const c = vs.filter(v => String(v.eval || '') === h || (h === 'يتجاوز التوقعات بكثير' && String(v.eval || '') === 'ممتاز')).length;
                          cells += `<td style="${tdStyle}">${c || ''}</td>`;
                          if(hIdx === 0) chartDataToRender[dept].exceedsALot = c;
                          if(hIdx === 1) chartDataToRender[dept].exceeds = c;
@@ -1753,10 +1753,10 @@
                             <tr>
                                 <td colspan="2" style="${thStyle} background-color: #b4c6e7;">المجموع الكلي للزيارات الصفية</td>
                                 <td style="${thStyle} background-color: #b4c6e7;">${allVisits.length}</td>
-                                <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>(v.eval||'').includes('بكثير')||(v.eval||'')==='ممتاز').length}</td>
-                                <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>(v.eval||'')==='يتجاوز التوقعات').length}</td>
-                                <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>(v.eval||'')==='يفي بالتوقعات').length}</td>
-                                <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>(v.eval||'').includes('جزئيا')).length}</td>
+                                <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>String(v.eval||'').includes('بكثير')||String(v.eval||'')==='ممتاز').length}</td>
+                                <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>String(v.eval||'')==='يتجاوز التوقعات').length}</td>
+                                <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>String(v.eval||'')==='يفي بالتوقعات').length}</td>
+                                <td style="${thStyle} background-color: #b4c6e7;">${allVisits.filter(v=>String(v.eval||'').includes('جزئيا')).length}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1768,11 +1768,11 @@
                 ${pageBreak}`;
 
                 // --- PAGE 7: Distinguished & Care ---
-                const distinguishedItems = filterByContext(DB.distinguished).filter(x => x.date && x.date.split('-')[1] === m);
+                const distinguishedItems = filterByContext(DB.distinguished).filter(x => x && x.date && String(x.date).split('-')[1] === m);
                 let distRows = '';
                 distinguishedItems.forEach((d, i) => { distRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${d.teacher}</td><td style="${tdStyle}">${d.eval || 'غير محدد'}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
 
-                const careItems = filterByContext(DB.care_needed).filter(x => x.date && x.date.split('-')[1] === m);
+                const careItems = filterByContext(DB.care_needed).filter(x => x && x.date && String(x.date).split('-')[1] === m);
                 let careRows = '';
                 careItems.forEach((d, i) => { careRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${d.teacher}</td><td style="${tdStyle}">${d.eval || 'غير محدد'}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
 
@@ -1796,14 +1796,14 @@
                 ${pageBreak}`;
 
                 // --- PAGE 9: Qualitative Report ---
-                const qualitativeItems = filterByContext(DB.qualitative_reports).filter(x => x.date && x.date.split('-')[1] === m);
+                const qualitativeItems = filterByContext(DB.qualitative_reports).filter(x => x && x.date && String(x.date).split('-')[1] === m);
                 let qualRows = '';
                 qualitativeItems.forEach(q => {
                      qualRows += `
                      <tr>
                         <td style="${tdStyle} font-weight: bold; width: 20%;">${q.dept}</td>
-                        <td style="${tdStyle} text-align: right; white-space: pre-wrap; width: 40%;"><ul>${(q.strength||'').split('\n').map(l=>`<li>${l}</li>`).join('')}</ul></td>
-                        <td style="${tdStyle} text-align: right; white-space: pre-wrap; width: 40%;"><ul>${(q.improve||'').split('\n').map(l=>`<li>${l}</li>`).join('')}</ul></td>
+                        <td style="${tdStyle} text-align: right; white-space: pre-wrap; width: 40%;"><ul>${String(q.strength||'').split('\n').map(l=>`<li>${l}</li>`).join('')}</ul></td>
+                        <td style="${tdStyle} text-align: right; white-space: pre-wrap; width: 40%;"><ul>${String(q.improve||'').split('\n').map(l=>`<li>${l}</li>`).join('')}</ul></td>
                      </tr>`;
                 });
 
