@@ -143,7 +143,7 @@
         
         /* A4 Report Styling */
         .report-preview-container { background: #525659; padding: 30px; overflow: auto; max-height: 800px; display: flex; flex-direction: column; align-items: center; border-radius: 8px;}
-        .a4-page { background: white; width: 210mm; min-height: 297mm; padding: 15mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); margin-bottom: 20px; position: relative; color: black; font-family: 'Cairo', sans-serif; page-break-after: always; }
+        .a4-page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.5); margin-bottom: 20px; position: relative; color: black; font-family: 'Cairo', sans-serif; page-break-after: always; }
         .a4-page:last-child { page-break-after: auto; }
         .report-table-custom { width:100%; border-collapse:collapse; margin-bottom:20px; font-size:14px; page-break-inside: avoid; }
         .report-table-custom th, .report-table-custom td { border:1px solid black; padding:8px; text-align:center; vertical-align:middle; }
@@ -164,9 +164,12 @@
         .saved-report-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
         @media print {
+            body, html { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
             body * { visibility: hidden; }
             #a4-report-content, #a4-report-content * { visibility: visible; }
-            .a4-page { position: relative; left: 0; top: 0; margin: 0; padding: 0; width: 100%; box-shadow: none; height: auto; margin-bottom: 0; }
+            #a4-report-content { position: absolute; left: 0; top: 0; width: 100%; }
+            @page { size: A4 portrait; margin: 5mm; }
+            .a4-page { position: relative; left: 0; top: 0; margin: 0 auto; padding: 10mm !important; width: 210mm !important; min-height: 297mm !important; box-shadow: none !important; box-sizing: border-box !important; page-break-after: always; }
             .sidebar, .top-header, .filter-container, .btn, .custom-tabs { display: none !important; }
             .report-preview-container { background: white !important; padding: 0 !important; overflow: visible !important; max-height: none !important; border:none !important; display: block !important;}
         }
@@ -1740,7 +1743,7 @@
 
                 // --- PAGE 1: COVER ---
                 html += `
-                <div class="a4-page" style="direction: rtl; font-family: 'Cairo', sans-serif; display:flex; flex-direction:column; justify-content:space-between; min-height: 297mm; padding: 15mm;">
+                <div class="a4-page" style="direction: rtl; font-family: 'Cairo', sans-serif; display:flex; flex-direction:column; justify-content:space-between; min-height: 297mm;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: none !important;">
                         <tr>
                             <td align="right" width="33%" style="border: none !important; vertical-align: top;">${schoolLogo ? `<img src="${schoolLogo}" height="100" style="max-width: 150px;">` : ''}</td>
@@ -2035,16 +2038,36 @@
             });
         }
 
-        // Export to MS Word Fix
+        // Export to MS Word Fix with proper A4 Page properties injected
         function wrapForWord(htmlContent) {
             return `
-                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <html xmlns:v="urn:schemas-microsoft-com:vml"
+                      xmlns:o="urn:schemas-microsoft-com:office:office"
+                      xmlns:w="urn:schemas-microsoft-com:office:word"
+                      xmlns="http://www.w3.org/TR/REC-html40">
                 <head>
                     <meta charset="utf-8">
                     <title>Quality Report</title>
+                    <style>
+                        @page Section1 {
+                            size: 595.3pt 841.9pt; /* A4 size */
+                            margin: 36.0pt 36.0pt 36.0pt 36.0pt; /* Margins */
+                            mso-header-margin: 35.4pt;
+                            mso-footer-margin: 35.4pt;
+                            mso-paper-source: 0;
+                        }
+                        div.Section1 {
+                            page: Section1;
+                        }
+                        body { font-family: 'Cairo', 'Arial', sans-serif; direction: rtl; }
+                        table { border-collapse: collapse; width: 100%; }
+                        td, th { border: 1px solid black; padding: 8px; text-align: center; }
+                    </style>
                 </head>
                 <body dir="rtl">
-                    ${htmlContent}
+                    <div class="Section1">
+                        ${htmlContent}
+                    </div>
                 </body>
                 </html>
             `;
@@ -2106,7 +2129,7 @@
         }
         window.printSavedReportItem = function(id) {
             const r = DB.saved_reports.find(x => x.id === id);
-            if(r) { const printWin = window.open('', '', 'width=800,height=900'); printWin.document.write('<html dir="rtl"><head><title>Print</title><style>body{font-family:"Cairo",sans-serif;} .a4-page{page-break-after:always;} table{width:100%; border-collapse:collapse;} th,td{border:1px solid #000; padding:8px; text-align:center;}</style></head><body>' + r.html + '</body></html>'); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 500); }
+            if(r) { const printWin = window.open('', '', 'width=800,height=900'); printWin.document.write('<html dir="rtl"><head><title>Print</title><style>body{font-family:"Cairo",sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact;} @page { size: A4 portrait; margin: 5mm; } .a4-page{page-break-after:always; width: 100%; box-sizing: border-box; padding: 10mm;} table{width:100%; border-collapse:collapse;} th,td{border:1px solid #000; padding:8px; text-align:center;}</style></head><body>' + r.html + '</body></html>'); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 500); }
         }
         window.deleteSavedReport = function(id) {
             if(confirm('هل أنت متأكد من حذف التقرير المحفوظ؟')) { DB.saved_reports = DB.saved_reports.filter(x => x.id !== id); saveDB(); renderSavedReports(); }
