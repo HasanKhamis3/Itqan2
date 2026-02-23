@@ -143,7 +143,7 @@
         
         /* A4 Report Styling */
         .report-preview-container { background: #525659; padding: 30px; overflow: auto; max-height: 800px; display: flex; flex-direction: column; align-items: center; border-radius: 8px;}
-        .a4-page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.5); margin-bottom: 20px; position: relative; color: black; font-family: 'Cairo', sans-serif; page-break-after: always; }
+        .a4-page { background: white; width: 210mm; min-height: 297mm; padding: 15mm; padding-bottom: 35mm; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.5); margin-bottom: 20px; position: relative; color: black; font-family: 'Cairo', sans-serif; page-break-after: always; }
         .a4-page:last-child { page-break-after: auto; }
         .report-table-custom { width:100%; border-collapse:collapse; margin-bottom:20px; font-size:14px; page-break-inside: avoid; }
         .report-table-custom th, .report-table-custom td { border:1px solid black; padding:8px; text-align:center; vertical-align:middle; }
@@ -169,7 +169,7 @@
             #a4-report-content, #a4-report-content * { visibility: visible; }
             #a4-report-content { position: absolute; left: 0; top: 0; width: 100%; }
             @page { size: A4 portrait; margin: 5mm; }
-            .a4-page { position: relative; left: 0; top: 0; margin: 0 auto; padding: 10mm !important; width: 210mm !important; min-height: 297mm !important; box-shadow: none !important; box-sizing: border-box !important; page-break-after: always; }
+            .a4-page { position: relative; left: 0; top: 0; margin: 0 auto; padding: 15mm !important; padding-bottom: 35mm !important; width: 210mm !important; min-height: 297mm !important; box-shadow: none !important; box-sizing: border-box !important; page-break-after: always; }
             .sidebar, .top-header, .filter-container, .btn, .custom-tabs { display: none !important; }
             .report-preview-container { background: white !important; padding: 0 !important; overflow: visible !important; max-height: none !important; border:none !important; display: block !important;}
         }
@@ -1738,7 +1738,7 @@
                 const thStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #bfbfbf;`;
                 const thBlack = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #000; color: #fff;`;
 
-                const getFooter = () => `<div style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; margin-top: 50px; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl;">${footerText}</div>`;
+                const getFooter = () => `<div style="position: absolute; bottom: 15mm; left: 15mm; right: 15mm; text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl;">${footerText}</div>`;
                 const pageBreak = `<br clear="all" style="mso-special-character:line-break;page-break-before:always">`;
 
                 // --- PAGE 1: COVER ---
@@ -1775,20 +1775,37 @@
                 ${pageBreak}`;
 
                 // --- PAGE 2: Middle Leadership Follow-up ---
-                const middleLeaders = filterByContext(DB.middle);
+                const acadDepts = filterByContext(DB.academic_departments);
                 let middleRows = '';
-                middleLeaders.forEach(leader => {
-                    const visitsCount = middleVisits.filter(v => v.visitor === leader.name).length;
-                    const existsText = (leader.status === 'active') ? 'يوجد' : 'لا يوجد';
-                    middleRows += `
-                    <tr>
-                        <td style="${tdStyle} font-weight: bold; text-align: right;">${leader.job || leader.name}</td>
-                        <td style="${tdStyle}">${visitsCount}</td>
-                        <td style="${tdStyle}">${existsText}</td>
-                        <td style="${tdStyle}">${existsText}</td>
-                        <td style="${tdStyle}">${existsText}</td>
-                    </tr>`;
-                });
+                
+                if (acadDepts.length > 0) {
+                    acadDepts.forEach(dept => {
+                        const visitsCount = middleVisits.filter(v => v.dept === dept.name).length;
+                        const hasVisits = visitsCount > 0 ? 'يوجد' : 'لا يوجد';
+                        middleRows += `
+                        <tr>
+                            <td style="${tdStyle} font-weight: bold; text-align: right;">${dept.name}</td>
+                            <td style="${tdStyle}">${visitsCount}</td>
+                            <td style="${tdStyle}" contenteditable="true">${hasVisits}</td>
+                            <td style="${tdStyle}" contenteditable="true">${hasVisits}</td>
+                            <td contenteditable="true" style="${tdStyle} background-color: #fff; min-width: 150px;"></td>
+                        </tr>`;
+                    });
+                } else {
+                    const uniqueDepts = [...new Set(middleVisits.map(v => v.dept))];
+                    uniqueDepts.forEach(dept => {
+                        const visitsCount = middleVisits.filter(v => v.dept === dept).length;
+                        const hasVisits = visitsCount > 0 ? 'يوجد' : 'لا يوجد';
+                        middleRows += `
+                        <tr>
+                            <td style="${tdStyle} font-weight: bold; text-align: right;">${dept}</td>
+                            <td style="${tdStyle}">${visitsCount}</td>
+                            <td style="${tdStyle}" contenteditable="true">${hasVisits}</td>
+                            <td style="${tdStyle}" contenteditable="true">${hasVisits}</td>
+                            <td contenteditable="true" style="${tdStyle} background-color: #fff; min-width: 150px;"></td>
+                        </tr>`;
+                    });
+                }
 
                 html += `
                 <div class="a4-page" style="direction: rtl; font-family: 'Cairo', sans-serif;">
@@ -1822,28 +1839,26 @@
                 ${pageBreak}`;
 
                 // --- PAGE 3+: Visit Details (Dynamic) ---
-                const seniorVisitors = DB.settings.visitor_order_senior && DB.settings.visitor_order_senior.length > 0 
-                    ? DB.settings.visitor_order_senior.map(name => DB.senior.find(u => u.name === name)).filter(Boolean)
-                    : filterByContext(DB.senior);
-                    
-                const middleVisitors = DB.settings.visitor_order_middle && DB.settings.visitor_order_middle.length > 0
-                    ? DB.settings.visitor_order_middle.map(name => DB.middle.find(u => u.name === name)).filter(Boolean)
-                    : filterByContext(DB.middle);
-
-                const allVisitorsSorted = [...seniorVisitors, ...middleVisitors];
                 
+                // Grouping all visits dynamically by visitor name to assure EVERYONE appears
+                const visitsByVisitor = {};
+                allVisits.forEach(v => {
+                    const vName = v.visitor || 'غير محدد';
+                    if(!visitsByVisitor[vName]) visitsByVisitor[vName] = [];
+                    visitsByVisitor[vName].push(v);
+                });
+
                 let tableContent = '';
                 let visitorCount = 0;
 
-                allVisitorsSorted.forEach(visitor => {
-                    const visits = allVisits.filter(v => v.visitor === visitor.name);
-                    if(visits.length === 0) return;
+                Object.keys(visitsByVisitor).forEach(visitorName => {
+                    const visits = visitsByVisitor[visitorName];
+                    let displayJob = visits[0].visitorJob || '-';
+                    
+                    const uMatch = (DB.senior || []).concat(DB.middle || []).find(u => u.name === visitorName);
+                    if(uMatch && uMatch.job) { displayJob = uMatch.job; }
 
                     visits.forEach((v, idx) => {
-                        let displayJob = v.visitorJob || '-';
-                        const uMatch = (DB.senior || []).concat(DB.middle || []).find(u => u.name === v.visitor);
-                        if(uMatch && uMatch.job) { displayJob = uMatch.job; }
-
                         tableContent += `<tr>
                             <td style="${tdStyle} width: 5%;">${idx + 1}</td>
                             <td style="${tdStyle} width: 25%; text-align: right;">${v.teacher}</td>
@@ -1852,7 +1867,7 @@
                             <td style="${tdStyle} width: 20%;">${v.eval || 'غير محدد'}</td>`;
                         
                         if(idx === 0) {
-                            tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold;">${visitor.name}<br><span style="font-weight: normal; font-size: 11pt;">${displayJob}</span></td>`;
+                            tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold;">${visitorName}<br><span style="font-weight: normal; font-size: 11pt;">${displayJob}</span></td>`;
                         }
                         tableContent += `</tr>`;
                     });
@@ -2129,7 +2144,7 @@
         }
         window.printSavedReportItem = function(id) {
             const r = DB.saved_reports.find(x => x.id === id);
-            if(r) { const printWin = window.open('', '', 'width=800,height=900'); printWin.document.write('<html dir="rtl"><head><title>Print</title><style>body{font-family:"Cairo",sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact;} @page { size: A4 portrait; margin: 5mm; } .a4-page{page-break-after:always; width: 100%; box-sizing: border-box; padding: 10mm;} table{width:100%; border-collapse:collapse;} th,td{border:1px solid #000; padding:8px; text-align:center;}</style></head><body>' + r.html + '</body></html>'); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 500); }
+            if(r) { const printWin = window.open('', '', 'width=800,height=900'); printWin.document.write('<html dir="rtl"><head><title>Print</title><style>body{font-family:"Cairo",sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact;} @page { size: A4 portrait; margin: 5mm; } .a4-page{page-break-after:always; width: 100%; box-sizing: border-box; padding: 15mm; padding-bottom: 35mm; position: relative;} table{width:100%; border-collapse:collapse;} th,td{border:1px solid #000; padding:8px; text-align:center;}</style></head><body>' + r.html + '</body></html>'); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 500); }
         }
         window.deleteSavedReport = function(id) {
             if(confirm('هل أنت متأكد من حذف التقرير المحفوظ؟')) { DB.saved_reports = DB.saved_reports.filter(x => x.id !== id); saveDB(); renderSavedReports(); }
