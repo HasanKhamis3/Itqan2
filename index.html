@@ -606,7 +606,48 @@
     </div>
 
     <div id="brandModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span id="brandModalTitle">إضافة براند</span> <span onclick="closeModal('brandModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="brandForm"><input type="hidden" id="editBrandId"><label>اسم البراند</label><input type="text" id="brandName" class="form-control" required placeholder="مثال: فرع المحرق"><label>البريد الإلكتروني للبراند</label><input type="email" id="brandEmail" class="form-control" placeholder="example@school.bh"><label style="color:var(--primary); font-weight:bold; margin-top:15px; display:block;">مدة صلاحية البراند</label><div style="display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 6px; border: 1px solid #eee;"><div style="flex:1;"><label style="font-size:0.8rem; color:#777;">تاريخ البدء</label><input type="date" id="brandStartDate" class="form-control" style="margin-bottom:0;"></div><div style="flex:1;"><label style="font-size:0.8rem; color:#777;">تاريخ الانتهاء</label><input type="date" id="brandEndDate" class="form-control" style="margin-bottom:0;"></div></div><small style="color:#777; font-size:0.8rem; display:block; margin-top:5px;">* اترك التواريخ فارغة لصلاحية دائمة.</small></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveBrand()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('brandModal')">إلغاء</button></div></div></div>
-    <div id="addUserModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span id="addUserModalTitle">إضافة اسم جديد</span> <span onclick="closeModal('addUserModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="addUserForm"><input type="hidden" id="editUserId"><label id="addNameLabel">الاسم الكامل / اسم القسم</label><input type="text" id="addName" class="form-control" required><div id="deptWrapper" class="form-group" style="display:none;"><label>القسم</label><select id="addDept" class="form-control"></select></div><div id="userFields"><label>الوظيفة</label><input type="text" id="addJob" class="form-control"><label>رقم الهاتف</label><input type="text" id="addPhone" class="form-control"><label>اسم الدخول</label><input type="text" id="addLogin" class="form-control"><label>كلمة المرور</label><input type="password" id="addPass" class="form-control"><div id="roleWrapper" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;"><label style="color:var(--primary); font-weight:bold; margin-bottom:5px;">صلاحية إضافية (اختياري)</label><select id="addRole" class="form-control" style="margin-bottom:15px;"><option value="">مستخدم عادي</option><option value="supervisor">مشرف للنظام</option><option value="admin_support">إداري للنظام</option></select></div></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveUserForm()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('addUserModal')">إلغاء</button></div></div></div>
+    
+    <div id="addUserModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="addUserModalTitle">إضافة اسم جديد</span> <span onclick="closeModal('addUserModal')" style="cursor:pointer;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <input type="hidden" id="editUserId">
+                    <label id="addNameLabel">الاسم الكامل / اسم القسم</label>
+                    <input type="text" id="addName" class="form-control" required>
+                    
+                    <div id="linkedDeptsWrapper" class="form-group" style="display:none;">
+                        <label>الأقسام المرتبطة</label>
+                        <div id="linkedDeptsContainer" style="border: 1px solid #ddd; padding: 10px; border-radius: 6px; max-height: 150px; overflow-y: auto; background: #f9f9f9;">
+                            </div>
+                    </div>
+
+                    <div id="deptWrapper" class="form-group" style="display:none;">
+                        <label>القسم الأكاديمي</label>
+                        <select id="addDept" class="form-control"></select>
+                    </div>
+                    
+                    <div id="userFields">
+                        <label>الوظيفة</label>
+                        <input type="text" id="addJob" class="form-control">
+                        <label>رقم الهاتف</label>
+                        <input type="text" id="addPhone" class="form-control">
+                        <label>اسم الدخول</label>
+                        <input type="text" id="addLogin" class="form-control">
+                        <label>كلمة المرور</label>
+                        <input type="password" id="addPass" class="form-control">
+                        <div id="roleWrapper" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                            <label style="color:var(--primary); font-weight:bold; margin-bottom:5px;">صلاحية إضافية (اختياري)</label>
+                            <select id="addRole" class="form-control" style="margin-bottom:15px;"><option value="">مستخدم عادي</option><option value="supervisor">مشرف للنظام</option><option value="admin_support">إداري للنظام</option></select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary" onclick="saveUserForm()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('addUserModal')">إلغاء</button></div>
+        </div>
+    </div>
     
     <div id="distinguishedModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span id="distinguishedModalTitle">إضافة</span> <span onclick="closeModal('distinguishedModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="distinguishedForm"><input type="hidden" id="distType"><input type="hidden" id="distEditId"><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التاريخ</label><input type="date" class="form-control" id="distDate"></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">القسم</label><select id="distDept" class="form-control" onchange="onDistinguishedDeptChange()"><option value="">اختر القسم...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">اسم المعلم/ة</label><select id="distTeacher" class="form-control"><option value="">اختر المعلم/ة...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التقدير</label><select id="distEval" class="form-control"><option value="">اختر التقدير...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">المبررات / ملاحظات</label><textarea id="distReason" class="form-control" rows="4"></textarea></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveDistinguishedEntry()">حفظ البيانات</button><button class="btn" style="background:#ddd;" onclick="closeModal('distinguishedModal')">إلغاء</button></div></div></div>
     
@@ -850,14 +891,23 @@
             if(canEditUsers) { actionButtons.style.display = 'flex'; noEditMsg.style.display = 'none'; } else { actionButtons.style.display = 'none'; noEditMsg.style.display = 'block'; } 
             
             let headerHTML = `<th width="5%"><input type="checkbox" id="selectAll" class="custom-checkbox" onchange="toggleSelectAll(this)" ${canEditUsers?'':'disabled'}></th>`; 
-            if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'academic_departments') { 
-                let thName = CURRENT_TAB === 'academic_departments' ? 'اسم القسم الأكاديمي' : 'اسم القسم';
-                headerHTML += `<th width="10%">الترتيب</th><th width="40%">${thName}</th><th width="15%">الحالة</th><th width="30%">الإجراءات</th>`; 
-                addBtn.innerHTML = CURRENT_TAB === 'academic_departments' ? "<i class='fas fa-plus'></i> إضافة قسم أكاديمي" : "<i class='fas fa-plus'></i> إضافة قسم جديد"; 
+            if (CURRENT_TAB === 'departments') { 
+                headerHTML += `<th width="10%">الترتيب</th><th width="40%">اسم القسم</th><th width="15%">الحالة</th><th width="30%">الإجراءات</th>`; 
+                addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة قسم جديد"; 
                 if(bulkPermBtn) bulkPermBtn.style.display = 'none'; 
+            } else if (CURRENT_TAB === 'academic_departments') {
+                headerHTML += `<th width="10%">الترتيب</th><th width="25%">اسم القسم الأكاديمي</th><th width="20%">الأقسام المرتبطة</th><th width="15%">الحالة</th><th width="25%">الإجراءات</th>`; 
+                addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة قسم أكاديمي"; 
+                if(bulkPermBtn) bulkPermBtn.style.display = 'none'; 
+            } else if (CURRENT_TAB === 'teachers') { 
+                headerHTML += `<th width="5%">#</th><th width="25%">الاسم</th><th width="15%">القسم الأكاديمي</th><th width="15%">الحالة</th><th width="35%">الإجراءات</th>`; 
+                addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة معلم/ة"; 
+                if(bulkPermBtn) bulkPermBtn.style.display = 'inline-flex'; 
+            } else { 
+                headerHTML += `<th width="5%">#</th><th width="25%">الاسم</th><th width="15%">الوظيفة</th><th width="15%">صلاحية إضافية</th><th width="10%">الحالة</th><th width="25%">الإجراءات</th>`; 
+                addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة مستخدم جديد"; 
+                if(bulkPermBtn) bulkPermBtn.style.display = 'inline-flex'; 
             } 
-            else if (CURRENT_TAB === 'teachers') { headerHTML += `<th width="5%">#</th><th width="25%">الاسم</th><th width="15%">القسم الأكاديمي</th><th width="15%">الحالة</th><th width="35%">الإجراءات</th>`; addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة معلم/ة"; if(bulkPermBtn) bulkPermBtn.style.display = 'inline-flex'; } 
-            else { headerHTML += `<th width="5%">#</th><th width="25%">الاسم</th><th width="15%">الوظيفة</th><th width="15%">صلاحية إضافية</th><th width="10%">الحالة</th><th width="25%">الإجراءات</th>`; addBtn.innerHTML = "<i class='fas fa-plus'></i> إضافة مستخدم جديد"; if(bulkPermBtn) bulkPermBtn.style.display = 'inline-flex'; } 
             headRow.innerHTML = headerHTML; 
             
             let list = filterByContext(DB[CURRENT_TAB] || []); 
@@ -866,9 +916,14 @@
                 const statusBadge = isActive ? `<span class="status-badge status-active">نشط</span>` : `<span class="status-badge status-inactive">معطل</span>`; 
                 let row = `<td><input type="checkbox" class="custom-checkbox user-select-cb" value="${u.id}" ${canEditUsers ? '' : 'disabled'}></td><td>${idx+1}</td><td style="font-weight:bold; color:var(--primary);">${u.name}</td>`; 
                 
-                if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'academic_departments') { row += `<td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:4px; flex-wrap:wrap;">`; } 
-                else if (CURRENT_TAB === 'teachers') { row += `<td>${u.dept || '-'}</td><td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:4px; flex-wrap:wrap;">`; } 
-                else { 
+                if (CURRENT_TAB === 'departments') { 
+                    row += `<td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:4px; flex-wrap:wrap;">`; 
+                } else if (CURRENT_TAB === 'academic_departments') {
+                    const linkedStr = (u.linked_departments && u.linked_departments.length > 0) ? u.linked_departments.join('، ') : '-';
+                    row += `<td><span style="font-size:0.85rem; color:#666; font-weight:600;">${linkedStr}</span></td><td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:4px; flex-wrap:wrap;">`; 
+                } else if (CURRENT_TAB === 'teachers') { 
+                    row += `<td>${u.dept || '-'}</td><td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:4px; flex-wrap:wrap;">`; 
+                } else { 
                     let roleTxt = '-'; if(u.role === 'supervisor') roleTxt = '<span class="role-badge role-super" style="background:#eef4ff; color:var(--primary); padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">مشرف</span>'; if(u.role === 'admin_support') roleTxt = '<span class="role-badge role-admin" style="background:#fff2f2; color:#d63031; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">إداري</span>'; 
                     row += `<td>${u.job || '-'}</td><td>${roleTxt}</td><td>${statusBadge}</td><td><div style="display:flex; justify-content:center; gap:4px; flex-wrap:wrap;">`; 
                 } 
@@ -919,10 +974,12 @@
             } 
             let headers = []; 
             let data = []; 
-            if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'academic_departments') { 
-                let colName = CURRENT_TAB === 'academic_departments' ? 'اسم القسم الأكاديمي' : 'اسم القسم';
-                headers = ['الترتيب', colName]; 
-                list.forEach((row, index) => { data.push({ 'الترتيب': index + 1, [colName]: row.name }); }); 
+            if (CURRENT_TAB === 'departments') { 
+                headers = ['الترتيب', 'اسم القسم']; 
+                list.forEach((row, index) => { data.push({ 'الترتيب': index + 1, 'اسم القسم': row.name }); }); 
+            } else if (CURRENT_TAB === 'academic_departments') {
+                headers = ['الترتيب', 'اسم القسم الأكاديمي', 'الأقسام المرتبطة']; 
+                list.forEach((row, index) => { data.push({ 'الترتيب': index + 1, 'اسم القسم الأكاديمي': row.name, 'الأقسام المرتبطة': (row.linked_departments || []).join('، ') }); }); 
             } else if (CURRENT_TAB === 'teachers') { 
                 headers = ['الترتيب', 'الاسم', 'القسم الأكاديمي']; 
                 list.forEach((row, index) => { data.push({ 'الترتيب': index + 1, 'الاسم': row.name, 'القسم الأكاديمي': row.dept || '' }); }); 
@@ -951,19 +1008,36 @@
             document.getElementById('editUserId').value=''; 
             document.getElementById('addUserForm').reset(); 
             document.getElementById('addUserModal').style.display='flex'; 
-            const d=(CURRENT_TAB==='departments' || CURRENT_TAB==='academic_departments'), t=(CURRENT_TAB==='teachers'); 
+            
             const roleWrapper = document.getElementById('roleWrapper'); 
-            if(d){
-                document.getElementById('addUserModalTitle').innerText = CURRENT_TAB === 'academic_departments' ? 'إضافة قسم أكاديمي' : 'إضافة قسم'; 
-                document.getElementById('addNameLabel').innerText = CURRENT_TAB === 'academic_departments' ? 'اسم القسم الأكاديمي' : 'اسم القسم';
+            const linkedDeptsWrapper = document.getElementById('linkedDeptsWrapper');
+            
+            if (linkedDeptsWrapper) linkedDeptsWrapper.style.display = 'none';
+
+            if (CURRENT_TAB === 'departments') {
+                document.getElementById('addUserModalTitle').innerText = 'إضافة قسم'; 
+                document.getElementById('addNameLabel').innerText = 'اسم القسم';
                 document.getElementById('userFields').style.display='none'; 
                 document.getElementById('deptWrapper').style.display='none';
-            } else if(t){ 
+            } else if (CURRENT_TAB === 'academic_departments') {
+                document.getElementById('addUserModalTitle').innerText = 'إضافة قسم أكاديمي'; 
+                document.getElementById('addNameLabel').innerText = 'اسم القسم الأكاديمي';
+                document.getElementById('userFields').style.display='none'; 
+                document.getElementById('deptWrapper').style.display='none';
+                if (linkedDeptsWrapper) {
+                    linkedDeptsWrapper.style.display='block';
+                    const container = document.getElementById('linkedDeptsContainer');
+                    container.innerHTML = '';
+                    filterByContext(DB.departments||[]).forEach(d => {
+                        container.innerHTML += `<label style="display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer;"><input type="checkbox" value="${d.name}" class="linked-dept-cb custom-checkbox"> <span style="font-weight:600; color:#444;">${d.name}</span></label>`;
+                    });
+                }
+            } else if (CURRENT_TAB === 'teachers') { 
                 document.getElementById('addUserModalTitle').innerText='إضافة معلمة'; 
                 document.getElementById('addNameLabel').innerText = 'الاسم الكامل';
                 document.getElementById('userFields').style.display='none'; 
                 document.getElementById('deptWrapper').style.display='block'; 
-                const s=document.getElementById('addDept'); 
+                const s = document.getElementById('addDept'); 
                 s.innerHTML='<option value="">اختر...</option>'; 
                 filterByContext(DB.academic_departments||[]).forEach(x=>s.innerHTML+=`<option value="${x.name}">${x.name}</option>`); 
             } else { 
@@ -983,12 +1057,18 @@
             document.getElementById('editUserId').value = u.id; 
             document.getElementById('addUserModalTitle').innerText = 'تعديل ' + u.name; 
             document.getElementById('addName').value = u.name; 
-            if(CURRENT_TAB === 'teachers'){ 
+            
+            if (CURRENT_TAB === 'academic_departments') {
+                const linked = u.linked_departments || [];
+                document.querySelectorAll('.linked-dept-cb').forEach(cb => {
+                    cb.checked = linked.includes(cb.value);
+                });
+            } else if (CURRENT_TAB === 'teachers') { 
                 const s = document.getElementById('addDept'); 
                 s.innerHTML = '<option value="">اختر...</option>'; 
                 filterByContext(DB.academic_departments||[]).forEach(x => s.innerHTML += `<option value="${x.name}">${x.name}</option>`); 
                 document.getElementById('addDept').value = u.dept; 
-            } else if(CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'academic_departments'){ 
+            } else if (CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'academic_departments') { 
                 document.getElementById('addJob').value = u.job || ''; 
                 document.getElementById('addPhone').value = u.phone || ''; 
                 document.getElementById('addLogin').value = u.login || ''; 
@@ -1011,8 +1091,10 @@
                 u.name = n; 
                 u.lastUpdated = new Date().toLocaleString('en-GB'); 
                 u.lastUpdatedBy = CURRENT_USER.name; 
+                
                 if(CURRENT_TAB === 'teachers') u.dept = document.getElementById('addDept').value; 
-                else if(CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'academic_departments'){ 
+                else if(CURRENT_TAB === 'academic_departments') u.linked_departments = Array.from(document.querySelectorAll('.linked-dept-cb:checked')).map(cb => cb.value);
+                else if(CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'academic_departments') { 
                     u.job = document.getElementById('addJob').value; 
                     u.phone = document.getElementById('addPhone').value; 
                     u.login = document.getElementById('addLogin').value; 
@@ -1024,8 +1106,10 @@
                 u = { 
                     id: Date.now(), name: n, status: 'active', lastUpdated: new Date().toLocaleString('en-GB'), lastUpdatedBy: CURRENT_USER.name, brandId: CURRENT_BRAND.id, allowedBrands: [CURRENT_BRAND.id], dateAdded: new Date().toLocaleDateString('en-GB'), permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS))
                 }; 
+                
                 if(CURRENT_TAB === 'teachers') u.dept = document.getElementById('addDept').value; 
-                else if(CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'academic_departments'){ 
+                else if(CURRENT_TAB === 'academic_departments') u.linked_departments = Array.from(document.querySelectorAll('.linked-dept-cb:checked')).map(cb => cb.value);
+                else if(CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'academic_departments') { 
                     u.job = document.getElementById('addJob').value; u.phone = document.getElementById('addPhone').value; u.login = document.getElementById('addLogin').value; u.pass = document.getElementById('addPass').value; u.role = document.getElementById('addRole').value; 
                 } 
                 DB[CURRENT_TAB].push(u); 
@@ -1035,7 +1119,23 @@
         }
 
         function deleteUser(id) { if(!canEdit('user-management')) return; if(confirm('حذف؟')){DB[CURRENT_TAB]=DB[CURRENT_TAB].filter(u=>u.id!==id); saveDB(); renderTable();} }
-        function viewUser(id) { const u = DB[CURRENT_TAB].find(x => x.id === id); let roleTxt = 'مستخدم عادي'; if(u.role === 'supervisor') roleTxt = 'مشرف نظام'; if(u.role === 'admin_support') roleTxt = 'إداري نظام'; document.getElementById('viewUserContent').innerHTML = `<div class="user-view-card"><div class="user-view-avatar">${u.name.charAt(0)}</div><h3 style="color:var(--primary); margin:0;">${u.name}</h3></div><div class="info-grid"><div class="info-item"><label>الوظيفة</label><span>${u.job || u.dept || '-'}</span></div><div class="info-item"><label>رقم الهاتف</label><span>${u.phone || '-'}</span></div><div class="info-item"><label>الحالة</label><span style="color:${u.status==='active'?'green':'red'}">${u.status==='active'?'مفعل':'معطل'}</span></div><div class="info-item"><label>اسم الدخول</label><span style="background:#eee; padding:2px 5px; border-radius:4px;">${u.login || '-'}</span></div>${(CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'academic_departments' && CURRENT_TAB !== 'teachers') ? `<div class="info-item"><label>الصلاحية الإضافية</label><span>${roleTxt}</span></div>` : ''}</div><div class="view-footer-info"><div>آخر تحديث بواسطة: <strong>${u.lastUpdatedBy || 'N/A'}</strong></div><div>${u.lastUpdated || '-'}</div></div>`; document.getElementById('viewUserModal').style.display = 'flex'; }
+        
+        function viewUser(id) { 
+            const u = DB[CURRENT_TAB].find(x => x.id === id); 
+            let roleTxt = 'مستخدم عادي'; if(u.role === 'supervisor') roleTxt = 'مشرف نظام'; if(u.role === 'admin_support') roleTxt = 'إداري نظام'; 
+            
+            let extraFields = '';
+            if (CURRENT_TAB === 'academic_departments') {
+                const linkedStr = (u.linked_departments && u.linked_departments.length > 0) ? u.linked_departments.join('، ') : 'لا توجد أقسام مرتبطة';
+                extraFields = `<div class="info-item" style="grid-column: 1 / -1;"><label>الأقسام العادية المرتبطة بهذا القسم الأكاديمي</label><span style="white-space:normal; line-height:1.6; font-weight:bold; color:var(--primary);">${linkedStr}</span></div>`;
+            } else if (CURRENT_TAB !== 'departments' && CURRENT_TAB !== 'academic_departments' && CURRENT_TAB !== 'teachers') {
+                extraFields = `<div class="info-item"><label>الصلاحية الإضافية</label><span>${roleTxt}</span></div>`;
+            }
+
+            document.getElementById('viewUserContent').innerHTML = `<div class="user-view-card"><div class="user-view-avatar">${u.name.charAt(0)}</div><h3 style="color:var(--primary); margin:0;">${u.name}</h3></div><div class="info-grid"><div class="info-item"><label>الوظيفة / القسم</label><span>${u.job || u.dept || '-'}</span></div><div class="info-item"><label>رقم الهاتف</label><span>${u.phone || '-'}</span></div><div class="info-item"><label>الحالة</label><span style="color:${u.status==='active'?'green':'red'}">${u.status==='active'?'مفعل':'معطل'}</span></div><div class="info-item"><label>اسم الدخول</label><span style="background:#eee; padding:2px 5px; border-radius:4px;">${u.login || '-'}</span></div>${extraFields}</div><div class="view-footer-info"><div>آخر تحديث بواسطة: <strong>${u.lastUpdatedBy || 'N/A'}</strong></div><div>${u.lastUpdated || '-'}</div></div>`; 
+            document.getElementById('viewUserModal').style.display = 'flex'; 
+        }
+        
         function openPerms(id) { EDITING_PERM_ID = id; IS_BULK_PERM_MODE = false; const u = DB[CURRENT_TAB].find(x => x.id === id); if(!u) return; document.getElementById('permTargetName').innerText = `صلاحيات: ${u.name}`; renderPermList(u.permissions); document.getElementById('permModal').style.display = 'flex'; }
         function openBulkPerms() { const c = document.querySelectorAll('.user-select-cb:checked'); if(c.length === 0) return alert('يرجى تحديد مستخدمين أولاً'); EDITING_PERM_ID = null; IS_BULK_PERM_MODE = true; document.getElementById('permTargetName').innerText = `تعديل صلاحيات لـ ${c.length} مستخدمين`; renderPermList(DEFAULT_PERMS); document.getElementById('permModal').style.display = 'flex'; }
         function renderPermList(perms) { const list = document.getElementById('permList'); list.innerHTML = ''; SECTIONS.forEach(s => { if (s.id === 'system-admin') return; const p = perms[s.id] || {view: false, edit: false}; list.innerHTML += `<div class="perm-item"><span>${s.name}</span><div><label style="margin-left:15px;"><input type="checkbox" class="perm-check-view" data-sec="${s.id}" ${p.view?'checked':''}> معاينة</label><label><input type="checkbox" class="perm-check-edit" data-sec="${s.id}" ${p.edit?'checked':''}> تعديل</label></div></div>`; }); }
@@ -1067,7 +1167,12 @@
                             const exists = DB[CURRENT_TAB].some(u => u.name === name && u.brandId === CURRENT_BRAND.id); 
                             if (!exists) { 
                                 const newUser = { id: Date.now() + index, name: name, status: 'active', permissions: JSON.parse(JSON.stringify(DEFAULT_PERMS)), dateAdded: dateAdded, lastUpdated: new Date().toLocaleString('en-GB'), lastUpdatedBy: CURRENT_USER ? CURRENT_USER.name : 'Import', brandId: CURRENT_BRAND.id, allowedBrands: [CURRENT_BRAND.id] }; 
-                                if (CURRENT_TAB === 'departments' || CURRENT_TAB === 'academic_departments') { DB[CURRENT_TAB].push(newUser); count++; } 
+                                if (CURRENT_TAB === 'departments') { DB[CURRENT_TAB].push(newUser); count++; } 
+                                else if (CURRENT_TAB === 'academic_departments') { 
+                                    let linkedRaw = row['الأقسام المرتبطة'] || '';
+                                    newUser.linked_departments = linkedRaw ? String(linkedRaw).split('،').map(s=>s.trim()).filter(Boolean) : [];
+                                    DB[CURRENT_TAB].push(newUser); count++; 
+                                }
                                 else if (CURRENT_TAB === 'teachers') { newUser.dept = row['القسم الأكاديمي'] || row['القسم'] || row['Department'] || ''; DB[CURRENT_TAB].push(newUser); count++; } 
                                 else { newUser.job = row['الوظيفة'] || row['Job'] || ''; newUser.phone = row['رقم الهاتف'] || row['Phone'] || ''; newUser.login = row['اسم المستخدم'] || row['User'] || ''; newUser.pass = row['كلمة المرور'] || row['Pass'] || ''; DB[CURRENT_TAB].push(newUser); count++; } 
                             } else { skipped++; } 
