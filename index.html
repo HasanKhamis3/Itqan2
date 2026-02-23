@@ -335,11 +335,24 @@
                     <button class="btn btn-restricted" style="background:#2c5aa0; color:white; width:auto;" onclick="openDistinguishedModal('distinguished')"><i class="fas fa-plus-circle"></i> إضافة معلم متميز</button>
                     <button class="btn btn-restricted" style="background:#da291c; color:white; width:auto;" onclick="openDistinguishedModal('care')"><i class="fas fa-plus-circle"></i> إضافة معلم يحتاج رعاية</button>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-weight:bold; color:var(--primary);">المعلمين المتميزين</div><div class="admin-only-btn" style="display:none;"><button class="btn btn-sm" style="background:#17a2b8; color:white; width:auto; padding:5px 10px;" onclick="exportSpecificExcel('distinguished')"><i class="fas fa-file-excel"></i> تصدير</button><button class="btn btn-sm" style="background:#28a745; color:white; width:auto; padding:5px 10px;" onclick="triggerImportExcelGeneric('distinguished')"><i class="fas fa-file-excel"></i> استيراد</button></div></div>
-                <div class="table-responsive"><table class="custom-table"><thead><tr><th width="5%">#</th><th width="15%">التاريخ</th><th width="20%">اسم المعلم/ة</th><th width="15%">القسم</th><th width="10%">التقدير</th><th width="25%">المبررات</th><th width="10%">الإجراءات</th></tr></thead><tbody id="distinguishedTableBody"></tbody></table></div>
                 
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px; margin-bottom:10px;"><div style="font-weight:bold; color:var(--primary);">المعلمين الأولى بالرعاية</div><div class="admin-only-btn" style="display:none;"><button class="btn btn-sm" style="background:#17a2b8; color:white; width:auto; padding:5px 10px;" onclick="exportSpecificExcel('care')"><i class="fas fa-file-excel"></i> تصدير</button><button class="btn btn-sm" style="background:#28a745; color:white; width:auto; padding:5px 10px;" onclick="triggerImportExcelGeneric('care')"><i class="fas fa-file-excel"></i> استيراد</button></div></div>
-                <div class="table-responsive"><table class="custom-table"><thead><tr><th width="5%">#</th><th width="15%">التاريخ</th><th width="20%">اسم المعلم/ة</th><th width="15%">القسم</th><th width="10%">التقدير</th><th width="25%">المبررات</th><th width="10%">الإجراءات</th></tr></thead><tbody id="careTableBody"></tbody></table></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="font-weight:bold; color:var(--primary);">المعلمين المتميزين</div>
+                    <div>
+                        <button class="btn btn-sm btn-delete" style="width:auto; padding:5px 10px;" onclick="deleteSelectedDistinguished('distinguished')"><i class="fas fa-trash"></i> حذف المحدد</button>
+                        <span class="admin-only-btn" style="display:none;"><button class="btn btn-sm" style="background:#17a2b8; color:white; width:auto; padding:5px 10px;" onclick="exportSpecificExcel('distinguished')"><i class="fas fa-file-excel"></i> تصدير</button><button class="btn btn-sm" style="background:#28a745; color:white; width:auto; padding:5px 10px;" onclick="triggerImportExcelGeneric('distinguished')"><i class="fas fa-file-excel"></i> استيراد</button></span>
+                    </div>
+                </div>
+                <div class="table-responsive"><table class="custom-table"><thead><tr><th width="5%"><input type="checkbox" id="selectAllDist" class="custom-checkbox" onchange="toggleSelectAllDist('distinguished', this)"></th><th width="5%">#</th><th width="15%">التاريخ</th><th width="20%">اسم المعلم/ة</th><th width="15%">القسم الأكاديمي</th><th width="10%">التقدير</th><th width="20%">المبررات</th><th width="10%">الإجراءات</th></tr></thead><tbody id="distinguishedTableBody"></tbody></table></div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px; margin-bottom:10px;">
+                    <div style="font-weight:bold; color:var(--primary);">المعلمين الأولى بالرعاية</div>
+                    <div>
+                        <button class="btn btn-sm btn-delete" style="width:auto; padding:5px 10px;" onclick="deleteSelectedDistinguished('care_needed')"><i class="fas fa-trash"></i> حذف المحدد</button>
+                        <span class="admin-only-btn" style="display:none;"><button class="btn btn-sm" style="background:#17a2b8; color:white; width:auto; padding:5px 10px;" onclick="exportSpecificExcel('care')"><i class="fas fa-file-excel"></i> تصدير</button><button class="btn btn-sm" style="background:#28a745; color:white; width:auto; padding:5px 10px;" onclick="triggerImportExcelGeneric('care')"><i class="fas fa-file-excel"></i> استيراد</button></span>
+                    </div>
+                </div>
+                <div class="table-responsive"><table class="custom-table"><thead><tr><th width="5%"><input type="checkbox" id="selectAllCare" class="custom-checkbox" onchange="toggleSelectAllDist('care_needed', this)"></th><th width="5%">#</th><th width="15%">التاريخ</th><th width="20%">اسم المعلم/ة</th><th width="15%">القسم الأكاديمي</th><th width="10%">التقدير</th><th width="20%">المبررات</th><th width="10%">الإجراءات</th></tr></thead><tbody id="careTableBody"></tbody></table></div>
             </div>
 
             <div id="qualitative" class="section-card">
@@ -649,7 +662,7 @@
         </div>
     </div>
     
-    <div id="distinguishedModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span id="distinguishedModalTitle">إضافة</span> <span onclick="closeModal('distinguishedModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="distinguishedForm"><input type="hidden" id="distType"><input type="hidden" id="distEditId"><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التاريخ</label><input type="date" class="form-control" id="distDate"></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">القسم</label><select id="distDept" class="form-control" onchange="onDistinguishedDeptChange()"><option value="">اختر القسم...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">اسم المعلم/ة</label><select id="distTeacher" class="form-control"><option value="">اختر المعلم/ة...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التقدير</label><select id="distEval" class="form-control"><option value="">اختر التقدير...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">المبررات / ملاحظات</label><textarea id="distReason" class="form-control" rows="4"></textarea></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveDistinguishedEntry()">حفظ البيانات</button><button class="btn" style="background:#ddd;" onclick="closeModal('distinguishedModal')">إلغاء</button></div></div></div>
+    <div id="distinguishedModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span id="distinguishedModalTitle">إضافة</span> <span onclick="closeModal('distinguishedModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="distinguishedForm"><input type="hidden" id="distType"><input type="hidden" id="distEditId"><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التاريخ</label><input type="date" class="form-control" id="distDate"></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">القسم الأكاديمي</label><select id="distDept" class="form-control" onchange="onDistinguishedDeptChange()"><option value="">اختر القسم...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">اسم المعلم/ة</label><select id="distTeacher" class="form-control"><option value="">اختر المعلم/ة...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التقدير</label><select id="distEval" class="form-control"><option value="">اختر التقدير...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">المبررات / ملاحظات</label><textarea id="distReason" class="form-control" rows="4"></textarea></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveDistinguishedEntry()">حفظ البيانات</button><button class="btn" style="background:#ddd;" onclick="closeModal('distinguishedModal')">إلغاء</button></div></div></div>
     
     <div id="addQualitativeModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><span>إضافة تقرير نوعي</span> <span onclick="closeModal('addQualitativeModal')" style="cursor:pointer;">&times;</span></div><div class="modal-body"><form id="qualitativeForm"><input type="hidden" id="qualEditId"><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">التاريخ</label><input type="date" class="form-control" id="qualDate"></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">القسم الأكاديمي</label><select id="qualDept" class="form-control"><option value="">اختر القسم...</option></select></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">جوانب القوة</label><textarea id="qualStrength" class="form-control" rows="4" placeholder="سجل جوانب القوة هنا..."></textarea></div><div class="form-group"><label style="font-weight:bold; display:block; margin-bottom:5px;">جوانب بحاجة إلى تطوير</label><textarea id="qualImprove" class="form-control" rows="4" placeholder="سجل جوانب التطوير هنا..."></textarea></div></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveQualitative()">حفظ</button><button class="btn" style="background:#ddd;" onclick="closeModal('addQualitativeModal')">إلغاء</button></div></div></div>
     
@@ -1198,12 +1211,12 @@
                 filterByContext(DB.qualitative_reports).forEach(q => data.push({'التاريخ':q.date, 'القسم الأكاديمي':q.dept, 'جوانب القوة':q.strength, 'جوانب التطوير':q.improve})); 
                 filename = 'التقرير_النوعي.xlsx';
             } else if (type === 'distinguished') { 
-                headers = ['التاريخ', 'القسم', 'المعلم', 'التقييم', 'المبررات']; 
-                filterByContext(DB.distinguished).forEach(d => data.push({'التاريخ':d.date, 'القسم':d.dept, 'المعلم':d.teacher, 'التقييم':d.eval, 'المبررات':d.reason})); 
+                headers = ['التاريخ', 'القسم الأكاديمي', 'المعلم', 'التقييم', 'المبررات']; 
+                filterByContext(DB.distinguished).forEach(d => data.push({'التاريخ':d.date, 'القسم الأكاديمي':d.dept, 'المعلم':d.teacher, 'التقييم':d.eval, 'المبررات':d.reason})); 
                 filename = 'المعلمين_المتميزين.xlsx';
             } else if (type === 'care') { 
-                headers = ['التاريخ', 'القسم', 'المعلم', 'التقييم', 'المبررات']; 
-                filterByContext(DB.care_needed).forEach(d => data.push({'التاريخ':d.date, 'القسم':d.dept, 'المعلم':d.teacher, 'التقييم':d.eval, 'المبررات':d.reason})); 
+                headers = ['التاريخ', 'القسم الأكاديمي', 'المعلم', 'التقييم', 'المبررات']; 
+                filterByContext(DB.care_needed).forEach(d => data.push({'التاريخ':d.date, 'القسم الأكاديمي':d.dept, 'المعلم':d.teacher, 'التقييم':d.eval, 'المبررات':d.reason})); 
                 filename = 'المعلمين_الأولى_بالرعاية.xlsx';
             } 
             const ws = XLSX.utils.json_to_sheet(data, { header: headers }); 
@@ -1243,10 +1256,10 @@
                         DB.qualitative_reports.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم الأكاديمي'] || row['القسم'] || '', strength: row['جوانب القوة'] || '', improve: row['جوانب التطوير'] || '', brandId: CURRENT_BRAND.id }); count++; 
                     } else if (targetType === 'distinguished') { 
                         if(!DB.distinguished) DB.distinguished = [];
-                        DB.distinguished.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', reason: row['المبررات'] || '', brandId: CURRENT_BRAND.id }); count++; 
+                        DB.distinguished.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم الأكاديمي'] || row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', reason: row['المبررات'] || '', brandId: CURRENT_BRAND.id }); count++; 
                     } else if (targetType === 'care') { 
                         if(!DB.care_needed) DB.care_needed = [];
-                        DB.care_needed.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', reason: row['المبررات'] || '', brandId: CURRENT_BRAND.id }); count++; 
+                        DB.care_needed.push({ id: id, date: row['التاريخ'] || new Date().toISOString().slice(0,10), dept: row['القسم الأكاديمي'] || row['القسم'] || '', teacher: row['المعلم'] || '', eval: row['التقييم'] || '', reason: row['المبررات'] || '', brandId: CURRENT_BRAND.id }); count++; 
                     } 
                 }); 
                 if (count > 0) { 
@@ -1480,6 +1493,28 @@
 
         function deleteVisit(id) { if(confirm('حذف؟')) { if(CURRENT_VISIT_TAB === 'senior') DB.visits_senior = DB.visits_senior.filter(x => x.id !== id); else DB.visits_middle = DB.visits_middle.filter(x => x.id !== id); saveDB(); renderVisitsTable(); } }
         
+        // --- Selection Logic for Distinguished/Care ---
+        window.toggleSelectAllDist = function(type, cb) {
+            const tableId = type === 'distinguished' ? 'distinguishedTableBody' : 'careTableBody';
+            const checkboxes = document.querySelectorAll(`#${tableId} .dist-select-cb`);
+            checkboxes.forEach(c => c.checked = cb.checked);
+        };
+        
+        window.deleteSelectedDistinguished = function(type) {
+            const tableId = type === 'distinguished' ? 'distinguishedTableBody' : 'careTableBody';
+            const checkboxes = document.querySelectorAll(`#${tableId} .dist-select-cb:checked`);
+            if(checkboxes.length === 0) return alert('يرجى تحديد عناصر أولاً');
+            if(confirm('هل أنت متأكد من حذف العناصر المحددة؟')) {
+                const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                const key = type === 'distinguished' ? 'distinguished' : 'care_needed';
+                DB[key] = DB[key].filter(x => !ids.includes(x.id));
+                saveDB();
+                renderDistinguishedTables();
+                const masterCb = document.getElementById(type === 'distinguished' ? 'selectAllDist' : 'selectAllCare');
+                if(masterCb) masterCb.checked = false;
+            }
+        };
+
         function renderDistinguishedTables() { 
             const distListRaw = filterByContext(DB.distinguished||[]);
             const careListRaw = filterByContext(DB.care_needed||[]);
@@ -1492,20 +1527,38 @@
             t1.innerHTML = ''; t2.innerHTML = ''; 
             
             distList.forEach((d, i) => { 
-                t1.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="color:var(--primary); font-weight:bold;">${d.teacher}</td><td>${d.dept}</td><td><span class="status-badge status-active">${d.eval}</span></td><td style="text-align:right;">${d.reason}</td><td>
-                    <div style="display:flex; justify-content:center; gap:4px;">
-                        <button class="action-btn btn-edit" onclick="editDistItem('distinguished', ${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn btn-delete" onclick="deleteDistItem('distinguished', ${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td></tr>`; 
+                t1.innerHTML += `<tr>
+                    <td><input type="checkbox" class="custom-checkbox dist-select-cb" value="${d.id}"></td>
+                    <td>${i+1}</td>
+                    <td>${d.date}</td>
+                    <td style="color:var(--primary); font-weight:bold;">${d.teacher}</td>
+                    <td>${d.dept}</td>
+                    <td><span class="status-badge status-active">${d.eval}</span></td>
+                    <td style="text-align:right;">${d.reason}</td>
+                    <td>
+                        <div style="display:flex; justify-content:center; gap:4px;">
+                            <button class="action-btn btn-edit" onclick="editDistItem('distinguished', ${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" onclick="deleteDistItem('distinguished', ${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`; 
             }); 
             careList.forEach((d, i) => { 
-                t2.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="color:var(--danger); font-weight:bold;">${d.teacher}</td><td>${d.dept}</td><td><span class="status-badge status-inactive">${d.eval}</span></td><td style="text-align:right;">${d.reason}</td><td>
-                    <div style="display:flex; justify-content:center; gap:4px;">
-                        <button class="action-btn btn-edit" onclick="editDistItem('care_needed', ${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn btn-delete" onclick="deleteDistItem('care_needed', ${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td></tr>`; 
+                t2.innerHTML += `<tr>
+                    <td><input type="checkbox" class="custom-checkbox dist-select-cb" value="${d.id}"></td>
+                    <td>${i+1}</td>
+                    <td>${d.date}</td>
+                    <td style="color:var(--danger); font-weight:bold;">${d.teacher}</td>
+                    <td>${d.dept}</td>
+                    <td><span class="status-badge status-inactive">${d.eval}</span></td>
+                    <td style="text-align:right;">${d.reason}</td>
+                    <td>
+                        <div style="display:flex; justify-content:center; gap:4px;">
+                            <button class="action-btn btn-edit" onclick="editDistItem('care_needed', ${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" onclick="deleteDistItem('care_needed', ${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`; 
             }); 
         }
 
@@ -1524,8 +1577,37 @@
             document.getElementById('distReason').value = item.reason;
         };
 
-        function openDistinguishedModal(type) { document.getElementById('distType').value = type; document.getElementById('distEditId').value = ''; document.getElementById('distinguishedForm').reset(); document.getElementById('distinguishedModalTitle').innerText = (type === 'distinguished' ? 'إضافة معلم متميز' : 'إضافة معلم يحتاج رعاية'); const dSelect = document.getElementById('distDept'); dSelect.innerHTML = '<option value="">اختر القسم...</option>'; filterByContext(DB.academic_departments||DB.departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); const eSelect = document.getElementById('distEval'); eSelect.innerHTML = '<option value="">اختر التقدير...</option>'; (DB.settings.evaluation_grades||[]).forEach(g => { if(g.status === 'active') eSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`; }); document.getElementById('distinguishedModal').style.display='flex'; }
-        function onDistinguishedDeptChange() { const dept = document.getElementById('distDept').value; const tSelect = document.getElementById('distTeacher'); tSelect.innerHTML = '<option value="">اختر المعلم/ة...</option>'; if(dept) { filterByContext(DB.teachers||[]).filter(t => t.dept === dept).forEach(t => tSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`); } }
+        function openDistinguishedModal(type) { 
+            document.getElementById('distType').value = type; 
+            document.getElementById('distEditId').value = ''; 
+            document.getElementById('distinguishedForm').reset(); 
+            document.getElementById('distinguishedModalTitle').innerText = (type === 'distinguished' ? 'إضافة معلم متميز' : 'إضافة معلم يحتاج رعاية'); 
+            const dSelect = document.getElementById('distDept'); 
+            dSelect.innerHTML = '<option value="">اختر القسم...</option>'; 
+            filterByContext(DB.academic_departments||[]).forEach(d => dSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`); 
+            const eSelect = document.getElementById('distEval'); 
+            eSelect.innerHTML = '<option value="">اختر التقدير...</option>'; 
+            (DB.settings.evaluation_grades||[]).forEach(g => { if(g.status === 'active') eSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`; }); 
+            document.getElementById('distinguishedModal').style.display='flex'; 
+        }
+        
+        function onDistinguishedDeptChange() { 
+            const deptName = document.getElementById('distDept').value; 
+            const tSelect = document.getElementById('distTeacher'); 
+            tSelect.innerHTML = '<option value="">اختر المعلم/ة...</option>'; 
+            if(deptName) { 
+                const acadDept = filterByContext(DB.academic_departments||[]).find(d => d.name === deptName);
+                let linked = [];
+                if(acadDept && acadDept.linked_departments && acadDept.linked_departments.length > 0) {
+                    linked = acadDept.linked_departments;
+                } else {
+                    linked = [deptName];
+                }
+                filterByContext(DB.teachers||[]).filter(t => linked.includes(t.dept)).forEach(t => {
+                    tSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+                });
+            } 
+        }
         
         function saveDistinguishedEntry() { 
             const type = document.getElementById('distType').value; 
@@ -1661,8 +1743,9 @@
                 <div class="a4-page" style="direction: rtl; font-family: 'Cairo', sans-serif; display:flex; flex-direction:column; justify-content:space-between; min-height: 297mm; padding: 15mm;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: none !important;">
                         <tr>
-                            <td align="right" width="50%" style="border: none !important;">${schoolLogo ? `<img src="${schoolLogo}" height="100" style="max-width: 150px;">` : ''}</td>
-                            <td align="left" width="50%" style="border: none !important;">${ministryLogo ? `<img src="${ministryLogo}" height="100" style="max-width: 250px;">` : ''}</td>
+                            <td align="right" width="33%" style="border: none !important; vertical-align: top;">${schoolLogo ? `<img src="${schoolLogo}" height="100" style="max-width: 150px;">` : ''}</td>
+                            <td align="center" width="34%" style="border: none !important; vertical-align: top;">${ministryLogo ? `<img src="${ministryLogo}" height="100" style="max-width: 250px;">` : ''}</td>
+                            <td align="left" width="33%" style="border: none !important; vertical-align: top;"></td>
                         </tr>
                     </table>
                     <br><br><br>
