@@ -143,6 +143,7 @@
         
         /* A4 Report Styling */
         .report-preview-container { background: #525659; padding: 30px; overflow: auto; max-height: 800px; display: flex; flex-direction: column; align-items: center; border-radius: 8px;}
+        #a4-report-content { transition: transform 0.2s ease; transform-origin: top center; }
         .a4-page { background: white; width: 210mm; min-height: 297mm; padding: 15mm; padding-bottom: 35mm; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.5); margin-bottom: 20px; position: relative; color: black; font-family: 'Cairo', sans-serif; page-break-after: always; }
         .a4-page:last-child { page-break-after: auto; }
         .report-table-custom { width:100%; border-collapse:collapse; margin-bottom:20px; font-size:14px; page-break-inside: avoid; }
@@ -167,7 +168,7 @@
             body, html { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
             body * { visibility: hidden; }
             #a4-report-content, #a4-report-content * { visibility: visible; }
-            #a4-report-content { position: absolute; left: 0; top: 0; width: 100%; }
+            #a4-report-content { position: absolute; left: 0; top: 0; width: 100%; transform: scale(1) !important; }
             @page { size: A4 portrait; margin: 5mm; }
             .a4-page { position: relative; left: 0; top: 0; margin: 0 auto; padding: 15mm !important; padding-bottom: 35mm !important; width: 210mm !important; min-height: 297mm !important; box-shadow: none !important; box-sizing: border-box !important; page-break-after: always; }
             .sidebar, .top-header, .filter-container, .btn, .custom-tabs { display: none !important; }
@@ -393,7 +394,12 @@
                             </select>
                             <button class="btn btn-primary" onclick="generateQualityReport()"><i class="fas fa-magic"></i> إصدار التقرير</button>
                         </div>
-                        <div style="display:flex; gap:10px;">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <div style="display:flex; align-items:center; background:#f0f4f8; padding:5px 10px; border-radius:6px; gap:8px; border:1px solid #ddd; margin-left: 10px;">
+                                <button class="btn" style="padding:4px 8px; background:white; color:var(--primary);" onclick="window.zoomReport(0.1)" title="تكبير"><i class="fas fa-search-plus"></i></button>
+                                <span id="zoomLevelDisplay" style="font-weight:bold; color:var(--primary); min-width:45px; text-align:center;">100%</span>
+                                <button class="btn" style="padding:4px 8px; background:white; color:var(--primary);" onclick="window.zoomReport(-0.1)" title="تصغير"><i class="fas fa-search-minus"></i></button>
+                            </div>
                             <button class="btn btn-view" onclick="printReport()"><i class="fas fa-print"></i> طباعة</button>
                             <button class="btn btn-edit" onclick="exportToWord()"><i class="fas fa-file-word"></i> تصدير Word</button>
                             <button class="btn btn-toggle" onclick="saveReport()"><i class="fas fa-save"></i> حفظ</button>
@@ -1696,6 +1702,17 @@
         // ========================================================
         // REPORT GENERATION LOGIC (A4 STYLE FOR PRINTING & WORD)
         // ========================================================
+        
+        // --- ZOOM LOGIC ---
+        window.reportZoom = 1;
+        window.zoomReport = function(step) {
+            window.reportZoom += step;
+            if(window.reportZoom < 0.5) window.reportZoom = 0.5;
+            if(window.reportZoom > 2.0) window.reportZoom = 2.0;
+            document.getElementById('zoomLevelDisplay').innerText = Math.round(window.reportZoom * 100) + '%';
+            document.getElementById('a4-report-content').style.transform = `scale(${window.reportZoom})`;
+        };
+
         window.setReportTab = function(tab, el) { 
             document.querySelectorAll('#quality-report .custom-tab').forEach(t => t.classList.remove('active')); 
             el.classList.add('active'); 
@@ -1738,7 +1755,7 @@
                 const thStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #bfbfbf;`;
                 const thBlack = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #000; color: #fff;`;
 
-                const getFooter = () => `<div style="position: absolute; bottom: 15mm; left: 15mm; right: 15mm; text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl;">${footerText}</div>`;
+                const getFooter = () => `<div class="report-screen-footer" style="position: absolute; bottom: 15mm; left: 15mm; right: 15mm; text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl;">${footerText}</div>`;
                 const pageBreak = `<br clear="all" style="mso-special-character:line-break;page-break-before:always">`;
 
                 // --- PAGE 1: COVER ---
@@ -1746,8 +1763,8 @@
                 <div class="a4-page" style="direction: rtl; font-family: 'Cairo', sans-serif; display:flex; flex-direction:column; justify-content:space-between; min-height: 297mm;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: none !important;">
                         <tr>
-                            <td align="right" width="33%" style="border: none !important; vertical-align: top;">${schoolLogo ? `<img src="${schoolLogo}" height="100" style="max-width: 150px;">` : ''}</td>
-                            <td align="center" width="34%" style="border: none !important; vertical-align: top;">${ministryLogo ? `<img src="${ministryLogo}" height="100" style="max-width: 250px;">` : ''}</td>
+                            <td align="right" width="33%" style="border: none !important; vertical-align: top;">${schoolLogo ? `<img src="${schoolLogo}" width="150" height="100">` : ''}</td>
+                            <td align="center" width="34%" style="border: none !important; vertical-align: top;">${ministryLogo ? `<img src="${ministryLogo}" width="200" height="100">` : ''}</td>
                             <td align="left" width="33%" style="border: none !important; vertical-align: top;"></td>
                         </tr>
                     </table>
@@ -1763,7 +1780,7 @@
                         <tr>
                             <td align="center" width="50%" style="border: none !important;">
                                 <div style="font-weight: bold; font-size: 16pt; margin-bottom: 20px;">يعتمد، مدير/ة المدرسة<br>${dirName}</div>
-                                ${DB.settings.schoolStamp ? `<img src="${DB.settings.schoolStamp}" height="110">` : ''}
+                                ${DB.settings.schoolStamp ? `<img src="${DB.settings.schoolStamp}" width="150" height="150">` : ''}
                             </td>
                             <td align="center" width="50%" style="border: none !important;">
                                 <div style="font-weight: bold; font-size: 16pt; margin-bottom: 20px;">إعداد المدير/ة المساعد/ة<br>${asstName}</div>
@@ -2055,6 +2072,10 @@
 
         // Export to MS Word Fix with proper A4 Page properties injected
         function wrapForWord(htmlContent) {
+            const footerText = DB.settings.footer_text || '';
+            const footerAlign = DB.settings.footer_align || 'center';
+            const footerFontSize = DB.settings.footer_fontsize || '12';
+
             return `
                 <html xmlns:v="urn:schemas-microsoft-com:vml"
                       xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -2064,24 +2085,28 @@
                     <meta charset="utf-8">
                     <title>Quality Report</title>
                     <style>
-                        @page Section1 {
+                        @page WordSection1 {
                             size: 595.3pt 841.9pt; /* A4 size */
                             margin: 36.0pt 36.0pt 36.0pt 36.0pt; /* Margins */
                             mso-header-margin: 35.4pt;
                             mso-footer-margin: 35.4pt;
                             mso-paper-source: 0;
+                            mso-footer: f1;
                         }
-                        div.Section1 {
-                            page: Section1;
-                        }
+                        div.WordSection1 { page: WordSection1; }
                         body { font-family: 'Cairo', 'Arial', sans-serif; direction: rtl; }
                         table { border-collapse: collapse; width: 100%; }
                         td, th { border: 1px solid black; padding: 8px; text-align: center; }
+                        img { display: block; max-width: 100%; } 
+                        .report-screen-footer { display: none !important; }
                     </style>
                 </head>
                 <body dir="rtl">
-                    <div class="Section1">
+                    <div class="WordSection1">
                         ${htmlContent}
+                    </div>
+                    <div style="mso-element:footer" id="f1">
+                        <p style="text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl; margin:0;">${footerText}</p>
                     </div>
                 </body>
                 </html>
