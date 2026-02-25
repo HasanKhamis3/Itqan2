@@ -1747,13 +1747,23 @@
                 const dirName = sigDirId ? (DB.senior.find(u => u.name === sigDirId)?.name || sigDirId) : '';
                 const asstName = sigAsstId ? (DB.senior.find(u => u.name === sigAsstId)?.name || sigAsstId) : '';
 
+                const formatNameWithA = (name) => {
+                    if (!name) return '';
+                    let n = name.trim();
+                    if (!n.startsWith('أ.') && !n.startsWith('أ .') && !n.startsWith('أ/')) {
+                        return 'أ. ' + n;
+                    }
+                    return n;
+                };
+
                 // --- HTML structure built specifically to play nicely with MS Word ---
                 let html = ``;
                 
-                const tStyle = `border-collapse: collapse; width: 100%; text-align: center; font-family: 'Cairo', 'Times New Roman', sans-serif; font-size: 13pt; direction: rtl;`;
-                const tdStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle;`;
-                const thStyle = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #bfbfbf;`;
-                const thBlack = `border: 1px solid #000; padding: 10px; vertical-align: middle; font-weight: bold; background-color: #000; color: #fff;`;
+                // تطابق مع التنسيق المطلوب في الصورة
+                const tStyle = `border-collapse: collapse; width: 100%; text-align: center; font-family: 'Times New Roman', serif; font-size: 14pt; font-weight: bold; direction: rtl;`;
+                const tdStyle = `border: 1px solid #000; padding: 4px 8px; vertical-align: middle; height: 35px;`;
+                const thStyle = `border: 1px solid #000; padding: 6px 8px; vertical-align: middle; font-weight: bold; background-color: #bfbfbf; height: 35px;`;
+                const thBlack = `border: 1px solid #000; padding: 6px 8px; vertical-align: middle; font-weight: bold; background-color: #000; color: #fff; height: 35px;`;
 
                 const getFooter = () => `<div class="report-screen-footer" style="position: absolute; bottom: 15mm; left: 15mm; right: 15mm; text-align: ${footerAlign}; font-size: ${footerFontSize}pt; font-weight: bold; color: #555; border-top: 1px solid #ccc; padding-top: 10px; direction: rtl;">${footerText}</div>`;
                 const pageBreak = `<br clear="all" style="mso-special-character:line-break;page-break-before:always">`;
@@ -1875,16 +1885,19 @@
                     const uMatch = (DB.senior || []).concat(DB.middle || []).find(u => u.name === visitorName);
                     if(uMatch && uMatch.job) { displayJob = uMatch.job; }
 
+                    const formattedVisitorName = formatNameWithA(visitorName);
+
                     visits.forEach((v, idx) => {
+                        const formattedTeacher = formatNameWithA(v.teacher);
                         tableContent += `<tr>
                             <td style="${tdStyle} width: 5%;">${idx + 1}</td>
-                            <td style="${tdStyle} width: 25%; text-align: right;">${v.teacher}</td>
+                            <td style="${tdStyle} width: 25%; text-align: right;">${formattedTeacher}</td>
                             <td style="${tdStyle} width: 15%;">${v.dept}</td>
                             <td style="${tdStyle} width: 15%;">${v.date}</td>
                             <td style="${tdStyle} width: 20%;">${v.eval || 'غير محدد'}</td>`;
                         
                         if(idx === 0) {
-                            tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold;">${visitorName}<br><span style="font-weight: normal; font-size: 11pt;">${displayJob}</span></td>`;
+                            tableContent += `<td rowspan="${visits.length}" style="${tdStyle} width: 20%; background-color: #fff; font-weight: bold;">${formattedVisitorName}<br><span style="font-weight: normal; font-size: 11pt;">${displayJob}</span></td>`;
                         }
                         tableContent += `</tr>`;
                     });
@@ -1993,11 +2006,11 @@
                 // --- PAGE 7: Distinguished & Care ---
                 const distinguishedItems = filterByContext(DB.distinguished).filter(x => x && x.date && String(x.date).split('-')[1] === m);
                 let distRows = '';
-                distinguishedItems.forEach((d, i) => { distRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${d.teacher}</td><td style="${tdStyle}">${d.eval || 'غير محدد'}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
+                distinguishedItems.forEach((d, i) => { distRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${formatNameWithA(d.teacher)}</td><td style="${tdStyle}">${d.eval || 'غير محدد'}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
 
                 const careItems = filterByContext(DB.care_needed).filter(x => x && x.date && String(x.date).split('-')[1] === m);
                 let careRows = '';
-                careItems.forEach((d, i) => { careRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${d.teacher}</td><td style="${tdStyle}">${d.eval || 'غير محدد'}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
+                careItems.forEach((d, i) => { careRows += `<tr><td style="${tdStyle}">${i+1}</td><td style="${tdStyle} text-align: right;">${formatNameWithA(d.teacher)}</td><td style="${tdStyle}">${d.eval || 'غير محدد'}</td><td style="${tdStyle} text-align: right;">${d.reason}</td><td style="${tdStyle}">${d.dept}</td></tr>`; });
 
                 html += `
                 <div class="a4-page" style="direction: rtl; font-family: 'Cairo', sans-serif;">
