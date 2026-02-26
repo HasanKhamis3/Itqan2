@@ -2126,55 +2126,15 @@
             `;
         }
 
-        // Conversion helper to replace base64 Images with MS Word readable MHTML format
-        function convertToMhtmlAndDownload(htmlContent, filename) {
-            let fullHtml = wrapForWord(htmlContent);
-            const images = [];
-            
-            // Extract base64 images and replace their source with cid linking
-            fullHtml = fullHtml.replace(/<img([^>]+)src="([^">]+)"/gi, function(match, beforeSrc, src) {
-                if (src.startsWith('data:image')) {
-                    const imgId = 'img_' + Math.random().toString(36).substr(2, 9) + '.png';
-                    const parts = src.split(',');
-                    const type = parts[0].match(/image\/[^;]+/)[0];
-                    const base64 = parts[1];
-                    images.push({ id: imgId, type, base64 });
-                    return `<img${beforeSrc}src="${imgId}"`;
-                }
-                return match;
-            });
-
-            // Constructing standard MHTML Format Supported By MS Word
-            let mhtml = 'MIME-Version: 1.0\n';
-            mhtml += 'Content-Type: multipart/related; boundary="----=_NextPart_boundary"\n\n';
-            
-            mhtml += '------=_NextPart_boundary\n';
-            mhtml += 'Content-Type: text/html; charset="utf-8"\n';
-            mhtml += 'Content-Transfer-Encoding: 8bit\n\n';
-            mhtml += fullHtml + '\n\n';
-
-            // Embed each image base64 data inside the MHTML envelope
-            images.forEach(img => {
-                mhtml += '------=_NextPart_boundary\n';
-                mhtml += `Content-Location: ${img.id}\n`;
-                mhtml += `Content-Type: ${img.type}\n`;
-                mhtml += 'Content-Transfer-Encoding: base64\n\n';
-                mhtml += img.base64 + '\n\n';
-            });
-
-            mhtml += '------=_NextPart_boundary--\n';
-
-            const blob = new Blob([mhtml], { type: 'application/msword' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            link.click();
-        }
-
         window.exportToWord = function() {
             const htmlContent = document.getElementById('a4-report-content').innerHTML;
             if(!htmlContent.includes('تقرير متابعة جودة')) return alert('يرجى معاينة التقرير أولاً قبل التحميل');
-            convertToMhtmlAndDownload(htmlContent, 'Quality_Report.doc');
+            const fullHtml = wrapForWord(htmlContent);
+            const blob = new Blob(['\ufeff' + fullHtml], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Quality_Report.doc';
+            link.click();
         }
 
         window.saveReport = function() { 
@@ -2218,9 +2178,7 @@
         }
         window.downloadSavedReportItem = function(id) {
             const r = DB.saved_reports.find(x => x.id === id);
-            if(r) { 
-                convertToMhtmlAndDownload(r.html, `Quality_Report_${r.month}.doc`);
-            }
+            if(r) { const blob = new Blob(['\ufeff' + wrapForWord(r.html)], { type: 'application/msword' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Quality_Report_${r.month}.doc`; link.click(); }
         }
         window.printSavedReportItem = function(id) {
             const r = DB.saved_reports.find(x => x.id === id);
@@ -2352,4 +2310,43 @@
             (DB.settings.visitor_order_senior || []).forEach((name, i) => { 
                 let u = (DB.senior || []).find(x => x.name === name);
                 let jobTitle = u ? (u.job || 'القيادة العليا') : 'القيادة العليا';
-                sList.innerHTML += `<li class="visitor-list-item"><span class="visitor-name"><i class="fas fa-user-circle" style="color:var(--primary); margin-left:8px;"></i> ${i+1}. ${name} - <small style="color:#777; font-weight:normal;">${jobTitle}</small></span><div class="visitor026
+                sList.innerHTML += `<li class="visitor-list-item"><span class="visitor-name"><i class="fas fa-user-circle" style="color:var(--primary); margin-left:8px;"></i> ${i+1}. ${name} - <small style="color:#777; font-weight:normal;">${jobTitle}</small></span><div class="visitor-controls" style="display:flex; gap:4px;"><button class="action-btn btn-move" onclick="moveVisitorSetting('senior', ${i}, -1)"><i class="fas fa-arrow-up"></i></button><button class="action-btn btn-move" onclick="moveVisitorSetting('senior', ${i}, 1)"><i class="fas fa-arrow-down"></i></button><button class="action-btn btn-delete" onclick="removeVisitorFromSetting('senior', ${i})"><i class="fas fa-trash"></i></button></div></li>`; 
+            });
+            
+            (DB.settings.visitor_order_middle || []).forEach((name, i) => { 
+                let u = (DB.middle || []).find(x => x.name === name);
+                let jobTitle = u ? (u.job || 'القيادة الوسطى') : 'القيادة الوسطى';
+                mList.innerHTML += `<li class="visitor-list-item"><span class="visitor-name"><i class="fas fa-user-circle" style="color:var(--primary); margin-left:8px;"></i> ${i+1}. ${name} - <small style="color:#777; font-weight:normal;">${jobTitle}</small></span><div class="visitor-controls" style="display:flex; gap:4px;"><button class="action-btn btn-move" onclick="moveVisitorSetting('middle', ${i}, -1)"><i class="fas fa-arrow-up"></i></button><button class="action-btn btn-move" onclick="moveVisitorSetting('middle', ${i}, 1)"><i class="fas fa-arrow-down"></i></button><button class="action-btn btn-delete" onclick="removeVisitorFromSetting('middle', ${i})"><i class="fas fa-trash"></i></button></div></li>`; 
+            });
+        }
+
+        function openVisitorPicker(type) { CURRENT_PICKER_TYPE = type; document.getElementById('visitorSearch').value = ''; filterPickerList(); document.getElementById('visitorPickerModal').style.display = 'flex'; }
+        function filterPickerList() {
+            const term = document.getElementById('visitorSearch').value.toLowerCase();
+            const div = document.getElementById('pickerList'); div.innerHTML = '';
+            let candidates = [], currentSelected = [];
+            if (CURRENT_PICKER_TYPE === 'senior') { candidates = filterByContext(DB.senior || []); currentSelected = (DB.settings.visitor_order_senior || []); }
+            else { candidates = filterByContext(DB.middle || []); currentSelected = (DB.settings.visitor_order_middle || []); }
+            candidates.forEach(u => { 
+                if(u.name.toLowerCase().includes(term) && !currentSelected.includes(u.name)) {
+                    div.innerHTML += `<div class="picker-item" onclick="addVisitorFromPicker('${u.name}')" style="padding:10px; border-bottom:1px solid #eee; cursor:pointer;"><span>${u.name} - <span style="color:#777;">${u.job||'غير محدد'}</span></span></div>`;
+                }
+            });
+        }
+        function addVisitorFromPicker(name) {
+            if(CURRENT_PICKER_TYPE === 'senior') { if(!DB.settings.visitor_order_senior) DB.settings.visitor_order_senior = []; DB.settings.visitor_order_senior.push(name); }
+            else { if(!DB.settings.visitor_order_middle) DB.settings.visitor_order_middle = []; DB.settings.visitor_order_middle.push(name); }
+            saveDB(); renderVisitorSettings(); closeModal('visitorPickerModal');
+        }
+        window.removeVisitorFromSetting = function(type, index) { if(type === 'senior') DB.settings.visitor_order_senior.splice(index, 1); else DB.settings.visitor_order_middle.splice(index, 1); saveDB(); renderVisitorSettings(); }
+        window.moveVisitorSetting = function(type, idx, dir) { const arr = DB.settings[`visitor_order_${type}`]; if (dir === -1 && idx > 0) [arr[idx], arr[idx-1]] = [arr[idx-1], arr[idx]]; if (dir === 1 && idx < arr.length - 1) [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]]; saveDB(); renderVisitorSettings(); }
+        function saveVisitorOrder() { saveDB(); alert('تم حفظ الترتيب'); }
+        
+        window.printReport = function() { window.print(); }
+
+        function loadSystemLogs() { const b = document.getElementById('logTableBody'); b.innerHTML = ''; (DB.logs||[]).forEach(l => b.innerHTML += `<tr><td>${l.date}</td><td style="font-weight:bold;">${l.user}</td><td><span class="status-badge status-active" style="background:#eef4ff; color:var(--primary);">${l.action}</span></td><td>${l.details} [${l.brand}]</td></tr>`); }
+        function clearSystemLogs() { if(confirm('مسح السجل؟')) { DB.logs = []; saveDB(); loadSystemLogs(); } }
+        window.onload = function() { initSystem(); };
+    </script>
+</body>
+</html>
